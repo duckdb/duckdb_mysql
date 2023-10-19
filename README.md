@@ -1,1 +1,1 @@
-# mysql_scanner
+# DuckDB MySQL extension
