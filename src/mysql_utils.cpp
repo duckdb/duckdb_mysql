@@ -131,14 +131,21 @@ LogicalType MySQLUtils::TypeToLogicalType(const MySQLTypeData &type_info) {
 	} else if (type_info.type_name == "datetime") {
 		return LogicalType::TIMESTAMP;
 	} else if (type_info.type_name == "decimal") {
-		if (type_info.precision <= 38) {
+		if (type_info.precision > 0 && type_info.precision <= 38) {
 			return LogicalType::DECIMAL(type_info.precision, type_info.scale);
 		}
 		return LogicalType::DOUBLE;
 	} else if (type_info.type_name == "json") {
 		// FIXME
 		return LogicalType::VARCHAR;
-	} else if (type_info.type_name == "bit" || type_info.type_name == "blob") {
+	} else if (type_info.type_name == "enum") {
+		// FIXME: we can actually retrieve the enum values from the column_type
+		return LogicalType::VARCHAR;
+	} else if (type_info.type_name == "set") {
+		// FIXME: set is essentially a list of enum
+		return LogicalType::VARCHAR;
+	} else if (type_info.type_name == "bit" || type_info.type_name == "blob" || type_info.type_name == "binary" ||
+	           type_info.type_name == "varbinary") {
 		return LogicalType::BLOB;
 	} else if (type_info.type_name == "varchar" || type_info.type_name == "mediumtext" ||
 	           type_info.type_name == "longtext" || type_info.type_name == "text" || type_info.type_name == "enum" ||
@@ -172,6 +179,8 @@ LogicalType MySQLUtils::ToMySQLType(const LogicalType &input) {
 	case LogicalTypeId::LIST:
 		throw NotImplementedException("MySQL does not support arrays - unsupported type \"%s\"", input.ToString());
 	case LogicalTypeId::STRUCT:
+	case LogicalTypeId::MAP:
+	case LogicalTypeId::UNION:
 		throw NotImplementedException("MySQL does not support composite types - unsupported type \"%s\"",
 		                              input.ToString());
 	case LogicalTypeId::TIMESTAMP_SEC:

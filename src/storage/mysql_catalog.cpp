@@ -12,6 +12,8 @@ namespace duckdb {
 MySQLCatalog::MySQLCatalog(AttachedDatabase &db_p, const string &path, AccessMode access_mode)
     : Catalog(db_p), path(path), access_mode(access_mode), schemas(*this) {
 	default_schema = MySQLUtils::ParseConnectionParameters(path).db;
+	// try to connect
+	auto connection = MySQLConnection::Open(path);
 }
 
 MySQLCatalog::~MySQLCatalog() = default;
@@ -49,7 +51,6 @@ optional_ptr<SchemaCatalogEntry> MySQLCatalog::GetSchema(CatalogTransaction tran
 		}
 		return GetSchema(transaction, default_schema, if_not_found, error_context);
 	}
-	auto &mysql_transaction = MySQLTransaction::Get(transaction.GetContext(), *this);
 	auto entry = schemas.GetEntry(transaction.GetContext(), schema_name);
 	if (!entry && if_not_found != OnEntryNotFound::RETURN_NULL) {
 		throw BinderException("Schema with name \"%s\" not found", schema_name);

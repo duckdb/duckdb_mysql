@@ -14,19 +14,7 @@ optional_ptr<CatalogEntry> MySQLCatalogSet::GetEntry(ClientContext &context, con
 	lock_guard<mutex> l(entry_lock);
 	auto entry = entries.find(name);
 	if (entry == entries.end()) {
-		// entry not found
-		// check the case insensitive map if there are any entries
-		auto name_entry = entry_map.find(name);
-		if (name_entry == entry_map.end()) {
-			// no entry found
-			return nullptr;
-		}
-		// try again with the entry we found in the case insensitive map
-		entry = entries.find(name_entry->second);
-		if (entry == entries.end()) {
-			// still not found
-			return nullptr;
-		}
+		return nullptr;
 	}
 	return entry->second.get();
 }
@@ -68,13 +56,11 @@ optional_ptr<CatalogEntry> MySQLCatalogSet::CreateEntry(unique_ptr<CatalogEntry>
 	if (result->name.empty()) {
 		throw InternalException("MySQLCatalogSet::CreateEntry called with empty name");
 	}
-	entry_map.insert(make_pair(result->name, result->name));
 	entries.insert(make_pair(result->name, std::move(entry)));
 	return result;
 }
 
 void MySQLCatalogSet::ClearEntries() {
-	entry_map.clear();
 	entries.clear();
 	is_loaded = false;
 }

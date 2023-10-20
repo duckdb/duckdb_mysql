@@ -1,0 +1,26 @@
+# name: test/sql/scan_text.test
+# description: Test scanning tables with text
+# group: [sql]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS msql (TYPE MYSQL_SCANNER)
+
+statement ok
+USE msql
+
+query III
+SELECT * FROM text_tbl
+----
+ab  	ab	thisisalongstring
+(empty)	(empty)	(empty)
+🦆	🦆	🦆🦆🦆🦆
+NULL	NULL	NULL
+
+query I
+SELECT * FROM json_tbl
+----
+{"k1": "value", "k2": 10}
+["abc", 10, null, true, false]
+NULL

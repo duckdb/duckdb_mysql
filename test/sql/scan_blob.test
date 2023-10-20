@@ -1,0 +1,24 @@
+# name: test/sql/scan_blob.test
+# description: Test scanning tables with blob columns
+# group: [sql]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS msql (TYPE MYSQL_SCANNER)
+
+statement ok
+USE msql
+
+query III
+SELECT * FROM blob_tbl
+----
+c\x00\x00\x00	c\x00\x00	c\x00\x00
+\x00\x00\x00\x00	(empty)	(empty)
+\x80\x00\x00\x00	\x80	\x80
+NULL	NULL	NULL
+
+query III
+SELECT typeof(COLUMNS(*)) FROM blob_tbl LIMIT 1
+----
+BLOB	BLOB	BLOB

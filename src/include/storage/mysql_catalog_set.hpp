@@ -34,8 +34,7 @@ protected:
 
 private:
 	mutex entry_lock;
-	unordered_map<string, unique_ptr<CatalogEntry>> entries;
-	case_insensitive_map_t<string> entry_map;
+	case_insensitive_map_t<unique_ptr<CatalogEntry>> entries;
 	bool is_loaded;
 };
 

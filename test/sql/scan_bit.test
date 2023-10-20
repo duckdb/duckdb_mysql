@@ -14,6 +14,7 @@ query II
 SELECT * FROM bits
 ----
 \x05	\x00\x00\x00\x00\x00\x01UU
+NULL	NULL
 
 # bits in MySQL have a max width
 statement error

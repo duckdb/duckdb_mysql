@@ -1,0 +1,41 @@
+# name: test/sql/scan_enum.test
+# description: Test scanning tables with enums
+# group: [sql]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS msql (TYPE MYSQL_SCANNER)
+
+statement ok
+USE msql
+
+query I
+SELECT * FROM enum_tbl
+----
+x-small
+small
+medium
+large
+x-large
+NULL
+
+query I
+SELECT typeof(COLUMNS(*)) FROM enum_tbl LIMIT 1
+----
+VARCHAR
+
+# set is essentially a list of enum
+query I
+SELECT * FROM set_tbl
+----
+a,d
+a,d
+a,d
+a,d
+a,d
+
+query I
+SELECT typeof(COLUMNS(*)) FROM set_tbl LIMIT 1
+----
+VARCHAR
