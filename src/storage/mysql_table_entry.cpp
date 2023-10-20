@@ -26,7 +26,14 @@ TableFunction MySQLTableEntry::GetScanFunction(ClientContext &context, unique_pt
 	auto &transaction = Transaction::Get(context, catalog).Cast<MySQLTransaction>();
 	auto &conn = transaction.GetConnection();
 
-	throw InternalException("MySQLTableEntry::GetScanFunction");
+	auto result = make_uniq<MySQLBindData>(*this);
+	for(auto &col : columns.Logical()) {
+		result->types.push_back(col.GetType());
+                result->names.push_back(col.GetName());
+	}
+
+	bind_data = std::move(result);
+        return MySQLScanFunction();
 }
 
 TableStorageInfo MySQLTableEntry::GetStorageInfo(ClientContext &context) {

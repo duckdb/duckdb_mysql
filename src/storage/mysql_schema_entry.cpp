@@ -65,9 +65,9 @@ string GetCreateIndexSQL(CreateIndexInfo &info, TableCatalogEntry &tbl) {
 		sql += " UNIQUE";
 	}
 	sql += " INDEX ";
-	sql += KeywordHelper::WriteOptionallyQuoted(info.index_name);
+	sql += KeywordHelper::WriteQuoted(info.index_name, '`');
 	sql += " ON ";
-	sql += KeywordHelper::WriteOptionallyQuoted(tbl.name);
+	sql += KeywordHelper::WriteQuoted(tbl.name, '`');
 	sql += "(";
 	for (idx_t i = 0; i < info.parsed_expressions.size(); i++) {
 		if (i > 0) {
@@ -90,7 +90,7 @@ optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateIndex(ClientContext &context,
 string GetCreateViewSQL(CreateViewInfo &info) {
 	string sql;
 	sql = "CREATE VIEW ";
-	sql += KeywordHelper::WriteOptionallyQuoted(info.view_name);
+	sql += KeywordHelper::WriteQuoted(info.view_name, '`');
 	sql += " ";
 	if (!info.aliases.empty()) {
 		sql += "(";
@@ -99,7 +99,7 @@ string GetCreateViewSQL(CreateViewInfo &info) {
 				sql += ", ";
 			}
 			auto &alias = info.aliases[i];
-			sql += KeywordHelper::WriteOptionallyQuoted(alias);
+			sql += KeywordHelper::WriteQuoted(alias, '`');
 		}
 		sql += ") ";
 	}

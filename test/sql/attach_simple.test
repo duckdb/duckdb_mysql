@@ -1,4 +1,4 @@
-# name: test/sql/storage/attach_simple.test
+# name: test/sql/attach_simple.test
 # description: Basic ATTACH and query test
 # group: [sql]
 

@@ -171,7 +171,7 @@ string MySQLColumnsToSQL(const ColumnList &columns, const vector<unique_ptr<Cons
 		if (column.Oid() > 0) {
 			ss << ", ";
 		}
-		ss << KeywordHelper::WriteOptionallyQuoted(column.Name()) << " ";
+		ss << KeywordHelper::WriteQuoted(column.Name(), '`') << " ";
 		ss << MySQLUtils::TypeToString(column.Type());
 		bool not_null = not_null_columns.find(column.Logical()) != not_null_columns.end();
 		bool is_single_key_pk = pk_columns.find(column.Logical()) != pk_columns.end();
@@ -237,20 +237,20 @@ optional_ptr<CatalogEntry> MySQLTableSet::CreateTable(ClientContext &context, Bo
 void MySQLTableSet::AlterTable(ClientContext &context, RenameTableInfo &info) {
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	string sql = "ALTER TABLE ";
-	sql += KeywordHelper::WriteOptionallyQuoted(info.name);
+	sql += KeywordHelper::WriteQuoted(info.name, '`');
 	sql += " RENAME TO ";
-	sql += KeywordHelper::WriteOptionallyQuoted(info.new_table_name);
+	sql += KeywordHelper::WriteQuoted(info.new_table_name, '`');
 	transaction.Query(sql);
 }
 
 void MySQLTableSet::AlterTable(ClientContext &context, RenameColumnInfo &info) {
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	string sql = "ALTER TABLE ";
-	sql += KeywordHelper::WriteOptionallyQuoted(info.name);
+	sql += KeywordHelper::WriteQuoted(info.name, '`');
 	sql += " RENAME COLUMN  ";
-	sql += KeywordHelper::WriteOptionallyQuoted(info.old_name);
+	sql += KeywordHelper::WriteQuoted(info.old_name, '`');
 	sql += " TO ";
-	sql += KeywordHelper::WriteOptionallyQuoted(info.new_name);
+	sql += KeywordHelper::WriteQuoted(info.new_name, '`');
 
 	transaction.Query(sql);
 }
@@ -258,12 +258,12 @@ void MySQLTableSet::AlterTable(ClientContext &context, RenameColumnInfo &info) {
 void MySQLTableSet::AlterTable(ClientContext &context, AddColumnInfo &info) {
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	string sql = "ALTER TABLE ";
-	sql += KeywordHelper::WriteOptionallyQuoted(info.name);
+	sql += KeywordHelper::WriteQuoted(info.name, '`');
 	sql += " ADD COLUMN  ";
 	if (info.if_column_not_exists) {
 		sql += "IF NOT EXISTS ";
 	}
-	sql += KeywordHelper::WriteOptionallyQuoted(info.new_column.Name());
+	sql += KeywordHelper::WriteQuoted(info.new_column.Name(), '`');
 	sql += " ";
 	sql += info.new_column.Type().ToString();
 	transaction.Query(sql);
@@ -272,12 +272,12 @@ void MySQLTableSet::AlterTable(ClientContext &context, AddColumnInfo &info) {
 void MySQLTableSet::AlterTable(ClientContext &context, RemoveColumnInfo &info) {
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	string sql = "ALTER TABLE ";
-	sql += KeywordHelper::WriteOptionallyQuoted(info.name);
+	sql += KeywordHelper::WriteQuoted(info.name, '`');
 	sql += " DROP COLUMN  ";
 	if (info.if_column_exists) {
 		sql += "IF EXISTS ";
 	}
-	sql += KeywordHelper::WriteOptionallyQuoted(info.removed_column);
+	sql += KeywordHelper::WriteQuoted(info.removed_column, '`');
 	transaction.Query(sql);
 }
 

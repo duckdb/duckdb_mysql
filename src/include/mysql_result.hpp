@@ -25,21 +25,21 @@ public:
 	}
 
 public:
-	string GetString(idx_t row) {
+	string GetString(idx_t col) {
 		D_ASSERT(res);
-		return string(GetNonNullValue(row));
+		return string(GetNonNullValue(col));
 	}
-	int32_t GetInt32(idx_t row) {
-		return atoi(GetNonNullValue(row));
+	int32_t GetInt32(idx_t col) {
+		return atoi(GetNonNullValue(col));
 	}
-	int64_t GetInt64(idx_t row) {
-		return atoll(GetNonNullValue(row));
+	int64_t GetInt64(idx_t col) {
+		return atoll(GetNonNullValue(col));
 	}
-	bool GetBool(idx_t row) {
-		return strcmp(GetNonNullValue(row), "t");
+	bool GetBool(idx_t col) {
+		return strcmp(GetNonNullValue(col), "t");
 	}
-	bool IsNull(idx_t row) {
-		return !GetValueInternal(row);
+	bool IsNull(idx_t col) {
+		return !GetValueInternal(col);
 	}
 	bool Next() {
 		if (!res) {
@@ -61,22 +61,22 @@ private:
 	MYSQL_ROW mysql_row = nullptr;
 	idx_t field_count = 0;
 
-	char *GetNonNullValue(idx_t row) {
-		auto val = GetValueInternal(row);
+	char *GetNonNullValue(idx_t col) {
+		auto val = GetValueInternal(col);
 		if (!val) {
 			throw InternalException("MySQLResult::GetNonNullValue called for a NULL value");
 		}
 		return val;
 	}
 
-	char *GetValueInternal(idx_t row) {
+	char *GetValueInternal(idx_t col) {
 		if (!mysql_row) {
 			throw InternalException("MySQLResult::GetValueInternal called without row");
 		}
-		if (row >= field_count) {
+		if (col >= field_count) {
 			throw InternalException("MySQLResult::GetValueInternal row out of range of field count");
 		}
-		return mysql_row[row];
+		return mysql_row[col];
 	}
 };
 
