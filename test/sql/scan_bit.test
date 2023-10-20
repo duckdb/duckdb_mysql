@@ -1,0 +1,22 @@
+# name: test/sql/scan_bit.test
+# description: Test scanning tables with decimals
+# group: [sql]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS msql (TYPE MYSQL_SCANNER)
+
+statement ok
+USE msql
+
+query II
+SELECT * FROM bits
+----
+\x05	\x00\x00\x00\x00\x00\x01UU
+
+# bits in MySQL have a max width
+statement error
+INSERT INTO bits VALUES (NULL, BLOB '\x00\x00\x00\x00\x00\x00\x00\x00\x00');
+----
+Out of range value for column

@@ -38,11 +38,11 @@ void MySQLCatalogSet::DropEntry(ClientContext &context, DropInfo &info) {
 		drop_query += " IF EXISTS ";
 	}
 	drop_query += MySQLUtils::WriteIdentifier(info.name);
-        if (info.type != CatalogType::SCHEMA_ENTRY) {
-          if (info.cascade) {
-                  drop_query += " CASCADE";
-          }
-        }
+	if (info.type != CatalogType::SCHEMA_ENTRY) {
+		if (info.cascade) {
+			drop_query += " CASCADE";
+		}
+	}
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	transaction.Query(drop_query);
 

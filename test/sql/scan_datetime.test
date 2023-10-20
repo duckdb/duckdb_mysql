@@ -1,0 +1,23 @@
+# name: test/sql/scan_datetime.test
+# description: Test scanning tables with datetime
+# group: [sql]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS msql (TYPE MYSQL_SCANNER)
+
+statement ok
+USE msql
+
+query IIIII
+SELECT * FROM datetime_tbl
+----
+2020-02-03	2029-02-14 08:47:23	2029-02-14 14:47:23+00	23:59:59	1901
+1000-01-01	1000-01-01 00:00:00	1970-01-01 06:00:01+00	-838:59:59	2155
+9999-12-31	9999-12-31 23:59:59	2038-01-19 04:14:07+00	838:59:59	2000
+
+query IIIII
+SELECT typeof(COLUMNS(*)) FROM datetime_tbl LIMIT 1
+----
+DATE	TIMESTAMP	TIMESTAMP WITH TIME ZONE	VARCHAR	INTEGER

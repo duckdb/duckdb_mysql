@@ -1,0 +1,22 @@
+# name: test/sql/scan_decimal.test
+# description: Test scanning tables with decimals
+# group: [sql]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS msql (TYPE MYSQL_SCANNER)
+
+statement ok
+USE msql
+
+query IIIII
+SELECT * FROM decimals
+----
+0.5	1234.1	12345678.12	12345678901234567.123	1.2345678901234568e+35
+-0.5	-1234.1	-12345678.12	-12345678901234567.123	-1.2345678901234568e+35
+
+query IIIII
+SELECT typeof(COLUMNS(*)) FROM decimals LIMIT 1
+----
+DECIMAL(2,1)	DECIMAL(5,1)	DECIMAL(10,2)	DECIMAL(20,3)	DOUBLE

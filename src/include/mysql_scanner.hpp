@@ -17,9 +17,10 @@ class MySQLTableEntry;
 class MySQLTransaction;
 
 struct MySQLBindData : public FunctionData {
-        explicit MySQLBindData(MySQLTableEntry &table) : table(table) {}
+	explicit MySQLBindData(MySQLTableEntry &table) : table(table) {
+	}
 
-        MySQLTableEntry &table;
+	MySQLTableEntry &table;
 	vector<MySQLType> mysql_types;
 	vector<string> names;
 	vector<LogicalType> types;

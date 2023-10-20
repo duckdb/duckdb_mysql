@@ -22,10 +22,11 @@ void MySQLTableSet::AddColumn(MySQLResult &result, MySQLTableInfo &table_info, i
 	idx_t column_index = column_offset;
 	auto column_name = result.GetString(column_index);
 	type_info.type_name = result.GetString(column_index + 1);
+	type_info.column_type = result.GetString(column_index + 2);
 	string default_value;
-	auto is_nullable = result.GetString(column_index + 3);
-	type_info.precision = result.IsNull(column_index + 4) ? -1 : result.GetInt64(column_index + 4);
-	type_info.scale = result.IsNull(column_index + 5) ? -1 : result.GetInt64(column_index + 5);
+	auto is_nullable = result.GetString(column_index + 4);
+	type_info.precision = result.IsNull(column_index + 5) ? -1 : result.GetInt64(column_index + 5);
+	type_info.scale = result.IsNull(column_index + 6) ? -1 : result.GetInt64(column_index + 6);
 
 	auto column_type = MySQLUtils::TypeToLogicalType(type_info);
 	ColumnDefinition column(std::move(column_name), std::move(column_type));
@@ -46,7 +47,7 @@ void MySQLTableSet::AddColumn(MySQLResult &result, MySQLTableInfo &table_info, i
 
 void MySQLTableSet::LoadEntries(ClientContext &context) {
 	auto query = StringUtil::Replace(R"(
-SELECT table_name, column_name, data_type, column_default, is_nullable, numeric_precision, numeric_scale
+SELECT table_name, column_name, data_type, column_type, column_default, is_nullable, numeric_precision, numeric_scale
 FROM information_schema.columns
 WHERE table_schema=${SCHEMA_NAME}
 ORDER BY table_name, ordinal_position;
@@ -80,7 +81,7 @@ ORDER BY table_name, ordinal_position;
 
 string GetTableInfoQuery(const string &schema_name, const string &table_name) {
 	return StringUtil::Replace(StringUtil::Replace(R"(
-SELECT column_name, data_type, column_default, is_nullable, numeric_precision, numeric_scale
+SELECT column_name, data_type, column_type, column_default, is_nullable, numeric_precision, numeric_scale
 FROM information_schema.columns
 WHERE table_schema=${SCHEMA_NAME} AND table_name=${TABLE_NAME}
 ORDER BY table_name, ordinal_position;

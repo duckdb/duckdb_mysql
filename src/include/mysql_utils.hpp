@@ -17,6 +17,7 @@ class MySQLTransaction;
 
 struct MySQLTypeData {
 	string type_name;
+	string column_type;
 	int64_t precision;
 	int64_t scale;
 };
@@ -48,11 +49,10 @@ public:
 	static LogicalType TypeToLogicalType(const MySQLTypeData &input);
 	static string TypeToString(const LogicalType &input);
 
-        static string WriteIdentifier(const string &identifier);
-        static string WriteLiteral(const string &identifier);
-        static string EscapeQuotes(const string &text, char quote);
-        static string WriteQuoted(const string &text, char quote);
-
+	static string WriteIdentifier(const string &identifier);
+	static string WriteLiteral(const string &identifier);
+	static string EscapeQuotes(const string &text, char quote);
+	static string WriteQuoted(const string &text, char quote);
 };
 
 } // namespace duckdb

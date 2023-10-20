@@ -1,0 +1,56 @@
+# name: test/sql/scan_numeric_types.test
+# description: Test scanning tables with existing numeric types
+# group: [sql]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS msql (TYPE MYSQL_SCANNER)
+
+statement ok
+USE msql
+
+query IIIII
+SELECT * FROM signed_integers
+----
+-128	-32768	-8388608	-2147483648	-9223372036854775808
+127	32767	8388607	2147483647	9223372036854775807
+
+query IIIII
+SELECT typeof(COLUMNS(*)) FROM signed_integers LIMIT 1
+----
+TINYINT	SMALLINT	INTEGER	INTEGER	BIGINT
+
+query IIIII
+SELECT * FROM unsigned_integers
+----
+0	0	0	0	0
+255	65535	16777215	4294967295	18446744073709551615
+
+query IIIII
+SELECT typeof(COLUMNS(*)) FROM unsigned_integers LIMIT 1
+----
+UTINYINT	USMALLINT	UINTEGER	UINTEGER	UBIGINT
+
+query IIII
+SELECT * FROM floating_points
+----
+0.0	0.0	0	0
+0.5	0.5	0.5	0.5
+-0.5	-0.5	0	0
+
+query IIII
+SELECT typeof(COLUMNS(*)) FROM floating_points LIMIT 1
+----
+FLOAT	DOUBLE	FLOAT	DOUBLE
+
+query I
+SELECT * FROM zero_fill_integers
+----
+0
+2147483647
+
+query I
+SELECT typeof(COLUMNS(*)) FROM zero_fill_integers LIMIT 1
+----
+UINTEGER

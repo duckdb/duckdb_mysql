@@ -11,15 +11,14 @@ namespace duckdb {
 
 struct MySQLGlobalState;
 
-struct MySQLLocalState : public LocalTableFunctionState {
-};
+struct MySQLLocalState : public LocalTableFunctionState {};
 
 struct MySQLGlobalState : public GlobalTableFunctionState {
 	explicit MySQLGlobalState(unique_ptr<MySQLResult> result_p) : result(std::move(result_p)) {
 	}
 
-        unique_ptr<MySQLResult> result;
-        DataChunk varchar_chunk;
+	unique_ptr<MySQLResult> result;
+	DataChunk varchar_chunk;
 
 	idx_t MaxThreads() const override {
 		return 1;
@@ -34,85 +33,85 @@ static unique_ptr<FunctionData> MySQLBind(ClientContext &context, TableFunctionB
 static unique_ptr<GlobalTableFunctionState> MySQLInitGlobalState(ClientContext &context,
                                                                  TableFunctionInitInput &input) {
 	auto &bind_data = input.bind_data->Cast<MySQLBindData>();
-        // generate the SELECT statement
-        string select;
-        select += "SELECT ";
-        for(idx_t c = 0; c < input.column_ids.size(); c++) {
-          if (c > 0) {
-            select += ", ";
-          }
-          if (input.column_ids[c] == COLUMN_IDENTIFIER_ROW_ID) {
-            select += "NULL";
-          } else {
-            auto &col = bind_data.table.GetColumn(LogicalIndex(input.column_ids[c]));
-            auto col_name = col.GetName();
-            select += MySQLUtils::WriteIdentifier(col_name);
-          }
-        }
-        select += " FROM ";
-        select += MySQLUtils::WriteIdentifier(bind_data.table.schema.name);
-        select += ".";
-        select += MySQLUtils::WriteIdentifier(bind_data.table.name);
-        // run the query
+	// generate the SELECT statement
+	string select;
+	select += "SELECT ";
+	for (idx_t c = 0; c < input.column_ids.size(); c++) {
+		if (c > 0) {
+			select += ", ";
+		}
+		if (input.column_ids[c] == COLUMN_IDENTIFIER_ROW_ID) {
+			select += "NULL";
+		} else {
+			auto &col = bind_data.table.GetColumn(LogicalIndex(input.column_ids[c]));
+			auto col_name = col.GetName();
+			select += MySQLUtils::WriteIdentifier(col_name);
+		}
+	}
+	select += " FROM ";
+	select += MySQLUtils::WriteIdentifier(bind_data.table.schema.name);
+	select += ".";
+	select += MySQLUtils::WriteIdentifier(bind_data.table.name);
+	// run the query
 	auto &transaction = MySQLTransaction::Get(context, bind_data.table.catalog);
 	auto &con = transaction.GetConnection();
-        auto query_result = con.Query(select);
-        auto result = make_uniq<MySQLGlobalState>(std::move(query_result));
+	auto query_result = con.Query(select);
+	auto result = make_uniq<MySQLGlobalState>(std::move(query_result));
 
-        // generate the varchar chunk
-        vector<LogicalType> varchar_types;
-        for(idx_t c = 0; c < input.column_ids.size(); c++) {
-          varchar_types.push_back(LogicalType::VARCHAR);
-        }
-        result->varchar_chunk.Initialize(Allocator::DefaultAllocator(), varchar_types);
-        return std::move(result);
+	// generate the varchar chunk
+	vector<LogicalType> varchar_types;
+	for (idx_t c = 0; c < input.column_ids.size(); c++) {
+		varchar_types.push_back(LogicalType::VARCHAR);
+	}
+	result->varchar_chunk.Initialize(Allocator::DefaultAllocator(), varchar_types);
+	return std::move(result);
 }
 
 static unique_ptr<LocalTableFunctionState> MySQLInitLocalState(ExecutionContext &context, TableFunctionInitInput &input,
                                                                GlobalTableFunctionState *global_state) {
-  return make_uniq<MySQLLocalState>();
+	return make_uniq<MySQLLocalState>();
 }
 
 static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChunk &output) {
 	auto &gstate = data.global_state->Cast<MySQLGlobalState>();
-        idx_t r;
-        for(r = 0; r < STANDARD_VECTOR_SIZE; r++) {
-          if (!gstate.result->Next()) {
-            // exhausted result
-            break;
-          }
-          for(idx_t c = 0; c < output.ColumnCount(); c++) {
-            auto &vec = gstate.varchar_chunk.data[c];
-            if (gstate.result->IsNull(c)) {
-              FlatVector::SetNull(vec, r, true);
-            } else {
-              auto string_data = FlatVector::GetData<string_t>(vec);
-              string_data[r] = StringVector::AddString(vec, gstate.result->GetString(c));
-            }
-          }
-        }
-        if (r == 0) {
-          // done
-          return;
-        }
-        D_ASSERT(output.ColumnCount() == gstate.varchar_chunk.ColumnCount());
-        for(idx_t c = 0; c < output.ColumnCount(); c++) {
-          switch(output.data[c].GetType().id()) {
-          case LogicalTypeId::BLOB:
-            // blobs are sent over the wire as-is
-            output.data[c].Reinterpret(gstate.varchar_chunk.data[c]);
-            break;
-          default:
-            VectorOperations::Cast(context, gstate.varchar_chunk.data[c], output.data[c], r);
-            break;
-          }
-        }
-        output.SetCardinality(r);
+	idx_t r;
+	for (r = 0; r < STANDARD_VECTOR_SIZE; r++) {
+		if (!gstate.result->Next()) {
+			// exhausted result
+			break;
+		}
+		for (idx_t c = 0; c < output.ColumnCount(); c++) {
+			auto &vec = gstate.varchar_chunk.data[c];
+			if (gstate.result->IsNull(c)) {
+				FlatVector::SetNull(vec, r, true);
+			} else {
+				auto string_data = FlatVector::GetData<string_t>(vec);
+				string_data[r] = StringVector::AddString(vec, gstate.result->GetString(c));
+			}
+		}
+	}
+	if (r == 0) {
+		// done
+		return;
+	}
+	D_ASSERT(output.ColumnCount() == gstate.varchar_chunk.ColumnCount());
+	for (idx_t c = 0; c < output.ColumnCount(); c++) {
+		switch (output.data[c].GetType().id()) {
+		case LogicalTypeId::BLOB:
+			// blobs are sent over the wire as-is
+			output.data[c].Reinterpret(gstate.varchar_chunk.data[c]);
+			break;
+		default:
+			VectorOperations::Cast(context, gstate.varchar_chunk.data[c], output.data[c], r);
+			break;
+		}
+	}
+	output.SetCardinality(r);
 }
 
 static string MySQLScanToString(const FunctionData *bind_data_p) {
 	auto &bind_data = bind_data_p->Cast<MySQLBindData>();
-        return bind_data.table.name;
+	return bind_data.table.name;
 }
 
 static void MySQLScanSerialize(Serializer &serializer, const optional_ptr<FunctionData> bind_data_p,

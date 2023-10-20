@@ -27,13 +27,13 @@ TableFunction MySQLTableEntry::GetScanFunction(ClientContext &context, unique_pt
 	auto &conn = transaction.GetConnection();
 
 	auto result = make_uniq<MySQLBindData>(*this);
-	for(auto &col : columns.Logical()) {
+	for (auto &col : columns.Logical()) {
 		result->types.push_back(col.GetType());
-                result->names.push_back(col.GetName());
+		result->names.push_back(col.GetName());
 	}
 
 	bind_data = std::move(result);
-        return MySQLScanFunction();
+	return MySQLScanFunction();
 }
 
 TableStorageInfo MySQLTableEntry::GetStorageInfo(ClientContext &context) {

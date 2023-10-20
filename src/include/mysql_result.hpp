@@ -46,7 +46,7 @@ public:
 			throw InternalException("MySQLResult::Next called without result");
 		}
 		mysql_row = mysql_fetch_row(res);
-                lengths = mysql_fetch_lengths(res);
+		lengths = mysql_fetch_lengths(res);
 		return mysql_row;
 	}
 	idx_t AffectedRows() {
@@ -60,7 +60,7 @@ private:
 	MYSQL_RES *res = nullptr;
 	idx_t affected_rows = idx_t(-1);
 	MYSQL_ROW mysql_row = nullptr;
-        unsigned long *lengths = nullptr;
+	unsigned long *lengths = nullptr;
 	idx_t field_count = 0;
 
 	char *GetNonNullValue(idx_t col) {

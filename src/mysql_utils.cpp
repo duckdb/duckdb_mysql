@@ -68,45 +68,78 @@ MYSQL *MySQLUtils::Connect(const string &dsn) {
 }
 
 string MySQLUtils::TypeToString(const LogicalType &input) {
-  switch(input.id()) {
-  case LogicalType::VARCHAR:
-    return "TEXT";
-  case LogicalType::UTINYINT:
-    return "TINYINT UNSIGNED";
-  case LogicalType::USMALLINT:
-    return "SMALLINT UNSIGNED";
-  case LogicalType::UINTEGER:
-    return "INTEGER UNSIGNED";
-  case LogicalType::UBIGINT:
-    return "BIGINT UNSIGNED";
-  default:
-	return input.ToString();
-  }
+	switch (input.id()) {
+	case LogicalType::VARCHAR:
+		return "TEXT";
+	case LogicalType::UTINYINT:
+		return "TINYINT UNSIGNED";
+	case LogicalType::USMALLINT:
+		return "SMALLINT UNSIGNED";
+	case LogicalType::UINTEGER:
+		return "INTEGER UNSIGNED";
+	case LogicalType::UBIGINT:
+		return "BIGINT UNSIGNED";
+	case LogicalType::TIMESTAMP:
+		return "DATETIME";
+	case LogicalType::TIMESTAMP_TZ:
+		return "TIMESTAMP";
+	default:
+		return input.ToString();
+	}
 }
 
 LogicalType MySQLUtils::TypeToLogicalType(const MySQLTypeData &type_info) {
 	if (type_info.type_name == "tinyint") {
-		return LogicalType::TINYINT;
+		if (StringUtil::Contains(type_info.column_type, "unsigned")) {
+			return LogicalType::UTINYINT;
+		} else {
+			return LogicalType::TINYINT;
+		}
 	} else if (type_info.type_name == "smallint") {
-		return LogicalType::SMALLINT;
-	} else if (type_info.type_name == "int") {
-		return LogicalType::INTEGER;
+		if (StringUtil::Contains(type_info.column_type, "unsigned")) {
+			return LogicalType::USMALLINT;
+		} else {
+			return LogicalType::SMALLINT;
+		}
+	} else if (type_info.type_name == "mediumint" || type_info.type_name == "int") {
+		if (StringUtil::Contains(type_info.column_type, "unsigned")) {
+			return LogicalType::UINTEGER;
+		} else {
+			return LogicalType::INTEGER;
+		}
 	} else if (type_info.type_name == "bigint") {
-		return LogicalType::BIGINT;
+		if (StringUtil::Contains(type_info.column_type, "unsigned")) {
+			return LogicalType::UBIGINT;
+		} else {
+			return LogicalType::BIGINT;
+		}
 	} else if (type_info.type_name == "float") {
 		return LogicalType::FLOAT;
 	} else if (type_info.type_name == "double") {
 		return LogicalType::DOUBLE;
+	} else if (type_info.type_name == "date") {
+		return LogicalType::DATE;
 	} else if (type_info.type_name == "time") {
-		return LogicalType::TIME;
-	} else if (type_info.type_name == "timestamp" || type_info.type_name == "datetime") {
+		// we need to convert time to VARCHAR because TIME in MySQL is more like an interval and can store ranges
+		// between -838:00:00 to 838:00:00
+		return LogicalType::VARCHAR;
+	} else if (type_info.type_name == "timestamp") {
+		// in MySQL, "timestamp" columns are timezone aware while "datetime" columns are not
+		return LogicalType::TIMESTAMP_TZ;
+	} else if (type_info.type_name == "year") {
+		return LogicalType::INTEGER;
+	} else if (type_info.type_name == "datetime") {
 		return LogicalType::TIMESTAMP;
 	} else if (type_info.type_name == "decimal") {
-		// FIXME
+		if (type_info.precision <= 38) {
+			return LogicalType::DECIMAL(type_info.precision, type_info.scale);
+		}
 		return LogicalType::DOUBLE;
 	} else if (type_info.type_name == "json") {
 		// FIXME
 		return LogicalType::VARCHAR;
+	} else if (type_info.type_name == "bit" || type_info.type_name == "blob") {
+		return LogicalType::BLOB;
 	} else if (type_info.type_name == "varchar" || type_info.type_name == "mediumtext" ||
 	           type_info.type_name == "longtext" || type_info.type_name == "text" || type_info.type_name == "enum" ||
 	           type_info.type_name == "char") {
@@ -137,9 +170,10 @@ LogicalType MySQLUtils::ToMySQLType(const LogicalType &input) {
 	case LogicalTypeId::VARCHAR:
 		return input;
 	case LogicalTypeId::LIST:
-          throw NotImplementedException("MySQL does not support arrays - unsupported type \"%s\"", input.ToString());
+		throw NotImplementedException("MySQL does not support arrays - unsupported type \"%s\"", input.ToString());
 	case LogicalTypeId::STRUCT:
-          throw NotImplementedException("MySQL does not support composite types - unsupported type \"%s\"", input.ToString());
+		throw NotImplementedException("MySQL does not support composite types - unsupported type \"%s\"",
+		                              input.ToString());
 	case LogicalTypeId::TIMESTAMP_SEC:
 	case LogicalTypeId::TIMESTAMP_MS:
 	case LogicalTypeId::TIMESTAMP_NS:
@@ -162,12 +196,11 @@ string MySQLUtils::WriteQuoted(const string &text, char quote) {
 }
 
 string MySQLUtils::WriteIdentifier(const string &identifier) {
-  return MySQLUtils::WriteQuoted(identifier, '`');
+	return MySQLUtils::WriteQuoted(identifier, '`');
 }
 
 string MySQLUtils::WriteLiteral(const string &identifier) {
-  return MySQLUtils::WriteQuoted(identifier, '\'');
+	return MySQLUtils::WriteQuoted(identifier, '\'');
 }
-
 
 } // namespace duckdb
