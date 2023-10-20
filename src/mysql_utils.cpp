@@ -8,7 +8,7 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 	MySQLConnectionParameters result;
 	// parse options
 	auto parameters = StringUtil::Split(dsn, ' ');
-	for(auto &param : parameters) {
+	for (auto &param : parameters) {
 		StringUtil::Trim(param);
 		if (param.empty()) {
 			continue;
@@ -32,22 +32,25 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 			constexpr const static int PORT_MAX = 65353;
 			int port_val = std::stoi(value);
 			if (port_val < PORT_MIN || port_val > PORT_MAX) {
-				throw InvalidInputException("Invalid port %d - port must be between %d and %d", port_val, PORT_MIN, PORT_MAX);
+				throw InvalidInputException("Invalid port %d - port must be between %d and %d", port_val, PORT_MIN,
+				                            PORT_MAX);
 			}
 			result.port = uint32_t(port_val);
 		} else if (key == "socket" || key == "unix_socket") {
 			result.unix_socket = value;
 		} else {
-			throw InvalidInputException("Unrecognized configuration parameter \"%s\" - expected options are host, user, passwd, db, port, socket", key);
+			throw InvalidInputException("Unrecognized configuration parameter \"%s\" - expected options are host, "
+			                            "user, passwd, db, port, socket",
+			                            key);
 		}
 	}
 	return result;
-	for(idx_t pos = 0; pos < dsn.size(); pos++)
-	while(pos < dsn.size()) {
-		if (StringUtil::CharacterIsSpace(dsn[pos])) {
-			continue;
+	for (idx_t pos = 0; pos < dsn.size(); pos++)
+		while (pos < dsn.size()) {
+			if (StringUtil::CharacterIsSpace(dsn[pos])) {
+				continue;
+			}
 		}
-	}
 }
 
 MYSQL *MySQLUtils::Connect(const string &dsn) {
@@ -97,9 +100,9 @@ LogicalType MySQLUtils::TypeToLogicalType(const MySQLTypeData &type_info) {
 	} else if (type_info.type_name == "json") {
 		// FIXME
 		return LogicalType::VARCHAR;
-	} else if (type_info.type_name == "varchar" || type_info.type_name == "mediumtext"
-	           || type_info.type_name == "longtext" || type_info.type_name == "text" || type_info.type_name == "enum"
-			   || type_info.type_name == "char") {
+	} else if (type_info.type_name == "varchar" || type_info.type_name == "mediumtext" ||
+	           type_info.type_name == "longtext" || type_info.type_name == "text" || type_info.type_name == "enum" ||
+	           type_info.type_name == "char") {
 		return LogicalType::VARCHAR;
 	}
 	// fallback for unknown types
@@ -110,4 +113,4 @@ LogicalType MySQLUtils::ToMySQLType(const LogicalType &input) {
 	return input;
 }
 
-}
+} // namespace duckdb

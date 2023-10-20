@@ -66,7 +66,6 @@ string GetUpdateSQL(const string &name, MySQLTableEntry &table, const vector<Phy
 	return result;
 }
 
-
 unique_ptr<GlobalSinkState> MySQLUpdate::GetGlobalSinkState(ClientContext &context) const {
 	throw InternalException("FIXME MySQLUpdate::GetGlobalSinkState");
 }
@@ -82,7 +81,7 @@ SinkResultType MySQLUpdate::Sink(ExecutionContext &context, DataChunk &chunk, Op
 // Finalize
 //===--------------------------------------------------------------------===//
 SinkFinalizeType MySQLUpdate::Finalize(Pipeline &pipeline, Event &event, ClientContext &context,
-						  OperatorSinkFinalizeInput &input) const {
+                                       OperatorSinkFinalizeInput &input) const {
 	throw InternalException("FIXME MySQLUpdate::Finalize");
 }
 
@@ -112,7 +111,7 @@ string MySQLUpdate::ParamsToString() const {
 // Plan
 //===--------------------------------------------------------------------===//
 unique_ptr<PhysicalOperator> MySQLCatalog::PlanUpdate(ClientContext &context, LogicalUpdate &op,
-                                                       unique_ptr<PhysicalOperator> plan) {
+                                                      unique_ptr<PhysicalOperator> plan) {
 	if (op.return_chunk) {
 		throw BinderException("RETURNING clause not yet supported for updates of a MySQL table");
 	}
@@ -121,7 +120,6 @@ unique_ptr<PhysicalOperator> MySQLCatalog::PlanUpdate(ClientContext &context, Lo
 			throw BinderException("SET DEFAULT is not yet supported for updates of a MySQL table");
 		}
 	}
-	MySQLCatalog::MaterializeMySQLScans(*plan);
 	auto insert = make_uniq<MySQLUpdate>(op, op.table, std::move(op.columns));
 	insert->children.push_back(std::move(plan));
 	return std::move(insert);

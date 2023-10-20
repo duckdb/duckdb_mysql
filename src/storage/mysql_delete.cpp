@@ -83,7 +83,7 @@ SinkResultType MySQLDelete::Sink(ExecutionContext &context, DataChunk &chunk, Op
 // Finalize
 //===--------------------------------------------------------------------===//
 SinkFinalizeType MySQLDelete::Finalize(Pipeline &pipeline, Event &event, ClientContext &context,
-						  OperatorSinkFinalizeInput &input) const {
+                                       OperatorSinkFinalizeInput &input) const {
 	auto &gstate = input.global_state.Cast<MySQLDeleteGlobalState>();
 	gstate.Flush(context);
 	return SinkFinalizeType::READY;
@@ -115,12 +115,11 @@ string MySQLDelete::ParamsToString() const {
 // Plan
 //===--------------------------------------------------------------------===//
 unique_ptr<PhysicalOperator> MySQLCatalog::PlanDelete(ClientContext &context, LogicalDelete &op,
-                                                       unique_ptr<PhysicalOperator> plan) {
+                                                      unique_ptr<PhysicalOperator> plan) {
 	if (op.return_chunk) {
 		throw BinderException("RETURNING clause not yet supported for deletion of a MySQL table");
 	}
 	auto &bound_ref = op.expressions[0]->Cast<BoundReferenceExpression>();
-	MySQLCatalog::MaterializeMySQLScans(*plan);
 
 	auto insert = make_uniq<MySQLDelete>(op, op.table, bound_ref.index);
 	insert->children.push_back(std::move(plan));

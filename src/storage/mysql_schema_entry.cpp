@@ -13,8 +13,8 @@
 
 namespace duckdb {
 
-MySQLSchemaEntry::MySQLSchemaEntry(Catalog &catalog, string name) :
-    SchemaCatalogEntry(catalog, std::move(name), true), tables(*this), indexes(*this) {
+MySQLSchemaEntry::MySQLSchemaEntry(Catalog &catalog, string name)
+    : SchemaCatalogEntry(catalog, std::move(name), true), tables(*this), indexes(*this) {
 }
 
 MySQLTransaction &GetMySQLTransaction(CatalogTransaction transaction) {
@@ -81,7 +81,7 @@ string GetCreateIndexSQL(CreateIndexInfo &info, TableCatalogEntry &tbl) {
 }
 
 optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateIndex(ClientContext &context, CreateIndexInfo &info,
-                                                          TableCatalogEntry &table) {
+                                                         TableCatalogEntry &table) {
 	auto &mysql_transaction = MySQLTransaction::Get(context, table.catalog);
 	mysql_transaction.Query(GetCreateIndexSQL(info, table));
 	return nullptr;
@@ -137,22 +137,22 @@ optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateSequence(CatalogTransaction t
 }
 
 optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateTableFunction(CatalogTransaction transaction,
-                                                                  CreateTableFunctionInfo &info) {
+                                                                 CreateTableFunctionInfo &info) {
 	throw BinderException("MySQL databases do not support creating table functions");
 }
 
 optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateCopyFunction(CatalogTransaction transaction,
-                                                                 CreateCopyFunctionInfo &info) {
+                                                                CreateCopyFunctionInfo &info) {
 	throw BinderException("MySQL databases do not support creating copy functions");
 }
 
 optional_ptr<CatalogEntry> MySQLSchemaEntry::CreatePragmaFunction(CatalogTransaction transaction,
-                                                                   CreatePragmaFunctionInfo &info) {
+                                                                  CreatePragmaFunctionInfo &info) {
 	throw BinderException("MySQL databases do not support creating pragma functions");
 }
 
 optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateCollation(CatalogTransaction transaction,
-                                                              CreateCollationInfo &info) {
+                                                             CreateCollationInfo &info) {
 	throw BinderException("MySQL databases do not support creating collations");
 }
 
@@ -176,7 +176,7 @@ bool CatalogTypeIsSupported(CatalogType type) {
 }
 
 void MySQLSchemaEntry::Scan(ClientContext &context, CatalogType type,
-                             const std::function<void(CatalogEntry &)> &callback) {
+                            const std::function<void(CatalogEntry &)> &callback) {
 	if (!CatalogTypeIsSupported(type)) {
 		return;
 	}
@@ -191,7 +191,7 @@ void MySQLSchemaEntry::DropEntry(ClientContext &context, DropInfo &info) {
 }
 
 optional_ptr<CatalogEntry> MySQLSchemaEntry::GetEntry(CatalogTransaction transaction, CatalogType type,
-                                                       const string &name) {
+                                                      const string &name) {
 	if (!CatalogTypeIsSupported(type)) {
 		return nullptr;
 	}

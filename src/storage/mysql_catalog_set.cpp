@@ -3,8 +3,8 @@
 #include "duckdb/parser/parsed_data/drop_info.hpp"
 namespace duckdb {
 
-MySQLCatalogSet::MySQLCatalogSet(Catalog &catalog) :
-    catalog(catalog), is_loaded(false) {}
+MySQLCatalogSet::MySQLCatalogSet(Catalog &catalog) : catalog(catalog), is_loaded(false) {
+}
 
 optional_ptr<CatalogEntry> MySQLCatalogSet::GetEntry(ClientContext &context, const string &name) {
 	if (!is_loaded) {
@@ -55,7 +55,7 @@ void MySQLCatalogSet::Scan(ClientContext &context, const std::function<void(Cata
 		LoadEntries(context);
 	}
 	lock_guard<mutex> l(entry_lock);
-	for(auto &entry : entries) {
+	for (auto &entry : entries) {
 		callback(*entry.second);
 	}
 }
@@ -77,4 +77,4 @@ void MySQLCatalogSet::ClearEntries() {
 	is_loaded = false;
 }
 
-}
+} // namespace duckdb

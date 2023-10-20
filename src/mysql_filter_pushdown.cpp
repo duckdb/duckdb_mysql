@@ -55,7 +55,8 @@ string MySQLFilterPushdown::TransformFilter(string &column_name, TableFilter &fi
 	}
 }
 
-string MySQLFilterPushdown::TransformFilters(const vector<column_t> &column_ids, optional_ptr<TableFilterSet> filters, const vector<string> &names) {
+string MySQLFilterPushdown::TransformFilters(const vector<column_t> &column_ids, optional_ptr<TableFilterSet> filters,
+                                             const vector<string> &names) {
 	if (!filters || filters->filters.empty()) {
 		// no filters
 		return string();
@@ -72,4 +73,4 @@ string MySQLFilterPushdown::TransformFilters(const vector<column_t> &column_ids,
 	return result;
 }
 
-}
+} // namespace duckdb

@@ -25,9 +25,9 @@ public:
 	optional_ptr<CatalogEntry> CreateTable(ClientContext &context, BoundCreateTableInfo &info);
 
 	static unique_ptr<MySQLTableInfo> GetTableInfo(MySQLTransaction &transaction, MySQLSchemaEntry &schema,
-	                                                  const string &table_name);
+	                                               const string &table_name);
 	static unique_ptr<MySQLTableInfo> GetTableInfo(MySQLConnection &connection, const string &schema_name,
-	                                                  const string &table_name);
+	                                               const string &table_name);
 	optional_ptr<CatalogEntry> RefreshTable(ClientContext &context, const string &table_name);
 
 	void AlterTable(ClientContext &context, AlterTableInfo &info);

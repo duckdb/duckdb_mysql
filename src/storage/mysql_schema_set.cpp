@@ -4,8 +4,8 @@
 
 namespace duckdb {
 
-MySQLSchemaSet::MySQLSchemaSet(Catalog &catalog) :
-    MySQLCatalogSet(catalog) {}
+MySQLSchemaSet::MySQLSchemaSet(Catalog &catalog) : MySQLCatalogSet(catalog) {
+}
 
 void MySQLSchemaSet::LoadEntries(ClientContext &context) {
 	auto query = R"(
@@ -15,7 +15,7 @@ FROM information_schema.schemata;
 
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	auto result = transaction.Query(query);
-	while(result->Next()) {
+	while (result->Next()) {
 		auto schema_name = result->GetString(0);
 		auto schema = make_uniq<MySQLSchemaEntry>(catalog, schema_name);
 		CreateEntry(std::move(schema));
@@ -31,4 +31,4 @@ optional_ptr<CatalogEntry> MySQLSchemaSet::CreateSchema(ClientContext &context, 
 	return CreateEntry(std::move(schema_entry));
 }
 
-}
+} // namespace duckdb

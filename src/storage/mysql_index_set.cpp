@@ -6,19 +6,20 @@
 
 namespace duckdb {
 
-MySQLIndexSet::MySQLIndexSet(MySQLSchemaEntry &schema) :
-    MySQLCatalogSet(schema.ParentCatalog()), schema(schema) {}
+MySQLIndexSet::MySQLIndexSet(MySQLSchemaEntry &schema) : MySQLCatalogSet(schema.ParentCatalog()), schema(schema) {
+}
 
 void MySQLIndexSet::LoadEntries(ClientContext &context) {
 	auto query = StringUtil::Replace(R"(
 SELECT tablename, indexname
 FROM pg_indexes
 WHERE schemaname=${SCHEMA_NAME}
-)", "${SCHEMA_NAME}", KeywordHelper::WriteQuoted(schema.name));
+)",
+	                                 "${SCHEMA_NAME}", KeywordHelper::WriteQuoted(schema.name));
 
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	auto result = transaction.Query(query);
-	while(result->Next()) {
+	while (result->Next()) {
 		auto table_name = result->GetString(0);
 		auto index_name = result->GetString(1);
 		CreateIndexInfo info;
@@ -30,4 +31,4 @@ WHERE schemaname=${SCHEMA_NAME}
 	}
 }
 
-}
+} // namespace duckdb

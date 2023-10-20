@@ -36,17 +36,16 @@ void MySQLCatalog::DropSchema(ClientContext &context, DropInfo &info) {
 }
 
 void MySQLCatalog::ScanSchemas(ClientContext &context, std::function<void(SchemaCatalogEntry &)> callback) {
-	schemas.Scan(context, [&](CatalogEntry &schema) {
-		callback(schema.Cast<MySQLSchemaEntry>());
-	});
+	schemas.Scan(context, [&](CatalogEntry &schema) { callback(schema.Cast<MySQLSchemaEntry>()); });
 }
 
 optional_ptr<SchemaCatalogEntry> MySQLCatalog::GetSchema(CatalogTransaction transaction, const string &schema_name,
-                                                          OnEntryNotFound if_not_found,
-                                                          QueryErrorContext error_context) {
+                                                         OnEntryNotFound if_not_found,
+                                                         QueryErrorContext error_context) {
 	if (schema_name == DEFAULT_SCHEMA) {
 		if (default_schema.empty()) {
-			throw InvalidInputException("Attempting to fetch the default schema - but no database was provided in the connection string");
+			throw InvalidInputException(
+			    "Attempting to fetch the default schema - but no database was provided in the connection string");
 		}
 		return GetSchema(transaction, default_schema, if_not_found, error_context);
 	}
@@ -73,6 +72,5 @@ DatabaseSize MySQLCatalog::GetDatabaseSize(ClientContext &context) {
 void MySQLCatalog::ClearCache() {
 	schemas.ClearEntries();
 }
-
 
 } // namespace duckdb

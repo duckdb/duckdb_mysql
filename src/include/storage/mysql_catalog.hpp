@@ -51,10 +51,6 @@ public:
 
 	DatabaseSize GetDatabaseSize(ClientContext &context) override;
 
-	//! Label all mysql scans in the sub-tree as requiring materialization
-	//! This is used for e.g. insert queries that have both (1) a scan from a mysql table, and (2) a sink into one
-	static void MaterializeMySQLScans(PhysicalOperator &op);
-
 	//! Whether or not this is an in-memory MySQL database
 	bool InMemory() override;
 	string GetDBPath() override;

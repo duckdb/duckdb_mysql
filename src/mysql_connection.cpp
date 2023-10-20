@@ -8,8 +8,7 @@ namespace duckdb {
 
 static bool debug_mysql_print_queries = false;
 
-MySQLConnection::MySQLConnection(shared_ptr<OwnedMySQLConnection> connection_p)
-    : connection(std::move(connection_p)) {
+MySQLConnection::MySQLConnection(shared_ptr<OwnedMySQLConnection> connection_p) : connection(std::move(connection_p)) {
 }
 
 MySQLConnection::~MySQLConnection() {

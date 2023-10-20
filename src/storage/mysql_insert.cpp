@@ -15,7 +15,7 @@
 namespace duckdb {
 
 MySQLInsert::MySQLInsert(LogicalOperator &op, TableCatalogEntry &table,
-                           physical_index_vector_t<idx_t> column_index_map_p)
+                         physical_index_vector_t<idx_t> column_index_map_p)
     : PhysicalOperator(PhysicalOperatorType::EXTENSION, op.types, 1), table(&table), schema(nullptr),
       column_index_map(std::move(column_index_map_p)) {
 }
@@ -30,31 +30,146 @@ MySQLInsert::MySQLInsert(LogicalOperator &op, SchemaCatalogEntry &schema, unique
 //===--------------------------------------------------------------------===//
 class MySQLInsertGlobalState : public GlobalSinkState {
 public:
-	explicit MySQLInsertGlobalState(ClientContext &context, MySQLTableEntry *table) : table(table), insert_count(0) {
+	explicit MySQLInsertGlobalState(ClientContext &context, MySQLTableEntry &table,
+	                                const vector<LogicalType> &varchar_types)
+	    : table(table), insert_count(0) {
+		varchar_chunk.Initialize(context, varchar_types);
 	}
 
-	MySQLTableEntry *table;
+	MySQLTableEntry &table;
 	DataChunk varchar_chunk;
 	idx_t insert_count;
+	string base_insert_query;
+	string insert_values;
 };
 
+vector<string> GetInsertColumns(const MySQLInsert &insert, MySQLTableEntry &entry) {
+	vector<string> column_names;
+	auto &columns = entry.GetColumns();
+	idx_t column_count;
+	if (!insert.column_index_map.empty()) {
+		column_count = 0;
+		vector<PhysicalIndex> column_indexes;
+		column_indexes.resize(columns.LogicalColumnCount(), PhysicalIndex(DConstants::INVALID_INDEX));
+		for (idx_t c = 0; c < insert.column_index_map.size(); c++) {
+			auto column_index = PhysicalIndex(c);
+			auto mapped_index = insert.column_index_map[column_index];
+			if (mapped_index == DConstants::INVALID_INDEX) {
+				// column not specified
+				continue;
+			}
+			column_indexes[mapped_index] = column_index;
+			column_count++;
+		}
+		for (idx_t c = 0; c < column_count; c++) {
+			auto &col = columns.GetColumn(column_indexes[c]);
+			column_names.push_back(col.GetName());
+		}
+	}
+	return column_names;
+}
+
+string GetBaseInsertQuery(const MySQLTableEntry &table, const vector<string> &column_names) {
+	string query;
+	query += "INSERT INTO ";
+	query += KeywordHelper::WriteQuoted(table.schema.name, '`');
+	query += ".";
+	query += KeywordHelper::WriteQuoted(table.name, '`');
+	query += " ";
+	if (!column_names.empty()) {
+		query += "(";
+		for (idx_t c = 0; c < column_names.size(); c++) {
+			if (c > 0) {
+				query += ", ";
+			}
+			query += column_names[c];
+		}
+		query += ")";
+	}
+	query += " VALUES ";
+	return query;
+}
+
 unique_ptr<GlobalSinkState> MySQLInsert::GetGlobalSinkState(ClientContext &context) const {
-	throw InternalException("MySQLInsert::GetGlobalSinkState");
+	MySQLTableEntry *insert_table;
+	if (!table) {
+		auto &schema_ref = *schema.get_mutable();
+		insert_table =
+		    &schema_ref.CreateTable(schema_ref.GetCatalogTransaction(context), *info)->Cast<MySQLTableEntry>();
+	} else {
+		insert_table = &table.get_mutable()->Cast<MySQLTableEntry>();
+	}
+	auto insert_columns = GetInsertColumns(*this, *insert_table);
+	vector<LogicalType> insert_types;
+	idx_t insert_column_count =
+	    insert_columns.empty() ? insert_table->GetColumns().LogicalColumnCount() : insert_columns.size();
+	for (idx_t c = 0; c < insert_column_count; c++) {
+		insert_types.push_back(LogicalType::VARCHAR);
+	}
+	auto result = make_uniq<MySQLInsertGlobalState>(context, *insert_table, insert_types);
+	result->base_insert_query = GetBaseInsertQuery(*insert_table, insert_columns);
+	return std::move(result);
 }
 
 //===--------------------------------------------------------------------===//
 // Sink
 //===--------------------------------------------------------------------===//
 SinkResultType MySQLInsert::Sink(ExecutionContext &context, DataChunk &chunk, OperatorSinkInput &input) const {
-	throw InternalException("MySQLInsert::Sink");
+	static constexpr const idx_t INSERT_FLUSH_SIZE = 3000;
+
+	auto &gstate = input.global_state.Cast<MySQLInsertGlobalState>();
+	auto &transaction = MySQLTransaction::Get(context.client, gstate.table.catalog);
+	auto &con = transaction.GetConnection();
+	// cast to varchar
+	D_ASSERT(chunk.ColumnCount() == gstate.varchar_chunk.ColumnCount());
+	gstate.varchar_chunk.Reset();
+	for (idx_t c = 0; c < chunk.ColumnCount(); c++) {
+		VectorOperations::Cast(context.client, chunk.data[c], gstate.varchar_chunk.data[c], chunk.size());
+	}
+	gstate.varchar_chunk.SetCardinality(chunk.size());
+	gstate.varchar_chunk.Flatten();
+	// generate INSERT INTO statements
+	for (idx_t r = 0; r < chunk.size(); r++) {
+		if (!gstate.insert_values.empty()) {
+			gstate.insert_values += ", ";
+		}
+		gstate.insert_values += "(";
+		for (idx_t c = 0; c < gstate.varchar_chunk.ColumnCount(); c++) {
+			if (c > 0) {
+				gstate.insert_values += ", ";
+			}
+			if (FlatVector::IsNull(gstate.varchar_chunk.data[c], r)) {
+				gstate.insert_values += "NULL";
+			} else {
+				auto data = FlatVector::GetData<string_t>(gstate.varchar_chunk.data[c]);
+				gstate.insert_values += KeywordHelper::WriteQuoted(data[r].GetString());
+			}
+		}
+		gstate.insert_values += ")";
+		if (gstate.insert_values.size() >= INSERT_FLUSH_SIZE) {
+			// perform the actual insert
+			con.Query(gstate.base_insert_query + gstate.insert_values);
+			// reset the to-be-inserted values
+			gstate.insert_values = string();
+		}
+	}
+	gstate.insert_count += chunk.size();
+	return SinkResultType::NEED_MORE_INPUT;
 }
 
 //===--------------------------------------------------------------------===//
 // Finalize
 //===--------------------------------------------------------------------===//
 SinkFinalizeType MySQLInsert::Finalize(Pipeline &pipeline, Event &event, ClientContext &context,
-						  OperatorSinkFinalizeInput &input) const {
-	throw InternalException("MySQLInsert::Finalize");
+                                       OperatorSinkFinalizeInput &input) const {
+	auto &gstate = input.global_state.Cast<MySQLInsertGlobalState>();
+	if (!gstate.insert_values.empty()) {
+		// perform the final insert
+		auto &transaction = MySQLTransaction::Get(context, gstate.table.catalog);
+		auto &con = transaction.GetConnection();
+		con.Query(gstate.base_insert_query + gstate.insert_values);
+	}
+	return SinkFinalizeType::READY;
 }
 
 //===--------------------------------------------------------------------===//
@@ -119,30 +234,14 @@ unique_ptr<PhysicalOperator> AddCastToMySQLTypes(ClientContext &context, unique_
 	return plan;
 }
 
-void MySQLCatalog::MaterializeMySQLScans(PhysicalOperator &op) {
-	if (op.type == PhysicalOperatorType::TABLE_SCAN) {
-		auto &table_scan = op.Cast<PhysicalTableScan>();
-		if (table_scan.function.name == "mysql_scan" || table_scan.function.name == "mysql_scan_pushdown") {
-			auto &bind_data = table_scan.bind_data->Cast<MySQLBindData>();
-			bind_data.requires_materialization = true;
-			bind_data.max_threads = 1;
-		}
-	}
-	for(auto &child : op.children) {
-		MaterializeMySQLScans(*child);
-	}
-}
-
 unique_ptr<PhysicalOperator> MySQLCatalog::PlanInsert(ClientContext &context, LogicalInsert &op,
-                                                       unique_ptr<PhysicalOperator> plan) {
+                                                      unique_ptr<PhysicalOperator> plan) {
 	if (op.return_chunk) {
 		throw BinderException("RETURNING clause not yet supported for insertion into MySQL table");
 	}
 	if (op.action_type != OnConflictAction::THROW) {
 		throw BinderException("ON CONFLICT clause not yet supported for insertion into MySQL table");
 	}
-	MaterializeMySQLScans(*plan);
-
 	plan = AddCastToMySQLTypes(context, std::move(plan));
 
 	auto insert = make_uniq<MySQLInsert>(op, op.table, op.column_index_map);
@@ -151,7 +250,7 @@ unique_ptr<PhysicalOperator> MySQLCatalog::PlanInsert(ClientContext &context, Lo
 }
 
 unique_ptr<PhysicalOperator> MySQLCatalog::PlanCreateTableAs(ClientContext &context, LogicalCreateTable &op,
-                                                              unique_ptr<PhysicalOperator> plan) {
+                                                             unique_ptr<PhysicalOperator> plan) {
 	plan = AddCastToMySQLTypes(context, std::move(plan));
 
 	auto insert = make_uniq<MySQLInsert>(op, op.schema, std::move(op.info));

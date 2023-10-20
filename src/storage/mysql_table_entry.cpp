@@ -8,11 +8,11 @@
 namespace duckdb {
 
 MySQLTableEntry::MySQLTableEntry(Catalog &catalog, SchemaCatalogEntry &schema, CreateTableInfo &info)
-	: TableCatalogEntry(catalog, schema, info) {
+    : TableCatalogEntry(catalog, schema, info) {
 }
 
 MySQLTableEntry::MySQLTableEntry(Catalog &catalog, SchemaCatalogEntry &schema, MySQLTableInfo &info)
-    : TableCatalogEntry(catalog, schema, *info.create_info)  {
+    : TableCatalogEntry(catalog, schema, *info.create_info) {
 }
 
 unique_ptr<BaseStatistics> MySQLTableEntry::GetStatistics(ClientContext &context, column_t column_id) {

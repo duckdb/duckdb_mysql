@@ -14,8 +14,8 @@
 
 namespace duckdb {
 
-MySQLTableSet::MySQLTableSet(MySQLSchemaEntry &schema) :
-    MySQLCatalogSet(schema.ParentCatalog()), schema(schema) {}
+MySQLTableSet::MySQLTableSet(MySQLSchemaEntry &schema) : MySQLCatalogSet(schema.ParentCatalog()), schema(schema) {
+}
 
 void MySQLTableSet::AddColumn(MySQLResult &result, MySQLTableInfo &table_info, idx_t column_offset) {
 	MySQLTypeData type_info;
@@ -50,7 +50,8 @@ SELECT table_name, column_name, data_type, column_default, is_nullable, numeric_
 FROM information_schema.columns
 WHERE table_schema=${SCHEMA_NAME}
 ORDER BY table_name, ordinal_position;
-)", "${SCHEMA_NAME}", KeywordHelper::WriteQuoted(schema.name));
+)",
+	                                 "${SCHEMA_NAME}", KeywordHelper::WriteQuoted(schema.name));
 
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	auto result = transaction.Query(query);
@@ -58,7 +59,7 @@ ORDER BY table_name, ordinal_position;
 	vector<unique_ptr<MySQLTableInfo>> tables;
 	unique_ptr<MySQLTableInfo> info;
 
-	while(result->Next()) {
+	while (result->Next()) {
 		auto table_name = result->GetString(0);
 		if (!info || info->GetTableName() != table_name) {
 			if (info) {
@@ -71,7 +72,7 @@ ORDER BY table_name, ordinal_position;
 	if (info) {
 		tables.push_back(std::move(info));
 	}
-	for(auto &tbl_info : tables) {
+	for (auto &tbl_info : tables) {
 		auto table_entry = make_uniq<MySQLTableEntry>(catalog, schema, *tbl_info);
 		CreateEntry(std::move(table_entry));
 	}
@@ -83,24 +84,28 @@ SELECT column_name, data_type, column_default, is_nullable, numeric_precision, n
 FROM information_schema.columns
 WHERE table_schema=${SCHEMA_NAME} AND table_name=${TABLE_NAME}
 ORDER BY table_name, ordinal_position;
-)", "${SCHEMA_NAME}", KeywordHelper::WriteQuoted(schema_name)), "${TABLE_NAME}", KeywordHelper::WriteQuoted(table_name));
+)",
+	                                               "${SCHEMA_NAME}", KeywordHelper::WriteQuoted(schema_name)),
+	                           "${TABLE_NAME}", KeywordHelper::WriteQuoted(table_name));
 }
 
-unique_ptr<MySQLTableInfo> MySQLTableSet::GetTableInfo(MySQLTransaction &transaction, MySQLSchemaEntry &schema, const string &table_name) {
+unique_ptr<MySQLTableInfo> MySQLTableSet::GetTableInfo(MySQLTransaction &transaction, MySQLSchemaEntry &schema,
+                                                       const string &table_name) {
 	auto query = GetTableInfoQuery(schema.name, table_name);
 	auto result = transaction.Query(query);
 	auto table_info = make_uniq<MySQLTableInfo>(schema, table_name);
-	while(result->Next()) {
+	while (result->Next()) {
 		AddColumn(*result, *table_info, 0);
 	}
 	return table_info;
 }
 
-unique_ptr<MySQLTableInfo> MySQLTableSet::GetTableInfo(MySQLConnection &connection, const string &schema_name, const string &table_name) {
+unique_ptr<MySQLTableInfo> MySQLTableSet::GetTableInfo(MySQLConnection &connection, const string &schema_name,
+                                                       const string &table_name) {
 	auto query = GetTableInfoQuery(schema_name, table_name);
 	auto result = connection.Query(query);
 	auto table_info = make_uniq<MySQLTableInfo>(schema_name, table_name);
-	while(result->Next()) {
+	while (result->Next()) {
 		AddColumn(*result, *table_info, 0);
 	}
 	return table_info;
@@ -297,4 +302,4 @@ void MySQLTableSet::AlterTable(ClientContext &context, AlterTableInfo &alter) {
 	ClearEntries();
 }
 
-}
+} // namespace duckdb
