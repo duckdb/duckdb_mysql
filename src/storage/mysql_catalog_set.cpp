@@ -37,10 +37,12 @@ void MySQLCatalogSet::DropEntry(ClientContext &context, DropInfo &info) {
 	if (info.if_not_found == OnEntryNotFound::RETURN_NULL) {
 		drop_query += " IF EXISTS ";
 	}
-	drop_query += KeywordHelper::WriteQuoted(info.name, '`');
-	if (info.cascade) {
-		drop_query += "CASCADE";
-	}
+	drop_query += MySQLUtils::WriteIdentifier(info.name);
+        if (info.type != CatalogType::SCHEMA_ENTRY) {
+          if (info.cascade) {
+                  drop_query += " CASCADE";
+          }
+        }
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	transaction.Query(drop_query);
 

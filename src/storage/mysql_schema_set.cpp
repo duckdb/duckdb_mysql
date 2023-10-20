@@ -25,7 +25,7 @@ FROM information_schema.schemata;
 optional_ptr<CatalogEntry> MySQLSchemaSet::CreateSchema(ClientContext &context, CreateSchemaInfo &info) {
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 
-	string create_sql = "CREATE SCHEMA " + KeywordHelper::WriteQuoted(info.schema, '`');
+	string create_sql = "CREATE SCHEMA " + MySQLUtils::WriteIdentifier(info.schema);
 	transaction.Query(create_sql);
 	auto schema_entry = make_uniq<MySQLSchemaEntry>(catalog, info.schema);
 	return CreateEntry(std::move(schema_entry));

@@ -6,7 +6,6 @@ add_library(
   mysql_ext_library OBJECT
   mysql_connection.cpp
   mysql_extension.cpp
-  mysql_filter_pushdown.cpp
   mysql_scanner.cpp
   mysql_storage.cpp
   mysql_utils.cpp)

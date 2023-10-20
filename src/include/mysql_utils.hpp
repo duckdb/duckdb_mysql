@@ -47,6 +47,12 @@ public:
 	static LogicalType ToMySQLType(const LogicalType &input);
 	static LogicalType TypeToLogicalType(const MySQLTypeData &input);
 	static string TypeToString(const LogicalType &input);
+
+        static string WriteIdentifier(const string &identifier);
+        static string WriteLiteral(const string &identifier);
+        static string EscapeQuotes(const string &text, char quote);
+        static string WriteQuoted(const string &text, char quote);
+
 };
 
 } // namespace duckdb

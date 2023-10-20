@@ -15,7 +15,7 @@ SELECT tablename, indexname
 FROM pg_indexes
 WHERE schemaname=${SCHEMA_NAME}
 )",
-	                                 "${SCHEMA_NAME}", KeywordHelper::WriteQuoted(schema.name));
+	                                 "${SCHEMA_NAME}", MySQLUtils::WriteLiteral(schema.name));
 
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	auto result = transaction.Query(query);

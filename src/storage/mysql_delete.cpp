@@ -17,7 +17,7 @@ MySQLDelete::MySQLDelete(LogicalOperator &op, TableCatalogEntry &table, idx_t ro
 //===--------------------------------------------------------------------===//
 string GetDeleteSQL(const string &table_name, const string &ctid_list) {
 	string result;
-	result = "DELETE FROM " + KeywordHelper::WriteOptionallyQuoted(table_name);
+	result = "DELETE FROM " + MySQLUtils::WriteIdentifier(table_name);
 	result += " WHERE ctid IN (" + ctid_list + ")";
 	return result;
 }

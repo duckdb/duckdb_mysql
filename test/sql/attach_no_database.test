@@ -1,0 +1,13 @@
+# name: test/sql/attach_no_database.test
+# description: ATTACH without specifying a database
+# group: [sql]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0' AS simple (TYPE MYSQL_SCANNER)
+
+statement error
+CREATE TABLE simple.test(i INTEGER);
+----
+no database was provided in the connection string

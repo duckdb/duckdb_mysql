@@ -1,0 +1,31 @@
+# name: test/sql/attach_types_blob.test
+# description: Test inserting/querying blobs
+# group: [storage]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysql' AS s (TYPE MYSQL_SCANNER)
+
+statement ok
+CREATE OR REPLACE TABLE s.blobs(b BLOB);
+
+statement ok
+INSERT INTO s.blobs VALUES ('\x00\x00\x00');
+
+statement ok
+INSERT INTO s.blobs VALUES (NULL);
+
+statement ok
+INSERT INTO s.blobs VALUES ('thisisalongstring\x00\x00withnullbytes');
+
+statement ok
+INSERT INTO s.blobs VALUES ('\x80\x80\xFF');
+
+query I
+SELECT * FROM s.blobs
+----
+\x00\x00\x00
+NULL
+thisisalongstring\x00\x00withnullbytes
+\x80\x80\xFF

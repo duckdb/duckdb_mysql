@@ -2,7 +2,6 @@
 
 #include "duckdb/main/extension_util.hpp"
 #include "duckdb/parser/parsed_data/create_table_function_info.hpp"
-#include "mysql_filter_pushdown.hpp"
 #include "mysql_scanner.hpp"
 #include "mysql_result.hpp"
 #include "storage/mysql_transaction.hpp"
@@ -32,11 +31,6 @@ static unique_ptr<FunctionData> MySQLBind(ClientContext &context, TableFunctionB
 	throw InternalException("MySQLBind");
 }
 
-static idx_t MySQLMaxThreads(ClientContext &context, const FunctionData *bind_data_p) {
-  return 1;
-}
-
-
 static unique_ptr<GlobalTableFunctionState> MySQLInitGlobalState(ClientContext &context,
                                                                  TableFunctionInitInput &input) {
 	auto &bind_data = input.bind_data->Cast<MySQLBindData>();
@@ -52,13 +46,13 @@ static unique_ptr<GlobalTableFunctionState> MySQLInitGlobalState(ClientContext &
           } else {
             auto &col = bind_data.table.GetColumn(LogicalIndex(input.column_ids[c]));
             auto col_name = col.GetName();
-            select += KeywordHelper::WriteQuoted(col_name, '`');
+            select += MySQLUtils::WriteIdentifier(col_name);
           }
         }
         select += " FROM ";
-        select += KeywordHelper::WriteQuoted(bind_data.table.schema.name, '`');
+        select += MySQLUtils::WriteIdentifier(bind_data.table.schema.name);
         select += ".";
-        select += KeywordHelper::WriteQuoted(bind_data.table.name, '`');
+        select += MySQLUtils::WriteIdentifier(bind_data.table.name);
         // run the query
 	auto &transaction = MySQLTransaction::Get(context, bind_data.table.catalog);
 	auto &con = transaction.GetConnection();
@@ -103,7 +97,15 @@ static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChun
         }
         D_ASSERT(output.ColumnCount() == gstate.varchar_chunk.ColumnCount());
         for(idx_t c = 0; c < output.ColumnCount(); c++) {
-          VectorOperations::Cast(context, gstate.varchar_chunk.data[c], output.data[c], r);
+          switch(output.data[c].GetType().id()) {
+          case LogicalTypeId::BLOB:
+            // blobs are sent over the wire as-is
+            output.data[c].Reinterpret(gstate.varchar_chunk.data[c]);
+            break;
+          default:
+            VectorOperations::Cast(context, gstate.varchar_chunk.data[c], output.data[c], r);
+            break;
+          }
         }
         output.SetCardinality(r);
 }

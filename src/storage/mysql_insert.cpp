@@ -72,9 +72,9 @@ vector<string> GetInsertColumns(const MySQLInsert &insert, MySQLTableEntry &entr
 string GetBaseInsertQuery(const MySQLTableEntry &table, const vector<string> &column_names) {
 	string query;
 	query += "INSERT INTO ";
-	query += KeywordHelper::WriteQuoted(table.schema.name, '`');
+	query += MySQLUtils::WriteIdentifier(table.schema.name);
 	query += ".";
-	query += KeywordHelper::WriteQuoted(table.name, '`');
+	query += MySQLUtils::WriteIdentifier(table.name);
 	query += " ";
 	if (!column_names.empty()) {
 		query += "(";
@@ -114,20 +114,78 @@ unique_ptr<GlobalSinkState> MySQLInsert::GetGlobalSinkState(ClientContext &conte
 //===--------------------------------------------------------------------===//
 // Sink
 //===--------------------------------------------------------------------===//
+static void MySQLCastBlob(const Vector &input, Vector &result, idx_t count) {
+  static constexpr const char *HEX_TABLE = "0123456789ABCDEF";
+  auto input_data = FlatVector::GetData<string_t>(input);
+  auto result_data = FlatVector::GetData<string_t>(result);
+  for(idx_t r = 0; r < count; r++) {
+    if (FlatVector::IsNull(input, r)) {
+      FlatVector::SetNull(result, r, true);
+      continue;
+    }
+    auto blob_data = const_data_ptr_cast(input_data[r].GetData());
+    auto blob_size = input_data[r].GetSize();
+    string result_blob = "0x";
+    for(idx_t b = 0; b < blob_size; b++){
+      auto blob_entry = blob_data[b];
+      auto byte_a = blob_entry >> 4;
+      auto byte_b = blob_entry & 0x0F;
+      result_blob += string(1, HEX_TABLE[byte_a]);
+      result_blob += string(1, HEX_TABLE[byte_b]);
+    }
+    result_data[r] = StringVector::AddString(result, result_blob);
+
+  }
+}
+
 SinkResultType MySQLInsert::Sink(ExecutionContext &context, DataChunk &chunk, OperatorSinkInput &input) const {
-	static constexpr const idx_t INSERT_FLUSH_SIZE = 3000;
+	static constexpr const idx_t INSERT_FLUSH_SIZE = 0;
 
 	auto &gstate = input.global_state.Cast<MySQLInsertGlobalState>();
 	auto &transaction = MySQLTransaction::Get(context.client, gstate.table.catalog);
 	auto &con = transaction.GetConnection();
 	// cast to varchar
 	D_ASSERT(chunk.ColumnCount() == gstate.varchar_chunk.ColumnCount());
+        chunk.Flatten();
 	gstate.varchar_chunk.Reset();
 	for (idx_t c = 0; c < chunk.ColumnCount(); c++) {
-		VectorOperations::Cast(context.client, chunk.data[c], gstate.varchar_chunk.data[c], chunk.size());
+          switch(chunk.data[c].GetType().id()) {
+          case LogicalTypeId::BLOB:
+            MySQLCastBlob(chunk.data[c], gstate.varchar_chunk.data[c], chunk.size());
+            break;
+          default:
+            VectorOperations::Cast(context.client, chunk.data[c], gstate.varchar_chunk.data[c], chunk.size());
+            break;
+          }
 	}
 	gstate.varchar_chunk.SetCardinality(chunk.size());
-	gstate.varchar_chunk.Flatten();
+        // for each column type check if we need to add quotes or not
+        vector<bool> add_quotes;
+	for (idx_t c = 0; c < chunk.ColumnCount(); c++) {
+          bool add_quotes_for_type;
+          switch(chunk.data[c].GetType().id()) {
+          case LogicalTypeId::BOOLEAN:
+          case LogicalTypeId::SMALLINT:
+          case LogicalTypeId::INTEGER:
+          case LogicalTypeId::BIGINT:
+          case LogicalTypeId::TINYINT:
+          case LogicalTypeId::UTINYINT:
+          case LogicalTypeId::USMALLINT:
+          case LogicalTypeId::UINTEGER:
+          case LogicalTypeId::UBIGINT:
+          case LogicalTypeId::FLOAT:
+          case LogicalTypeId::DOUBLE:
+          case LogicalTypeId::BLOB:
+            add_quotes_for_type = false;
+            break;
+          default:
+            add_quotes_for_type = true;
+            break;
+          }
+          add_quotes.push_back(add_quotes_for_type);
+        }
+
+
 	// generate INSERT INTO statements
 	for (idx_t r = 0; r < chunk.size(); r++) {
 		if (!gstate.insert_values.empty()) {
@@ -142,7 +200,11 @@ SinkResultType MySQLInsert::Sink(ExecutionContext &context, DataChunk &chunk, Op
 				gstate.insert_values += "NULL";
 			} else {
 				auto data = FlatVector::GetData<string_t>(gstate.varchar_chunk.data[c]);
-				gstate.insert_values += KeywordHelper::WriteQuoted(data[r].GetString());
+                                if (add_quotes[c]) {
+				  gstate.insert_values += MySQLUtils::WriteLiteral(data[r].GetString());
+                                } else {
+                                  gstate.insert_values += data[r].GetString();
+                                }
 			}
 		}
 		gstate.insert_values += ")";

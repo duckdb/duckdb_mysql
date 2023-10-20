@@ -45,12 +45,6 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 		}
 	}
 	return result;
-	for (idx_t pos = 0; pos < dsn.size(); pos++)
-		while (pos < dsn.size()) {
-			if (StringUtil::CharacterIsSpace(dsn[pos])) {
-				continue;
-			}
-		}
 }
 
 MYSQL *MySQLUtils::Connect(const string &dsn) {
@@ -74,7 +68,20 @@ MYSQL *MySQLUtils::Connect(const string &dsn) {
 }
 
 string MySQLUtils::TypeToString(const LogicalType &input) {
+  switch(input.id()) {
+  case LogicalType::VARCHAR:
+    return "TEXT";
+  case LogicalType::UTINYINT:
+    return "TINYINT UNSIGNED";
+  case LogicalType::USMALLINT:
+    return "SMALLINT UNSIGNED";
+  case LogicalType::UINTEGER:
+    return "INTEGER UNSIGNED";
+  case LogicalType::UBIGINT:
+    return "BIGINT UNSIGNED";
+  default:
 	return input.ToString();
+  }
 }
 
 LogicalType MySQLUtils::TypeToLogicalType(const MySQLTypeData &type_info) {
@@ -110,7 +117,57 @@ LogicalType MySQLUtils::TypeToLogicalType(const MySQLTypeData &type_info) {
 }
 
 LogicalType MySQLUtils::ToMySQLType(const LogicalType &input) {
-	return input;
+	switch (input.id()) {
+	case LogicalTypeId::BOOLEAN:
+	case LogicalTypeId::SMALLINT:
+	case LogicalTypeId::INTEGER:
+	case LogicalTypeId::BIGINT:
+	case LogicalTypeId::TINYINT:
+	case LogicalTypeId::UTINYINT:
+	case LogicalTypeId::USMALLINT:
+	case LogicalTypeId::UINTEGER:
+	case LogicalTypeId::UBIGINT:
+	case LogicalTypeId::FLOAT:
+	case LogicalTypeId::DOUBLE:
+	case LogicalTypeId::BLOB:
+	case LogicalTypeId::DATE:
+	case LogicalTypeId::DECIMAL:
+	case LogicalTypeId::TIMESTAMP:
+	case LogicalTypeId::TIMESTAMP_TZ:
+	case LogicalTypeId::VARCHAR:
+		return input;
+	case LogicalTypeId::LIST:
+          throw NotImplementedException("MySQL does not support arrays - unsupported type \"%s\"", input.ToString());
+	case LogicalTypeId::STRUCT:
+          throw NotImplementedException("MySQL does not support composite types - unsupported type \"%s\"", input.ToString());
+	case LogicalTypeId::TIMESTAMP_SEC:
+	case LogicalTypeId::TIMESTAMP_MS:
+	case LogicalTypeId::TIMESTAMP_NS:
+		return LogicalType::TIMESTAMP;
+	case LogicalTypeId::HUGEINT:
+		return LogicalType::DOUBLE;
+	default:
+		return LogicalType::VARCHAR;
+	}
 }
+
+string MySQLUtils::EscapeQuotes(const string &text, char quote) {
+	return StringUtil::Replace(text, string(1, quote), string("\\") + string(1, quote));
+}
+
+string MySQLUtils::WriteQuoted(const string &text, char quote) {
+	// 1. Escapes all occurences of 'quote' by escaping them with a backslash
+	// 2. Adds quotes around the string
+	return string(1, quote) + EscapeQuotes(text, quote) + string(1, quote);
+}
+
+string MySQLUtils::WriteIdentifier(const string &identifier) {
+  return MySQLUtils::WriteQuoted(identifier, '`');
+}
+
+string MySQLUtils::WriteLiteral(const string &identifier) {
+  return MySQLUtils::WriteQuoted(identifier, '\'');
+}
+
 
 } // namespace duckdb
