@@ -12,7 +12,7 @@ ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS mysqlscanner (
 USE mysqlscanner;
 ```
 
-The connection string determines the parameters for how to connect to MySQL as a set of `key=value` pairs.
+The connection string determines the parameters for how to connect to MySQL as a set of `key=value` pairs. Any options not provided are replaced by their default values, as per the table below.
 
 | Setting  |   Default    |
 |----------|--------------|
@@ -26,7 +26,7 @@ The connection string determines the parameters for how to connect to MySQL as a
 The tables in the file can be read as if they were normal DuckDB tables, but the underlying data is read directly from MySQL at query time.
 
 ```sql
-SHOW TABLES;
+SELECT * FROM mysqlscanner.tbl_name;
 ```
 
 It might be desirable to create a copy of the MySQL databases in DuckDB to prevent the system from re-reading the tables from MySQL continuously, particularly for large tables.
