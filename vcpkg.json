@@ -1,6 +1,6 @@
 {
   "dependencies": [
     "openssl",
-    "vcpkg mysql-connector-cpp"
+    "mysql-connector-cpp"
   ]
 }
