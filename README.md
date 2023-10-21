@@ -26,7 +26,22 @@ The connection string determines the parameters for how to connect to MySQL as a
 The tables in the file can be read as if they were normal DuckDB tables, but the underlying data is read directly from MySQL at query time.
 
 ```sql
-SELECT * FROM mysqlscanner.tbl_name;
+D SHOW TABLES;
+┌───────────────────────────────────────┐
+│                 name                  │
+│                varchar                │
+├───────────────────────────────────────┤
+│ signed_integers                       │
+└───────────────────────────────────────┘
+D SELECT * FROM signed_integers;
+┌──────┬────────┬──────────┬─────────────┬──────────────────────┐
+│  t   │   s    │    m     │      i      │          b           │
+│ int8 │ int16  │  int32   │    int32    │        int64         │
+├──────┼────────┼──────────┼─────────────┼──────────────────────┤
+│ -128 │ -32768 │ -8388608 │ -2147483648 │ -9223372036854775808 │
+│  127 │  32767 │  8388607 │  2147483647 │  9223372036854775807 │
+│ NULL │   NULL │     NULL │        NULL │                 NULL │
+└──────┴────────┴──────────┴─────────────┴──────────────────────┘
 ```
 
 It might be desirable to create a copy of the MySQL databases in DuckDB to prevent the system from re-reading the tables from MySQL continuously, particularly for large tables.
