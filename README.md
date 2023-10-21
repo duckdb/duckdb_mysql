@@ -111,6 +111,21 @@ DROP TABLE mysql_db.tbl;
 CREATE VIEW mysql_db.v1 AS SELECT 42;
 ```
 
+###### CREATE SCHEMA/DROP SCHEMA
+```sql
+CREATE SCHEMA mysql_db.s1;
+CREATE TABLE mysql_db.s1.integers(i int);
+INSERT INTO mysql_db.s1.integers VALUES (42);
+SELECT * FROM mysql_db.s1.integers;
+┌───────┐
+│   i   │
+│ int32 │
+├───────┤
+│    42 │
+└───────┘
+DROP SCHEMA mysql_db.s1;
+```
+
 ###### Transactions
 ```sql
 CREATE TABLE mysql_db.tmp(i INTEGER);
@@ -132,6 +147,8 @@ SELECT * FROM mysql_db.tmp;
 │ 0 rows │
 └────────┘
 ```
+
+> Note that DDL statements are not transactional in MySQL.
 
 ## Building & Loading the Extension
 
