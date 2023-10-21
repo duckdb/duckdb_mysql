@@ -1,0 +1,13 @@
+# name: test/sql/attach_read_only.test
+# description: Test attaching in read only mode
+# group: [sql]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysql' AS s (TYPE MYSQL_SCANNER, READ_ONLY)
+
+statement error
+CREATE TABLE s.read_only_tbl(i INTEGER);
+----
+read-only mode

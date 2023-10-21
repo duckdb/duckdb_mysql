@@ -35,7 +35,7 @@ MySQLConnection &MySQLTransaction::GetConnection() {
 		transaction_state = MySQLTransactionState::TRANSACTION_STARTED;
 		string query = "START TRANSACTION";
 		if (access_mode == AccessMode::READ_ONLY) {
-			query += ";\nSET TRANSACTION READ ONLY";
+			query += " READ ONLY";
 		}
 		connection.Execute(query);
 	}
@@ -47,7 +47,7 @@ unique_ptr<MySQLResult> MySQLTransaction::Query(const string &query) {
 		transaction_state = MySQLTransactionState::TRANSACTION_STARTED;
 		string transaction_start = "START TRANSACTION";
 		if (access_mode == AccessMode::READ_ONLY) {
-			transaction_start += ";\nSET TRANSACTION READ ONLY";
+			transaction_start += " READ ONLY";
 		}
 		connection.Query(transaction_start);
 		return connection.Query(query);
