@@ -1,6 +1,6 @@
 # name: test/sql/attach_filter_pushdown.test
 # description: Test experimental filter pushdown
-# group: [storage]
+# group: [sql]
 
 require mysql_scanner
 
