@@ -276,7 +276,7 @@ void MySQLTableSet::AlterTable(ClientContext &context, RemoveColumnInfo &info) {
 	sql += MySQLUtils::WriteIdentifier(info.name);
 	sql += " DROP COLUMN  ";
 	if (info.if_column_exists) {
-		sql += "IF EXISTS ";
+		throw NotImplementedException("DROP COLUMN IF EXISTS not supported in MySQL");
 	}
 	sql += MySQLUtils::WriteIdentifier(info.removed_column);
 	transaction.Query(sql);

@@ -1,7 +1,7 @@
 //===----------------------------------------------------------------------===//
 //                         DuckDB
 //
-// storage/mysql_update.hpp
+// storage/mysql_delete.hpp
 //
 //
 //===----------------------------------------------------------------------===//
@@ -9,18 +9,18 @@
 #pragma once
 
 #include "duckdb/execution/physical_operator.hpp"
-#include "duckdb/common/index_vector.hpp"
 
 namespace duckdb {
+class TableCatalogEntry;
 
-class MySQLUpdate : public PhysicalOperator {
+class MySQLExecuteQuery : public PhysicalOperator {
 public:
-	MySQLUpdate(LogicalOperator &op, TableCatalogEntry &table, vector<PhysicalIndex> columns);
+	MySQLExecuteQuery(LogicalOperator &op, string op_name, TableCatalogEntry &table, string query);
 
 	//! The table to delete from
+	string op_name;
 	TableCatalogEntry &table;
-	//! The set of columns to update
-	vector<PhysicalIndex> columns;
+	string query;
 
 public:
 	// Source interface

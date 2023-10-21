@@ -1,0 +1,32 @@
+# name: test/sql/test_case_insensitivity.test
+# description: Test for case insensitivity
+# group: [storage]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS s (TYPE MYSQL_SCANNER)
+
+# MySQL is fully case insensitive (like DuckDB)
+statement ok
+CREATE OR REPLACE TABLE s.SaMeCaSeNaMe AS SELECT 42 i
+
+query I
+SELECT * FROM s.SameCaseName
+----
+42
+
+query I
+SELECT * FROM s.SAMECASENAME
+----
+42
+
+statement error
+CREATE TABLE s.samecasename(i int)
+----
+already exists
+
+statement error
+CREATE TABLE s.same_col_name(i int, I INT)
+----
+Column with name I already exists
