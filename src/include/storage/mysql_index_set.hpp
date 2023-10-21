@@ -18,6 +18,8 @@ class MySQLIndexSet : public MySQLCatalogSet {
 public:
 	MySQLIndexSet(MySQLSchemaEntry &schema);
 
+	void DropEntry(ClientContext &context, DropInfo &info) override;
+
 protected:
 	void LoadEntries(ClientContext &context) override;
 

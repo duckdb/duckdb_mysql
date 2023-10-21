@@ -34,7 +34,6 @@ void MySQLSchemaEntry::TryDropEntry(ClientContext &context, CatalogType catalog_
 }
 
 optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateTable(CatalogTransaction transaction, BoundCreateTableInfo &info) {
-	auto &mysql_transaction = GetMySQLTransaction(transaction);
 	auto &base_info = info.Base();
 	auto table_name = base_info.table;
 	if (base_info.on_conflict == OnCreateConflict::REPLACE_ON_CONFLICT) {
@@ -74,7 +73,14 @@ string GetCreateIndexSQL(CreateIndexInfo &info, TableCatalogEntry &tbl) {
 			sql += ", ";
 		}
 		UnqualifyColumnReferences(*info.parsed_expressions[i]);
-		sql += info.parsed_expressions[i]->ToString();
+		if (info.parsed_expressions[i]->type == ExpressionType::COLUMN_REF) {
+			// index on column
+			sql += info.parsed_expressions[i]->ToString();
+		} else {
+			// index on expression
+			// expressions need to be wrapped in brackets
+			sql += "(" + info.parsed_expressions[i]->ToString() + ")";
+		}
 	}
 	sql += ")";
 	return sql;

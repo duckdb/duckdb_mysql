@@ -21,13 +21,15 @@ public:
 	MySQLCatalogSet(Catalog &catalog);
 
 	optional_ptr<CatalogEntry> GetEntry(ClientContext &context, const string &name);
-	void DropEntry(ClientContext &context, DropInfo &info);
+	virtual void DropEntry(ClientContext &context, DropInfo &info);
 	void Scan(ClientContext &context, const std::function<void(CatalogEntry &)> &callback);
 	optional_ptr<CatalogEntry> CreateEntry(unique_ptr<CatalogEntry> entry);
 	void ClearEntries();
 
 protected:
 	virtual void LoadEntries(ClientContext &context) = 0;
+
+	void EraseEntryInternal(const string &name);
 
 protected:
 	Catalog &catalog;

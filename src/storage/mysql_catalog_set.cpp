@@ -35,8 +35,12 @@ void MySQLCatalogSet::DropEntry(ClientContext &context, DropInfo &info) {
 	transaction.Query(drop_query);
 
 	// erase the entry from the catalog set
+	EraseEntryInternal(info.name);
+}
+
+void MySQLCatalogSet::EraseEntryInternal(const string &name) {
 	lock_guard<mutex> l(entry_lock);
-	entries.erase(info.name);
+	entries.erase(name);
 }
 
 void MySQLCatalogSet::Scan(ClientContext &context, const std::function<void(CatalogEntry &)> &callback) {
