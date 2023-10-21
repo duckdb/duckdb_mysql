@@ -138,7 +138,7 @@ static void MySQLCastBlob(const Vector &input, Vector &result, idx_t count) {
 }
 
 SinkResultType MySQLInsert::Sink(ExecutionContext &context, DataChunk &chunk, OperatorSinkInput &input) const {
-	static constexpr const idx_t INSERT_FLUSH_SIZE = 0;
+	static constexpr const idx_t INSERT_FLUSH_SIZE = 8000;
 
 	auto &gstate = input.global_state.Cast<MySQLInsertGlobalState>();
 	auto &transaction = MySQLTransaction::Get(context.client, gstate.table.catalog);

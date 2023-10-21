@@ -67,7 +67,29 @@ string MySQLCatalog::GetDBPath() {
 }
 
 DatabaseSize MySQLCatalog::GetDatabaseSize(ClientContext &context) {
-	throw InternalException("FIXME: GetDatabaseSize");
+	if (default_schema.empty()) {
+		throw InvalidInputException(
+		    "Attempting to fetch the database size - but no database was provided in the connection string");
+	}
+	auto &postgres_transaction = MySQLTransaction::Get(context, *this);
+	auto query = StringUtil::Replace(R"(
+SELECT SUM(data_length + index_length)
+FROM information_schema.tables
+WHERE table_schema = ${SCHEMA_NAME};
+)",
+	                                 "${SCHEMA_NAME}", MySQLUtils::WriteLiteral(default_schema));
+	auto result = postgres_transaction.Query(query);
+	DatabaseSize size;
+	size.free_blocks = 0;
+	size.total_blocks = 0;
+	size.used_blocks = 0;
+	size.wal_size = 0;
+	size.block_size = 0;
+	if (!result->Next()) {
+		throw InternalException("MySQLCatalog::GetDatabaseSize - No row returned!?");
+	}
+	size.bytes = result->IsNull(0) ? 0 : result->GetInt64(0);
+	return size;
 }
 
 void MySQLCatalog::ClearCache() {
