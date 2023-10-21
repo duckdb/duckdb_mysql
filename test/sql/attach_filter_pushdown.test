@@ -1,0 +1,19 @@
+# name: test/sql/attach_filter_pushdown.test
+# description: Test experimental filter pushdown
+# group: [storage]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS s1 (TYPE MYSQL_SCANNER)
+
+statement ok
+CREATE OR REPLACE TABLE s1.filter_pushdown(i INTEGER)
+
+statement ok
+INSERT INTO s1.filter_pushdown FROM range(100000)
+
+query I
+SELECT * FROM s1.filter_pushdown WHERE i=52525
+----
+52525

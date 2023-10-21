@@ -6,6 +6,7 @@
 #include "mysql_result.hpp"
 #include "storage/mysql_transaction.hpp"
 #include "storage/mysql_table_set.hpp"
+#include "mysql_filter_pushdown.hpp"
 
 namespace duckdb {
 
@@ -52,6 +53,10 @@ static unique_ptr<GlobalTableFunctionState> MySQLInitGlobalState(ClientContext &
 	select += MySQLUtils::WriteIdentifier(bind_data.table.schema.name);
 	select += ".";
 	select += MySQLUtils::WriteIdentifier(bind_data.table.name);
+	string filter_string = MySQLFilterPushdown::TransformFilters(input.column_ids, input.filters, bind_data.names);
+	if (!filter_string.empty()) {
+		select += " WHERE " + filter_string;
+	}
 	// run the query
 	auto &transaction = MySQLTransaction::Get(context, bind_data.table.catalog);
 	auto &con = transaction.GetConnection();

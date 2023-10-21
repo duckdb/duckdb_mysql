@@ -23,9 +23,6 @@ void MySQLTableEntry::BindUpdateConstraints(LogicalGet &, LogicalProjection &, L
 }
 
 TableFunction MySQLTableEntry::GetScanFunction(ClientContext &context, unique_ptr<FunctionData> &bind_data) {
-	auto &transaction = Transaction::Get(context, catalog).Cast<MySQLTransaction>();
-	auto &conn = transaction.GetConnection();
-
 	auto result = make_uniq<MySQLBindData>(*this);
 	for (auto &col : columns.Logical()) {
 		result->types.push_back(col.GetType());
@@ -33,7 +30,13 @@ TableFunction MySQLTableEntry::GetScanFunction(ClientContext &context, unique_pt
 	}
 
 	bind_data = std::move(result);
-	return MySQLScanFunction();
+
+	auto function = MySQLScanFunction();
+	Value filter_pushdown;
+	if (context.TryGetCurrentSetting("mysql_experimental_filter_pushdown", filter_pushdown)) {
+		function.filter_pushdown = BooleanValue::Get(filter_pushdown);
+	}
+	return function;
 }
 
 TableStorageInfo MySQLTableEntry::GetStorageInfo(ClientContext &context) {
