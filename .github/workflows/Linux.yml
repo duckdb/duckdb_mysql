@@ -118,3 +118,6 @@ jobs:
       shell: bash
       run: |
         cat /__w/mysql_scanner/mysql_scanner/build/release/vcpkg-manifest-install.log
+        cat /__w/mysql_scanner/mysql_scanner/vcpkg/buildtrees/icu/config-x64-linux-dbg-config.log
+        cat /__w/mysql_scanner/mysql_scanner/vcpkg/buildtrees/icu/config-x64-linux-dbg-out.log
+        cat /__w/mysql_scanner/mysql_scanner/vcpkg/buildtrees/icu/config-x64-linux-dbg-err.log
