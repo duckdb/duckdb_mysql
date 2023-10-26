@@ -1,5 +1,5 @@
 diff --git a/source/configure.ac b/source/configure.ac
-index 2d7eb30..eff1e44 100644
+index 2d7eb30..e8f058c 100644
 --- a/source/configure.ac
 +++ b/source/configure.ac
 @@ -152,10 +152,6 @@ AC_PROG_CC([clang gcc cc c99 c89 xlc_r xlc cl.exe icc])
@@ -13,3 +13,12 @@ index 2d7eb30..eff1e44 100644
  # Ensure that if CXXFLAGS/CFLAGS were not set when calling configure, set it correctly based on (enable/disable) debug or release option
  # The release mode use is the default one for autoconf
  if test "$GCC" = yes; then
+@@ -199,7 +195,7 @@ fi
+ #AC_CHECK_PROG(AUTOCONF, autoconf, autoconf, true)
+ #AC_CHECK_PROG(STRIP, strip, strip, true)
+ 
+-m4_ifndef([AX_CHECK_COMPILE_FLAG], [AC_MSG_ERROR(['autoconf-archive' is missing])])
++#m4_ifndef([AX_CHECK_COMPILE_FLAG], [AC_MSG_ERROR(['autoconf-archive' is missing])])
+ 
+ # TODO(ICU-20301): Remove fallback to Python 2.
+ AC_CHECK_PROGS(PYTHON, python3 "py -3" python "py")
