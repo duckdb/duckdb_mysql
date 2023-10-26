@@ -70,7 +70,6 @@ jobs:
       run: |
         ./duckdb/scripts/setup_manylinux2014.sh general aws-cli ccache ssh openssl python_alias
         yum install -y m4 automake autoconf pkgconfig
-        dpkg -l pkg-config
         ls -l /usr/share/aclocal/pkg.m4
         aclocal --print-ac-dir
 
