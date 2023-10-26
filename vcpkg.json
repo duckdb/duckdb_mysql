@@ -1,6 +1,5 @@
 {
   "dependencies": [
-    "openssl",
-    "mysql-connector-cpp"
+    "libmysql"
   ]
 }
