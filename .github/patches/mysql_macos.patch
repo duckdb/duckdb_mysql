@@ -11,3 +11,44 @@ index 364d9cc..b6fa8ff 100644
        MESSAGE(FATAL_ERROR
          "LIBEVENT version must be at least ${MIN_LIBEVENT_VERSION_REQUIRED}, "
          "found ${LIBEVENT_VERSION}.\nPlease use -DWITH_LIBEVENT=bundled")
+diff --git a/cmake/os/FreeBSD.cmake b/cmake/os/FreeBSD.cmake
+index 7511f00..342480c 100644
+--- a/cmake/os/FreeBSD.cmake
++++ b/cmake/os/FreeBSD.cmake
+@@ -34,7 +34,7 @@ LIST(APPEND CMAKE_REQUIRED_INCLUDES "/usr/local/include")
+ # INCLUDE_DIRECTORIES(SYSTEM /usr/local/include)
+ 
+ # We require at least Clang 6.0 (FreeBSD 12).
+-IF(NOT FORCE_UNSUPPORTED_COMPILER)
++IF(FALSE)
+   IF(MY_COMPILER_IS_CLANG)
+     CHECK_C_SOURCE_RUNS("
+       int main()
+diff --git a/configure.cmake b/configure.cmake
+index 96664b1..99e2644 100644
+--- a/configure.cmake
++++ b/configure.cmake
+@@ -403,21 +403,8 @@ MY_CHECK_CXX_COMPILER_FLAG("-fvisibility=hidden" HAVE_VISIBILITY_HIDDEN)
+ # Code tests
+ #
+ 
+-CHECK_C_SOURCE_RUNS("
+-#include <time.h>
+-int main()
+-{
+-  struct timespec ts;
+-  return clock_gettime(CLOCK_MONOTONIC, &ts);
+-}" HAVE_CLOCK_GETTIME)
+-
+-CHECK_C_SOURCE_RUNS("
+-#include <time.h>
+-int main()
+-{
+-  struct timespec ts;
+-  return clock_gettime(CLOCK_REALTIME, &ts);
+-}" HAVE_CLOCK_REALTIME)
++set(HAVE_CLOCK_GETTIME 1)
++set(HAVE_CLOCK_REALTIME 1)
+ 
+ IF(NOT STACK_DIRECTION)
+   IF(CMAKE_CROSSCOMPILING)
