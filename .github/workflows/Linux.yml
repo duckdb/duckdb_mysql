@@ -91,10 +91,10 @@ jobs:
         cp .github/patches/icu_linux.patch $VCPKG_BASE_PATH/ports/icu/icu_linux.patch
         (cd $VCPKG_BASE_PATH && git apply $PATCH_PATH)
 
-    - name: Install MySQL (amd64_gcc4)
+    - name: Install MySQL (amd64)
       if: ${{ matrix.arch == 'linux_amd64' }}
       run: |
-        apt-get install -y -qq mysql-server
+        apt-get install -y -qq mysql-server-5.7
 
     - name: Setup MySQL
       if: ${{ matrix.arch == 'linux_amd64' }}
