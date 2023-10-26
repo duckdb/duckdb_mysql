@@ -10,7 +10,6 @@
 #include "duckdb/parser/constraints/list.hpp"
 #include "storage/mysql_schema_entry.hpp"
 #include "duckdb/parser/parser.hpp"
-#include "mysql_conversion.hpp"
 
 namespace duckdb {
 

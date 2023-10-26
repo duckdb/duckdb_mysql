@@ -11,7 +11,6 @@
 #include "duckdb.hpp"
 #include "duckdb/common/types/interval.hpp"
 #include "duckdb/common/serializer/memory_stream.hpp"
-#include "mysql_conversion.hpp"
 
 namespace duckdb {
 
