@@ -4,7 +4,8 @@ project(${TARGET_NAME})
 
 find_package(libmysql REQUIRED)
 
-set(MYSQL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/vcpkg_installed/arm64-osx/include/mysql)
+set(MYSQL_INCLUDE_DIR
+    ${CMAKE_BINARY_DIR}/vcpkg_installed/arm64-osx/include/mysql)
 include_directories(${MYSQL_INCLUDE_DIR})
 
 add_subdirectory(src)
