@@ -1,12 +1,12 @@
 diff --git a/ports/icu/portfile.cmake b/ports/icu/portfile.cmake
-index c622dfd70..0bf44e017 100644
+index c622dfd70..d4a45eefc 100644
 --- a/ports/icu/portfile.cmake
 +++ b/ports/icu/portfile.cmake
-@@ -54,6 +54,7 @@ endif()
- vcpkg_configure_make(
-     SOURCE_PATH "${SOURCE_PATH}"
-     AUTOCONFIG
-+    COPY_SOURCE
-     PROJECT_SUBPATH source
-     ADDITIONAL_MSYS_PACKAGES autoconf-archive
-     OPTIONS ${CONFIGURE_OPTIONS}
+@@ -19,6 +19,7 @@ vcpkg_extract_source_archive(SOURCE_PATH
+         mingw-dll-install.patch
+         disable-static-prefix.patch # https://gitlab.kitware.com/cmake/cmake/-/issues/16617; also mingw.
+         fix-win-build.patch
++        icu_linux.patch
+ )
+ 
+ vcpkg_find_acquire_program(PYTHON3)

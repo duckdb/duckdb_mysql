@@ -1,0 +1,15 @@
+diff --git a/source/configure.ac b/source/configure.ac
+index 2d7eb30..eff1e44 100644
+--- a/source/configure.ac
++++ b/source/configure.ac
+@@ -152,10 +152,6 @@ AC_PROG_CC([clang gcc cc c99 c89 xlc_r xlc cl.exe icc])
+ # The g++ compiler is less likely to support C++11.
+ AC_PROG_CXX([clang++ g++ c++ gpp xlC_r xlC aCC CC cxx cc++ cl.exe icc FCC KCC RCC])
+ 
+-# pkg-config is needed for harfbuzz support
+-PKG_PROG_PKG_CONFIG([0.20])
+-PKG_CHECK_MODULES(ICULEHB, icu-le-hb, have_icu_le_hb=true, :)
+-
+ # Ensure that if CXXFLAGS/CFLAGS were not set when calling configure, set it correctly based on (enable/disable) debug or release option
+ # The release mode use is the default one for autoconf
+ if test "$GCC" = yes; then
