@@ -91,6 +91,15 @@ jobs:
         cp .github/patches/icu_linux.patch $VCPKG_BASE_PATH/ports/icu/icu_linux.patch
         (cd $VCPKG_BASE_PATH && git apply $PATCH_PATH)
 
+    - name: Build extension
+      env:
+        GEN: ninja
+        STATIC_LIBCPP: 1
+        CC: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-gcc' || '' }}
+        CXX: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-g++' || '' }}
+      run: |
+        make release
+
     - name: Install MySQL (amd64)
       if: ${{ matrix.arch == 'linux_amd64' }}
       run: |
@@ -102,15 +111,6 @@ jobs:
         mysql < test/test_data.sql
         mysql < test/remove_root_password.sql
         mysql -u root -e "SELECT 42"
-
-    - name: Build extension
-      env:
-        GEN: ninja
-        STATIC_LIBCPP: 1
-        CC: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-gcc' || '' }}
-        CXX: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-g++' || '' }}
-      run: |
-        make release
 
     - name: Test extension
       if: ${{ matrix.arch == 'linux_amd64' }}
