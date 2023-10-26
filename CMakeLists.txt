@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5.0)
 set(TARGET_NAME mysql_scanner)
 project(${TARGET_NAME})
 
-find_package(unofficial-libmariadb CONFIG REQUIRED)
+find_package(libmysql REQUIRED)
 set(EXTENSION_NAME ${TARGET_NAME}_extension)
 
 set(MYSQL_INCLUDE_DIR
@@ -17,4 +17,4 @@ build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${ALL_OBJECT_FILES})
 # Loadable binary
 target_include_directories(${TARGET_NAME}_loadable_extension
                            PRIVATE include ${MYSQL_INCLUDE_DIR})
-target_link_libraries(${TARGET_NAME}_loadable_extension unofficial::libmariadb)
+target_link_libraries(${TARGET_NAME}_loadable_extension ${MYSQL_LIBRARIES})
