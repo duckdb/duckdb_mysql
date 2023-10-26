@@ -1,0 +1,13 @@
+diff --git a/cmake/libevent.cmake b/cmake/libevent.cmake
+index 364d9cc..b6fa8ff 100644
+--- a/cmake/libevent.cmake
++++ b/cmake/libevent.cmake
+@@ -160,7 +160,7 @@ MACRO (MYSQL_CHECK_LIBEVENT)
+   ENDIF()
+   IF(LIBEVENT_FOUND)
+     FIND_LIBEVENT_VERSION()
+-    IF(LIBEVENT_VERSION VERSION_LESS MIN_LIBEVENT_VERSION_REQUIRED)
++    IF(FALSE)
+       MESSAGE(FATAL_ERROR
+         "LIBEVENT version must be at least ${MIN_LIBEVENT_VERSION_REQUIRED}, "
+         "found ${LIBEVENT_VERSION}.\nPlease use -DWITH_LIBEVENT=bundled")
