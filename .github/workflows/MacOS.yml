@@ -39,7 +39,10 @@ jobs:
 
       - name: Install Ninja
         run: |
-          brew install ninja autoconf automake autoconf-archive
+          brew install ninja
+          brew install autoconf
+          brew install automake
+          brew install autoconf-archive
 
       - name: Setup Ccache
         uses: hendrikmuhs/ccache-action@main
