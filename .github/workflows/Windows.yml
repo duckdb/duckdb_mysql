@@ -64,4 +64,4 @@ jobs:
         if: always()
         shell: bash
         run: |
-          cat D:\a\mysql_scanner\mysql_scanner\build\release\vcpkg-manifest-install.log
+          cat D:/a/mysql_scanner/mysql_scanner/build/release/vcpkg-manifest-install.log
