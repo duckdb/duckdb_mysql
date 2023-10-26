@@ -42,7 +42,7 @@ jobs:
         add-apt-repository ppa:git-core/ppa
         apt-get update -y -qq
         apt-get install -y -qq ninja-build make gcc-multilib g++-multilib libssl-dev wget openjdk-8-jdk zip maven unixodbc-dev libc6-dev-i386 lib32readline6-dev libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip build-essential checkinstall libffi-dev curl libz-dev openssh-client
-        apt-get install -y -qq tar pkg-config
+        apt-get install -y -qq tar pkg-config cmake autoconf autoconf-archive
 
     - name: Install Git 2.18.5
       if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
@@ -81,23 +81,16 @@ jobs:
       with:
         vcpkgGitCommitId: 501db0f17ef6df184fcdbfbe0f87cde2313b6ab1
 
-    - name: Install postgres (amd64_gcc4)
+    - name: Install MySQL (amd64_gcc4)
       if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
       run: |
-        yum install -y sudo
-        yum install -y postgresql-server
+        sudo apt-get install -y -qq mysql-server
 
-    - name: Setup Postgres
+    - name: Setup MySQL
       if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
       run: |
-        mkdir pgdata
-        chown postgres pgdata
-        sudo -u postgres initdb -D pgdata
-        sudo -u postgres pg_ctl -D pgdata start
-        sleep 5
-        sudo -u postgres createuser root -s
-        createdb
-        psql -c "SELECT 42"
+        sudo mysql < test/test_data.sql
+        mysql -u root -e "SELECT 42"
 
     - name: Build extension
       env:
@@ -120,3 +113,9 @@ jobs:
         name: ${{matrix.arch}}-extensions
         path: |
           build/release/extension/mysql_scanner/mysql_scanner.duckdb_extension
+
+    - name: Log Errors
+      if: always()
+      shell: bash
+      run: |
+        cat /__w/mysql_scanner/mysql_scanner/build/release/vcpkg-manifest-install.log

@@ -72,3 +72,9 @@ jobs:
           name: osx-${{ matrix.osx_build_arch }}-extension
           path: |
             build/release/extension/mysql_scanner/mysql_scanner.duckdb_extension
+
+      - name: Log Errors
+        if: always()
+        shell: bash
+        run: |
+          cat /Users/runner/work/mysql_scanner/mysql_scanner/build/release/vcpkg-manifest-install.log
