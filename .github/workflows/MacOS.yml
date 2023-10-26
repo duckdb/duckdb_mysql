@@ -69,7 +69,7 @@ jobs:
         run: |
           export VCPKG_BASE_PATH=`dirname ${VCPKG_TOOLCHAIN_PATH}`/../..
           export PATCH_PATH=`pwd`/.github/patches/vcpkg_macos.patch
-          cp mysql_macos.patch $VCPKG_BASE_PATH/ports/libmysql/mysql_patch.patch
+          cp .github/patches/mysql_macos.patch $VCPKG_BASE_PATH/ports/libmysql/mysql_patch.patch
           (cd $VCPKG_BASE_PATH && git apply $PATCH_PATH)
 
       - name: Build extension
