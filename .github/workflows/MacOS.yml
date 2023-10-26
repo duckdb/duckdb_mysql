@@ -43,6 +43,7 @@ jobs:
           brew install autoconf
           brew install automake
           brew install autoconf-archive
+          brew install libevent
           touch build.ninja
           ninja -v
           /usr/local/bin/ninja -v

@@ -14,11 +14,6 @@ add_subdirectory(src)
 set(PARAMETERS "-no-warnings")
 build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${ALL_OBJECT_FILES})
 
-# Static lib
-target_include_directories(${EXTENSION_NAME}
-                           PRIVATE include ${MYSQL_INCLUDE_DIR})
-target_link_libraries(${EXTENSION_NAME} ${MYSQL_LIBRARIES})
-
 # Loadable binary
 target_include_directories(${TARGET_NAME}_loadable_extension
                            PRIVATE include ${MYSQL_INCLUDE_DIR})
