@@ -127,6 +127,6 @@ jobs:
       if: always()
       shell: bash
       run: |
+        cat /__w/mysql_scanner/mysql_scanner/vcpkg/buildtrees/libmysql/config-x64-linux-out.log
         cat /__w/mysql_scanner/mysql_scanner/vcpkg/buildtrees/libmysql/config-x64-linux-dbg-CMakeCache.txt.log
         cat /__w/mysql_scanner/mysql_scanner/vcpkg/buildtrees/libmysql/config-x64-linux-rel-CMakeCache.txt.log
-        cat /__w/mysql_scanner/mysql_scanner/vcpkg/buildtrees/libmysql/config-x64-linux-out.log
