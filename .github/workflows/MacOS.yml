@@ -81,7 +81,7 @@ jobs:
           tar xvf mysql-8.0.32.tar.gz
           cd mysql-server-mysql-8.0.32
           wget https://raw.githubusercontent.com/jacob5412/MySQL-Medium/main/my_config.h
-          print '#include "print_version.h"\nextern "C" {\nvoid print_version() {}\n}' > print_version.c
+          printf '#include "print_version.h"\nextern "C" {\nvoid print_version() {}\n}' > print_version.c
           clang++ -std=c++14 -Iinclude -I. strings/uca9-dump.cc -o uca9dump
           clang++ -std=c++14 `mysql_config --cflags` -Iinclude -I. -I$HOMEBREW_PREFIX/include/ utilities/comp_client_err.cc print_version.c -o comp_client_err `mysql_config --libs`
           mv uca9dump /usr/local/bin/
