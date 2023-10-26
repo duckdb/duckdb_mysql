@@ -90,6 +90,7 @@ jobs:
       if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
       run: |
         sudo mysql < test/test_data.sql
+        sudo mysql < test/remove_root_password.sql
         mysql -u root -e "SELECT 42"
 
     - name: Build extension
