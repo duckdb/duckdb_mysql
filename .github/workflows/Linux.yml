@@ -82,12 +82,12 @@ jobs:
         vcpkgGitCommitId: 501db0f17ef6df184fcdbfbe0f87cde2313b6ab1
 
     - name: Install MySQL (amd64_gcc4)
-      if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
+      if: ${{ matrix.arch == 'linux_amd64' }}
       run: |
-        yum install -y -qq mysql-server
+        apt-get install -y -qq mysql-server
 
     - name: Setup MySQL
-      if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
+      if: ${{ matrix.arch == 'linux_amd64' }}
       run: |
         mysql < test/test_data.sql
         mysql < test/remove_root_password.sql
@@ -103,10 +103,8 @@ jobs:
         make release
 
     - name: Test extension
-      if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
+      if: ${{ matrix.arch == 'linux_amd64' }}
       run: |
-        psql -c "SELECT 43"
-        source ./create-postgres-tables.sh
         make test_release
 
     - uses: actions/upload-artifact@v2
