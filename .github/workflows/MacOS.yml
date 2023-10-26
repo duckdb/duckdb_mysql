@@ -43,6 +43,8 @@ jobs:
           brew install autoconf
           brew install automake
           brew install autoconf-archive
+          ninja -v
+          /usr/local/bin/ninja -v
 
       - name: Setup Ccache
         uses: hendrikmuhs/ccache-action@main

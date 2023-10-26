@@ -84,7 +84,7 @@ jobs:
     - name: Install MySQL (amd64_gcc4)
       if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
       run: |
-        apt-get install -y -qq mysql-server
+        yum install -y -qq mysql-server
 
     - name: Setup MySQL
       if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
