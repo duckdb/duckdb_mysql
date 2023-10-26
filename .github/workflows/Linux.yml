@@ -70,6 +70,7 @@ jobs:
       run: |
         ./duckdb/scripts/setup_manylinux2014.sh general aws-cli ccache ssh openssl python_alias
         yum install -y m4 automake autoconf pkgconfig libevent-devel autoconf-archive libicu
+        yum install -y devtoolset-11-gcc devtoolset-11-gcc-c++ devtoolset-11-binutils
 
     - name: Setup Ubuntu
       if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
