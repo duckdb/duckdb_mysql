@@ -1,0 +1,10 @@
+# name: test/sql/failed_to_connect.test
+# description: ATTACH to a non-existent server
+# group: [sql]
+
+require mysql_scanner
+
+statement error
+ATTACH 'host=localhost user=zzz port=42 database=xxzxzx' AS simple (TYPE MYSQL_SCANNER)
+----
+Failed to connect
