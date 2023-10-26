@@ -84,3 +84,6 @@ jobs:
         shell: bash
         run: |
           cat /Users/runner/work/mysql_scanner/mysql_scanner/build/release/vcpkg-manifest-install.log
+          cat /Users/runner/work/mysql_scanner/mysql_scanner/vcpkg/buildtrees/libmysql/config-arm64-osx-dbg-CMakeCache.txt.log
+          cat /Users/runner/work/mysql_scanner/mysql_scanner/vcpkg/buildtrees/libmysql/config-arm64-osx-rel-CMakeCache.txt.log
+          cat /Users/runner/work/mysql_scanner/mysql_scanner/vcpkg/buildtrees/libmysql/config-arm64-osx-out.log
