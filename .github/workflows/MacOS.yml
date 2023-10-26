@@ -45,6 +45,7 @@ jobs:
           brew install autoconf-archive
           brew install libevent
           brew install jemalloc
+          brew install mysql
           touch build.ninja
           ninja -v
           /usr/local/bin/ninja -v
