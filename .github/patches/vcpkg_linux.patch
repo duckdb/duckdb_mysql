@@ -1,12 +1,12 @@
-diff --git a/ports/icu/portfile.cmake b/ports/icu/portfile.cmake
-index c622dfd70..d4a45eefc 100644
---- a/ports/icu/portfile.cmake
-+++ b/ports/icu/portfile.cmake
-@@ -19,6 +19,7 @@ vcpkg_extract_source_archive(SOURCE_PATH
-         mingw-dll-install.patch
-         disable-static-prefix.patch # https://gitlab.kitware.com/cmake/cmake/-/issues/16617; also mingw.
-         fix-win-build.patch
-+        icu_linux.patch
- )
- 
- vcpkg_find_acquire_program(PYTHON3)
+diff --git a/ports/libmysql/vcpkg.json b/ports/libmysql/vcpkg.json
+index d8995dbc1..6cff10cde 100644
+--- a/ports/libmysql/vcpkg.json
++++ b/ports/libmysql/vcpkg.json
+@@ -12,7 +12,6 @@
+     "boost-geometry",
+     "boost-graph",
+     "boost-optional",
+-    "icu",
+     "libevent",
+     "lz4",
+     {
