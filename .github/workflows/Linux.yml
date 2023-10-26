@@ -69,7 +69,7 @@ jobs:
       if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
       run: |
         ./duckdb/scripts/setup_manylinux2014.sh general aws-cli ccache ssh openssl python_alias
-        yum install -y m4 automake autoconf pkgconfig
+        yum install -y m4 automake autoconf pkgconfig pkgconf
 
     - name: Setup Ubuntu
       if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
