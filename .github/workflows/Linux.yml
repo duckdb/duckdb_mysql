@@ -84,13 +84,13 @@ jobs:
     - name: Install MySQL (amd64_gcc4)
       if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
       run: |
-        sudo apt-get install -y -qq mysql-server
+        apt-get install -y -qq mysql-server
 
     - name: Setup MySQL
       if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
       run: |
-        sudo mysql < test/test_data.sql
-        sudo mysql < test/remove_root_password.sql
+        mysql < test/test_data.sql
+        mysql < test/remove_root_password.sql
         mysql -u root -e "SELECT 42"
 
     - name: Build extension
