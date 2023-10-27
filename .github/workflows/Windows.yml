@@ -27,7 +27,8 @@ jobs:
       - name: Keep \n line endings
         shell: bash
         run: |
-          echo '* text=auto eol=lf' > .gitattributes
+          git config --global core.autocrlf false
+          git config --global core.eol lf
 
       - uses: actions/checkout@v3
         with:
