@@ -211,4 +211,10 @@ Then, load the MySQL extension like so:
 LOAD 'build/release/extension/mysql_scanner/mysql_scanner.duckdb_extension';
 ```
 
+## Testing
 
+Tests can be run with the following command:
+
+```bash
+build/release/test/unittest --test-dir . "test/sql/*"
+```
