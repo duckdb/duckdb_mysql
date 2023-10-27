@@ -1,8 +1,18 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 52d12a1..39872c4 100644
+index 6033494e..32fa21c1 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -813,7 +813,6 @@ INCLUDE(ldap)
+@@ -108,6 +108,9 @@ ELSEIF(UNIX)
+   ENDIF()
+ ENDIF()
+ 
++add_definitions(-dthread_local="")
++add_definitions(-d__thread="")
++
+ # CMake 3.5 is needed for TARGET_SOURCES(... $<TARGET_OBJECTS:${LIB}_objlib>)
+ CMAKE_MINIMUM_REQUIRED(VERSION 3.5.1)
+ 
+@@ -813,7 +816,6 @@ INCLUDE(ldap)
  INCLUDE(kerberos)
  INCLUDE(rpc)
  INCLUDE(readline)
@@ -10,8 +20,17 @@ index 52d12a1..39872c4 100644
  INCLUDE(package_name)
  INCLUDE(libutils)
  INCLUDE(plugin)
+@@ -1929,7 +1931,7 @@ IF(APPLE)
+   GET_FILENAME_COMPONENT(HOMEBREW_BASE ${HOMEBREW_HOME} DIRECTORY)
+   IF(EXISTS ${HOMEBREW_BASE}/include/boost)
+     FOREACH(SYSTEM_LIB ICU LIBEVENT LZ4 PROTOBUF ZSTD FIDO)
+-      IF(FALSE)
++      IF(WITH_${SYSTEM_LIB} STREQUAL "system")
+         MESSAGE(FATAL_ERROR
+           "WITH_${SYSTEM_LIB}=system is not compatible with Homebrew boost\n"
+           "MySQL depends on ${BOOST_PACKAGE_NAME} with a set of patches.\n"
 diff --git a/client/dump/object_filter.cc b/client/dump/object_filter.cc
-index 39b34ab..0cf9d23 100644
+index 39b34ab8..0cf9d23e 100644
 --- a/client/dump/object_filter.cc
 +++ b/client/dump/object_filter.cc
 @@ -36,57 +36,13 @@
@@ -74,7 +93,7 @@ index 39b34ab..0cf9d23 100644
  
  #ifndef UNITTEST_OBJECT_FILTER_PARSER
 diff --git a/cmake/libevent.cmake b/cmake/libevent.cmake
-index 364d9cc..06b8172 100644
+index 364d9cca..06b8172c 100644
 --- a/cmake/libevent.cmake
 +++ b/cmake/libevent.cmake
 @@ -54,42 +54,7 @@ MACRO(RESET_LIBEVENT_VARIABLES)
@@ -131,7 +150,7 @@ index 364d9cc..06b8172 100644
          "LIBEVENT version must be at least ${MIN_LIBEVENT_VERSION_REQUIRED}, "
          "found ${LIBEVENT_VERSION}.\nPlease use -DWITH_LIBEVENT=bundled")
 diff --git a/cmake/os/Darwin.cmake b/cmake/os/Darwin.cmake
-index 283b2e2..b9e87e7 100644
+index 283b2e2d..b9e87e7e 100644
 --- a/cmake/os/Darwin.cmake
 +++ b/cmake/os/Darwin.cmake
 @@ -29,7 +29,7 @@ IF(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
@@ -144,7 +163,7 @@ index 283b2e2..b9e87e7 100644
      CHECK_C_SOURCE_RUNS("
        int main()
 diff --git a/cmake/os/FreeBSD.cmake b/cmake/os/FreeBSD.cmake
-index 7511f00..342480c 100644
+index 7511f005..342480c1 100644
 --- a/cmake/os/FreeBSD.cmake
 +++ b/cmake/os/FreeBSD.cmake
 @@ -34,7 +34,7 @@ LIST(APPEND CMAKE_REQUIRED_INCLUDES "/usr/local/include")
@@ -157,7 +176,7 @@ index 7511f00..342480c 100644
      CHECK_C_SOURCE_RUNS("
        int main()
 diff --git a/configure.cmake b/configure.cmake
-index 96664b1..99e2644 100644
+index 96664b16..99e26446 100644
 --- a/configure.cmake
 +++ b/configure.cmake
 @@ -403,21 +403,8 @@ MY_CHECK_CXX_COMPILER_FLAG("-fvisibility=hidden" HAVE_VISIBILITY_HIDDEN)
@@ -185,7 +204,7 @@ index 96664b1..99e2644 100644
  IF(NOT STACK_DIRECTION)
    IF(CMAKE_CROSSCOMPILING)
 diff --git a/libmysql/CMakeLists.txt b/libmysql/CMakeLists.txt
-index 2ee26bf..5ab3f18 100644
+index bc900c58..475559a2 100644
 --- a/libmysql/CMakeLists.txt
 +++ b/libmysql/CMakeLists.txt
 @@ -255,10 +255,10 @@ ELSE()
