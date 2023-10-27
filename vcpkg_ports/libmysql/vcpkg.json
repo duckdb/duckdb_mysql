@@ -7,17 +7,7 @@
   "license": "GPL-2.0-or-later",
   "supports": "!(windows & x86) & !uwp & !xbox",
   "dependencies": [
-    "boost-algorithm",
-    "boost-functional",
-    "boost-geometry",
-    "boost-graph",
-    "boost-optional",
-    "libevent",
     "lz4",
-    {
-      "name": "ncurses",
-      "platform": "!windows | mingw"
-    },
     "openssl",
     {
       "name": "vcpkg-cmake",
