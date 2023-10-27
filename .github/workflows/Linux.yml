@@ -68,7 +68,12 @@ jobs:
     - name: Install MySQL (amd64)
       if: ${{ matrix.arch == 'linux_amd64' }}
       run: |
-        apt-get install -y -qq mysql-server
+        apt-get clean
+        apt-get purge mysql*
+        apt-get update
+        apt-get install -y -qq -f
+        apt-get install -y -qq mysql-server-5.7
+        apt-get dist-upgrade
 
     - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
