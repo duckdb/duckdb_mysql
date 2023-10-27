@@ -1,3 +1,15 @@
+diff --git a/ports/libmysql/portfile.cmake b/ports/libmysql/portfile.cmake
+index 3a08e3a25..f0ba0bbbc 100644
+--- a/ports/libmysql/portfile.cmake
++++ b/ports/libmysql/portfile.cmake
+@@ -19,6 +19,7 @@ vcpkg_from_github(
+         Add-target-include-directories.patch
+         homebrew.patch
+         fix_dup_symbols.patch
++        mysql_patch.patch
+ )
+ 
+ file(REMOVE_RECURSE "${SOURCE_PATH}/include/boost_1_70_0")
 diff --git a/ports/libmysql/vcpkg.json b/ports/libmysql/vcpkg.json
 index d8995dbc1..6cff10cde 100644
 --- a/ports/libmysql/vcpkg.json
