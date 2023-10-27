@@ -1,5 +1,5 @@
 diff --git a/scripts/CMakeLists.txt b/scripts/CMakeLists.txt
-index 987870e9..5296a768 100644
+index 987870e9..ce94d2ce 100644
 --- a/scripts/CMakeLists.txt
 +++ b/scripts/CMakeLists.txt
 @@ -24,8 +24,6 @@ DISABLE_MISSING_PROFILE_WARNING()
@@ -11,8 +11,94 @@ index 987870e9..5296a768 100644
  # Add compiler information, for easier debugging of output from mysql_config.
  SET(COMPILER_ID_AND_VERSION
    "${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+@@ -62,7 +60,6 @@ ADD_CUSTOM_COMMAND(
+   mysql_fix_privilege_tables.sql
+   mysql_fix_privilege_tables_sql.h
+   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+-  DEPENDS comp_sql
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables.sql
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables_fix.sql
+ )
+@@ -80,7 +77,6 @@ ADD_CUSTOM_COMMAND(
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_sys_schema.sql
+   sql_commands_sys_schema.h
+   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+-  DEPENDS comp_sql
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_sys_schema.sql
+   )
+ 
+@@ -91,7 +87,6 @@ ADD_CUSTOM_COMMAND(
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables_data.sql
+   sql_commands_system_data.h
+   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+-  DEPENDS comp_sql
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables_data.sql
+ )
+ 
+@@ -102,7 +97,6 @@ ADD_CUSTOM_COMMAND(
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables_data_fix.sql
+   sql_commands_system_tables_data_fix.h
+   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+-  DEPENDS comp_sql
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables_data_fix.sql
+ )
+ 
+@@ -113,7 +107,6 @@ ADD_CUSTOM_COMMAND(
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables.sql
+   sql_commands_system_tables.h
+   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+-  DEPENDS comp_sql
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables.sql
+ )
+ 
+@@ -124,7 +117,6 @@ ADD_CUSTOM_COMMAND(
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_users.sql
+   sql_commands_system_users.h
+   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+-  DEPENDS comp_sql
+   ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_users.sql
+ )
+ 
+@@ -135,7 +127,6 @@ ADD_CUSTOM_COMMAND(
+   ${CMAKE_CURRENT_SOURCE_DIR}/fill_help_tables.sql
+   sql_commands_help_data.h
+   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+-  DEPENDS comp_sql
+   ${CMAKE_CURRENT_SOURCE_DIR}/fill_help_tables.sql
+ )
+ 
+@@ -146,7 +137,6 @@ ADD_CUSTOM_COMMAND(
+   ${CMAKE_CURRENT_SOURCE_DIR}/firewall_stored_procedures.sql
+   sql_firewall_stored_procedures.h
+   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+-  DEPENDS comp_sql
+   ${CMAKE_CURRENT_SOURCE_DIR}/firewall_stored_procedures.sql
+ )
+ 
+diff --git a/scripts/sys_schema/CMakeLists.txt b/scripts/sys_schema/CMakeLists.txt
+index d8076220..8551d6ec 100644
+--- a/scripts/sys_schema/CMakeLists.txt
++++ b/scripts/sys_schema/CMakeLists.txt
+@@ -212,7 +212,7 @@ ADD_CUSTOM_COMMAND(
+   ${CMAKE_CURRENT_BINARY_DIR}/ALL_SYS_SCHEMA.sql
+   sql_commands.h
+   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+-  DEPENDS comp_sql all_sys_schema
++  DEPENDS all_sys_schema
+   ${CMAKE_CURRENT_BINARY_DIR}/ALL_SYS_SCHEMA.sql
+   VERBATIM
+ )
+@@ -222,7 +222,7 @@ MY_ADD_CUSTOM_TARGET(sql_commands
+ 
+ MY_ADD_CUSTOM_TARGET(GenSysSchemaC
+   ALL
+-  DEPENDS comp_sql sql_commands
++  DEPENDS sql_commands
+   COMMENT "Generating Sys Schema C code"
+ )
+ 
 diff --git a/strings/CMakeLists.txt b/strings/CMakeLists.txt
-index 2feec0c9..db8e78f9 100644
+index 2feec0c9..4c79d495 100644
 --- a/strings/CMakeLists.txt
 +++ b/strings/CMakeLists.txt
 @@ -58,8 +58,6 @@ SET(STRINGS_SOURCES
@@ -24,6 +110,15 @@ index 2feec0c9..db8e78f9 100644
  MY_CHECK_CXX_COMPILER_WARNING("-Wmissing-profile" HAS_MISSING_PROFILE)
  IF(HAS_MISSING_PROFILE)
    ADD_COMPILE_FLAGS(uca9-dump.cc COMPILE_FLAGS ${HAS_MISSING_PROFILE})
+@@ -77,7 +75,7 @@ ADD_CUSTOM_COMMAND(OUTPUT ${ZH_HANS_DST_FILE}
+                    COMMAND uca9dump ja
+                      --in_file=${JA_HANS_SRC_FILE}
+                      --out_file=${JA_HANS_DST_FILE}
+-                   DEPENDS uca9dump ${ZH_HANS_SRC_FILE} ${JA_HANS_SRC_FILE}
++                   DEPENDS ${ZH_HANS_SRC_FILE} ${JA_HANS_SRC_FILE}
+                   )
+ 
+ SET_SOURCE_FILES_PROPERTIES(
 diff --git a/utilities/CMakeLists.txt b/utilities/CMakeLists.txt
 index c0dfac56..cb1752a1 100644
 --- a/utilities/CMakeLists.txt
