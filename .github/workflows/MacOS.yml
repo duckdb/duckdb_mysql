@@ -100,6 +100,7 @@ jobs:
       - name: Setup MySQL
         if: ${{ matrix.osx_build_arch == 'x86_64'}}
         run: |
+          brew services start mysql
           mysql -u root < test/test_data.sql
           mysql -u root -e "SELECT 42"
 
