@@ -6,5 +6,12 @@
     "overlay-ports": [
       "./vcpkg_ports"
     ]
-  }
+  },
+  "builtin-baseline": "8eb57355a4ffb410a2e94c07b4dca2dffbee8e50",
+  "overrides": [
+    {
+      "name": "openssl",
+      "version": "3.0.8"
+    }
+  ]
 }
