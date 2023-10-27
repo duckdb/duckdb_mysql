@@ -8,7 +8,6 @@
   "supports": "!(windows & x86) & !uwp & !xbox",
   "dependencies": [
     "boost-algorithm",
-    "boost-functional",
     "boost-optional",
     "libevent",
     "lz4",

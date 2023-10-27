@@ -1,3 +1,15 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 52d12a1..39872c4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -813,7 +813,6 @@ INCLUDE(ldap)
+ INCLUDE(kerberos)
+ INCLUDE(rpc)
+ INCLUDE(readline)
+-INCLUDE(protobuf)
+ INCLUDE(package_name)
+ INCLUDE(libutils)
+ INCLUDE(plugin)
 diff --git a/client/dump/object_filter.cc b/client/dump/object_filter.cc
 index 39b34ab..0cf9d23 100644
 --- a/client/dump/object_filter.cc
