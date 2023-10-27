@@ -24,10 +24,10 @@ jobs:
             container: 'quay.io/pypa/manylinux2014_x86_64'
             vcpkg_triplet: 'x64-linux'
           - arch: 'linux_amd64'
-            container: 'ubuntu:18.04'
+            container: 'ubuntu:20.04'
             vcpkg_triplet: 'x64-linux'
           - arch: 'linux_arm64'
-            container: 'ubuntu:18.04'
+            container: 'ubuntu:20.04'
             vcpkg_triplet: 'arm64-linux'
     env:
       VCPKG_TARGET_TRIPLET: ${{ matrix.vcpkg_triplet }}
