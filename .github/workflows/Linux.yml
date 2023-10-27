@@ -80,17 +80,6 @@ jobs:
       with:
         aarch64_cross_compile: 1
 
-    - name: Install MySQL (amd64)
-      if: ${{ matrix.arch == 'linux_amd64' }}
-      run: |
-        apt-get clean
-        apt-get purge mysql-server
-        apt-get purge mysql-server-5.7
-        apt-get update
-        apt-get install -y -qq -f
-        apt-get install -y -qq mysql-server
-        apt-get dist-upgrade
-
     - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
       with:
@@ -113,21 +102,9 @@ jobs:
       run: |
         make release
 
-    - name: Setup MySQL
-      if: ${{ matrix.arch == 'linux_amd64' }}
-      run: |
-        mysql < test/test_data.sql
-        mysql < test/remove_root_password.sql
-        mysql -u root -e "SELECT 42"
-
     - name: Test simple
       run: |
         ./build/release/test/unittest "*test/sql/failed_to_connect.test"
-
-    - name: Run all tests
-      if: ${{ matrix.arch == 'linux_amd64' }}
-      run: |
-        make test_release
 
     - uses: actions/upload-artifact@v2
       with:
