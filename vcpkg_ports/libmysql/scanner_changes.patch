@@ -1,16 +1,17 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 6033494e..39872c42 100644
+index 6033494e..d9c3a30f 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -813,7 +813,6 @@ INCLUDE(ldap)
+@@ -812,8 +812,6 @@ INCLUDE(sasl)
+ INCLUDE(ldap)
  INCLUDE(kerberos)
  INCLUDE(rpc)
- INCLUDE(readline)
+-INCLUDE(readline)
 -INCLUDE(protobuf)
  INCLUDE(package_name)
  INCLUDE(libutils)
  INCLUDE(plugin)
-@@ -1929,7 +1928,7 @@ IF(APPLE)
+@@ -1929,7 +1927,7 @@ IF(APPLE)
    GET_FILENAME_COMPONENT(HOMEBREW_BASE ${HOMEBREW_HOME} DIRECTORY)
    IF(EXISTS ${HOMEBREW_BASE}/include/boost)
      FOREACH(SYSTEM_LIB ICU LIBEVENT LZ4 PROTOBUF ZSTD FIDO)
