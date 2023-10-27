@@ -35,6 +35,20 @@ jobs:
       VCPKG_TOOLCHAIN_PATH: ${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
 
     steps:
+    - name: Install required ubuntu packages
+      if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
+      run: |
+        mkdir ubuntu_18_setup
+        cd ubuntu_18_setup
+        wget https://raw.githubusercontent.com/duckdb/duckdb/main/.github/actions/ubuntu_18_setup/action.yml
+        cd ..
+
+    - name: Setup Ubuntu
+      if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
+      uses: ./ubuntu_18_setup
+      with:
+        aarch64_cross_compile: 1
+
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
@@ -52,12 +66,6 @@ jobs:
         ./duckdb/scripts/setup_manylinux2014.sh general aws-cli ccache ssh openssl python_alias
         yum install -y m4 automake autoconf pkgconfig libevent-devel autoconf-archive libicu
         yum install -y devtoolset-11-gcc devtoolset-11-gcc-c++ devtoolset-11-binutils
-
-    - name: Setup Ubuntu
-      if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
-      uses: ./duckdb/.github/actions/ubuntu_18_setup
-      with:
-        aarch64_cross_compile: 1
 
     - name: Install extra ubuntu packages
       if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
