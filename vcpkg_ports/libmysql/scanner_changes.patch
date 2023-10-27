@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 6033494e..d9c3a30f 100644
+index 6033494e..116d5a92 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -812,8 +812,6 @@ INCLUDE(sasl)
@@ -11,7 +11,25 @@ index 6033494e..d9c3a30f 100644
  INCLUDE(package_name)
  INCLUDE(libutils)
  INCLUDE(plugin)
-@@ -1929,7 +1927,7 @@ IF(APPLE)
+@@ -1866,17 +1864,6 @@ IF(WITH_AUTHENTICATION_KERBEROS)
+   ENDIF()
+ ENDIF()
+ 
+-# Add system/bundled editline.
+-MYSQL_CHECK_EDITLINE()
+-SET(EDITLINE_WARN_GIVEN)
+-WARN_MISSING_SYSTEM_EDITLINE(EDITLINE_WARN_GIVEN)
+-IF(EDITLINE_WARN_GIVEN)
+-  MESSAGE(FATAL_ERROR
+-    "-DWITH_EDITLINE=system, but missing system libraries.\n"
+-    "You can use -DWITH_EDITLINE=bundled instead."
+-    )
+-ENDIF()
+-
+ # Add libevent
+ MYSQL_CHECK_LIBEVENT()
+ SET(LIBEVENT_WARN_GIVEN)
+@@ -1929,7 +1916,7 @@ IF(APPLE)
    GET_FILENAME_COMPONENT(HOMEBREW_BASE ${HOMEBREW_HOME} DIRECTORY)
    IF(EXISTS ${HOMEBREW_BASE}/include/boost)
      FOREACH(SYSTEM_LIB ICU LIBEVENT LZ4 PROTOBUF ZSTD FIDO)
