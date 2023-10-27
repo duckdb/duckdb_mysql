@@ -2,29 +2,34 @@ if (EXISTS "${CURRENT_INSTALLED_DIR}/include/mysql/mysql.h")
     message(FATAL_ERROR "FATAL ERROR: ${PORT} and libmariadb are incompatible.")
 endif()
 
-set(PATCH_LIST
-    ignore-boost-version.patch
-    system-libs.patch
-    export-cmake-targets.patch
-    Add-target-include-directories.patch
-    homebrew.patch
-    fix_dup_symbols.patch)
 if(NOT VCPKG_TARGET_IS_WINDOWS)
-    set(PATCH_LIST ${PATCH_LIST}
-        scanner_changes.patch)
+    vcpkg_from_github(
+        OUT_SOURCE_PATH SOURCE_PATH
+        REPO mysql/mysql-server
+        REF mysql-${VERSION}
+        SHA512 8b9f15b301b158e6ffc99dd916b9062968d36f6bdd7b898636fa61badfbe68f7328d4a39fa3b8b3ebef180d3aec1aee353bd2dac9ef1594e5772291390e17ac0
+        HEAD_REF master
+        PATCHES
+            ignore-boost-version.patch
+            system-libs.patch
+            export-cmake-targets.patch
+            Add-target-include-directories.patch
+            homebrew.patch
+            fix_dup_symbols.patch
+            scanner_changes.patch
+    )
+else()
+    vcpkg_from_github(
+        OUT_SOURCE_PATH SOURCE_PATH
+        REPO mysql/mysql-server
+        REF mysql-${VERSION}
+        SHA512 8b9f15b301b158e6ffc99dd916b9062968d36f6bdd7b898636fa61badfbe68f7328d4a39fa3b8b3ebef180d3aec1aee353bd2dac9ef1594e5772291390e17ac0
+        HEAD_REF master
+    )
 endif()
 
 
 
-vcpkg_from_github(
-    OUT_SOURCE_PATH SOURCE_PATH
-    REPO mysql/mysql-server
-    REF mysql-${VERSION}
-    SHA512 8b9f15b301b158e6ffc99dd916b9062968d36f6bdd7b898636fa61badfbe68f7328d4a39fa3b8b3ebef180d3aec1aee353bd2dac9ef1594e5772291390e17ac0
-    HEAD_REF master
-    PATCHES
-        ${PATCH_LIST}
-)
 
 file(REMOVE_RECURSE "${SOURCE_PATH}/include/boost_1_70_0")
 

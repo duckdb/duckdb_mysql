@@ -15,7 +15,7 @@ jobs:
       matrix:
         # Add commits/tags to build against other DuckDB versions
         duckdb_version: [ '<submodule_version>' ]
-        vcpkg_version: [ '2023.04.15' ]
+        vcpkg_version: [ '2023.10.19' ]
         vcpkg_triplet: [ 'x64-osx', 'arm64-osx' ]
         include:
           - vcpkg_triplet: 'x64-osx'
