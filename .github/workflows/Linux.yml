@@ -113,6 +113,11 @@ jobs:
       run: |
         make release
 
+    - name: Test Extension
+      shell: bash
+      run: |
+        build/release/test/unittest "*test/sql/failed_to_connect.test"
+
     - uses: actions/upload-artifact@v2
       with:
         name: ${{matrix.arch}}-extensions
