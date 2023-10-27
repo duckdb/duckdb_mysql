@@ -1,0 +1,44 @@
+diff --git a/scripts/CMakeLists.txt b/scripts/CMakeLists.txt
+index 987870e9..5296a768 100644
+--- a/scripts/CMakeLists.txt
++++ b/scripts/CMakeLists.txt
+@@ -24,8 +24,6 @@ DISABLE_MISSING_PROFILE_WARNING()
+ 
+ ADD_SUBDIRECTORY(sys_schema)
+ 
+-MYSQL_ADD_EXECUTABLE(comp_sql comp_sql.cc SKIP_INSTALL)
+-
+ # Add compiler information, for easier debugging of output from mysql_config.
+ SET(COMPILER_ID_AND_VERSION
+   "${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+diff --git a/strings/CMakeLists.txt b/strings/CMakeLists.txt
+index 2feec0c9..db8e78f9 100644
+--- a/strings/CMakeLists.txt
++++ b/strings/CMakeLists.txt
+@@ -58,8 +58,6 @@ SET(STRINGS_SOURCES
+   xml.cc
+ )
+ 
+-MYSQL_ADD_EXECUTABLE(uca9dump uca9-dump.cc SKIP_INSTALL)
+-
+ MY_CHECK_CXX_COMPILER_WARNING("-Wmissing-profile" HAS_MISSING_PROFILE)
+ IF(HAS_MISSING_PROFILE)
+   ADD_COMPILE_FLAGS(uca9-dump.cc COMPILE_FLAGS ${HAS_MISSING_PROFILE})
+diff --git a/utilities/CMakeLists.txt b/utilities/CMakeLists.txt
+index c0dfac56..cb1752a1 100644
+--- a/utilities/CMakeLists.txt
++++ b/utilities/CMakeLists.txt
+@@ -31,13 +31,6 @@ IF(NOT CMAKE_CROSSCOMPILING)
+     )
+ ENDIF()
+ 
+-MYSQL_ADD_EXECUTABLE(comp_client_err
+-  comp_client_err.cc
+-  ${CMAKE_SOURCE_DIR}/libmysql/errmsg.cc
+-  LINK_LIBRARIES mysys
+-  SKIP_INSTALL
+-  )
+-
+ ADD_CUSTOM_COMMAND(OUTPUT ${PROJECT_BINARY_DIR}/include/mysqlclient_ername.h
+   COMMAND comp_client_err
+   --in_file=${PROJECT_SOURCE_DIR}/include/errmsg.h

@@ -2,6 +2,29 @@ if (EXISTS "${CURRENT_INSTALLED_DIR}/include/mysql/mysql.h")
     message(FATAL_ERROR "FATAL ERROR: ${PORT} and libmariadb are incompatible.")
 endif()
 
+set(PATCH_FILES
+    ignore-boost-version.patch
+    system-libs.patch
+    export-cmake-targets.patch
+    Add-target-include-directories.patch
+    homebrew.patch
+    fix_dup_symbols.patch
+    scanner_changes.patch
+)
+
+set(STACK_DIRECTION "")
+if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86" OR VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
+    set(STACK_DIRECTION -DSTACK_DIRECTION=-1)
+else()
+    # ARM builds are always cross compiled
+    # as such we build the executables (comp_sql, uca9dump, comp_client_err) separately
+    set(PATCH_FILES
+        ${PATCH_FILES}
+        remove_executables.patch
+    )
+endif()
+
+
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO mysql/mysql-server
@@ -9,21 +32,10 @@ vcpkg_from_github(
     SHA512 8b9f15b301b158e6ffc99dd916b9062968d36f6bdd7b898636fa61badfbe68f7328d4a39fa3b8b3ebef180d3aec1aee353bd2dac9ef1594e5772291390e17ac0
     HEAD_REF master
     PATCHES
-        ignore-boost-version.patch
-        system-libs.patch
-        export-cmake-targets.patch
-        Add-target-include-directories.patch
-        homebrew.patch
-        fix_dup_symbols.patch
-        scanner_changes.patch
+        ${PATCH_FILES}
 )
 
 file(REMOVE_RECURSE "${SOURCE_PATH}/include/boost_1_70_0")
-
-set(STACK_DIRECTION "")
-if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86" OR VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
-    set(STACK_DIRECTION -DSTACK_DIRECTION=-1)
-endif()
 
 #Skip the version check for Visual Studio
 set(FORCE_UNSUPPORTED_COMPILER "")
