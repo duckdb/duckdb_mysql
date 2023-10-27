@@ -84,10 +84,11 @@ jobs:
       if: ${{ matrix.arch == 'linux_amd64' }}
       run: |
         apt-get clean
-        apt-get purge mysql*
+        apt-get purge mysql-server
+        apt-get purge mysql-server-5.7
         apt-get update
         apt-get install -y -qq -f
-        apt-get install -y -qq mysql-server-5.7
+        apt-get install -y -qq mysql-server
         apt-get dist-upgrade
 
     - name: Setup vcpkg
