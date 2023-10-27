@@ -9,8 +9,15 @@ set(PATCH_FILES
     Add-target-include-directories.patch
     homebrew.patch
     fix_dup_symbols.patch
-    scanner_changes.patch
 )
+
+if(NOT VCPKG_TARGET_IS_WINDOWS)
+    # these changes are only needed for Linux/MacOS
+    set(PATCH_FILES
+        ${PATCH_FILES}
+        scanner_changes.patch
+    )
+endif()
 
 set(STACK_DIRECTION "")
 if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86" OR VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
