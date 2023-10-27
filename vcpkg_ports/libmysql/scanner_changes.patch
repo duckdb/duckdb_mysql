@@ -1,8 +1,14 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 6033494e..116d5a92 100644
+index 6033494e..21e526b5 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -812,8 +812,6 @@ INCLUDE(sasl)
+@@ -806,14 +806,11 @@ INCLUDE(zlib)
+ INCLUDE(zstd)
+ INCLUDE(lz4)
+ INCLUDE(icu)
+-INCLUDE(libevent)
+ INCLUDE(ssl)
+ INCLUDE(sasl)
  INCLUDE(ldap)
  INCLUDE(kerberos)
  INCLUDE(rpc)
@@ -11,7 +17,7 @@ index 6033494e..116d5a92 100644
  INCLUDE(package_name)
  INCLUDE(libutils)
  INCLUDE(plugin)
-@@ -1866,17 +1864,6 @@ IF(WITH_AUTHENTICATION_KERBEROS)
+@@ -1866,28 +1863,6 @@ IF(WITH_AUTHENTICATION_KERBEROS)
    ENDIF()
  ENDIF()
  
@@ -26,10 +32,21 @@ index 6033494e..116d5a92 100644
 -    )
 -ENDIF()
 -
- # Add libevent
- MYSQL_CHECK_LIBEVENT()
- SET(LIBEVENT_WARN_GIVEN)
-@@ -1929,7 +1916,7 @@ IF(APPLE)
+-# Add libevent
+-MYSQL_CHECK_LIBEVENT()
+-SET(LIBEVENT_WARN_GIVEN)
+-WARN_MISSING_SYSTEM_LIBEVENT(LIBEVENT_WARN_GIVEN)
+-IF(LIBEVENT_WARN_GIVEN)
+-  MESSAGE(FATAL_ERROR
+-    "-DWITH_LIBEVENT=system, but missing system libraries.\n"
+-    "You can use -DWITH_LIBEVENT=bundled instead."
+-    )
+-ENDIF()
+-
+ # Add lz4 library
+ MYSQL_CHECK_LZ4()
+ # Add icu library
+@@ -1929,7 +1904,7 @@ IF(APPLE)
    GET_FILENAME_COMPONENT(HOMEBREW_BASE ${HOMEBREW_HOME} DIRECTORY)
    IF(EXISTS ${HOMEBREW_BASE}/include/boost)
      FOREACH(SYSTEM_LIB ICU LIBEVENT LZ4 PROTOBUF ZSTD FIDO)

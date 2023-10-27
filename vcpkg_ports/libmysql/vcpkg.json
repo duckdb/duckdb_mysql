@@ -9,7 +9,6 @@
   "dependencies": [
     "boost-algorithm",
     "boost-optional",
-    "libevent",
     "lz4",
     "openssl",
     {
