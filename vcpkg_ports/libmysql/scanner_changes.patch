@@ -294,14 +294,16 @@ index 9bb62efb..ffe150bd 100644
          line += ",";
        m_sql_definition_without_indexes += line + '\n';
 diff --git a/client/dump/thread.h b/client/dump/thread.h
-index 6bfaf188..5ef21a64 100644
+index 6bfaf188..c45512bf 100644
 --- a/client/dump/thread.h
 +++ b/client/dump/thread.h
-@@ -26,12 +26,74 @@
+@@ -26,12 +26,76 @@
  #define THREAD_INCLUDED
  
  #include <exception>
 +#include <string>
++#include <cstring>
++#include <algorithm>
  
  #include "my_thread.h"
  #include "mysql/components/services/bits/my_thread_bits.h"
