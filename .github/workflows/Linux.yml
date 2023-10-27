@@ -78,6 +78,7 @@ jobs:
         cp ../.github/cifiles/my_config.h .
         printf '#include "print_version.h"\nextern "C" {\nvoid print_version() {}\n}' > print_version.c
         g++ -std=c++17 -Iinclude -I. strings/uca9-dump.cc -o uca9dump
+        g++ -std=c++17 `mysql_config --cflags` -Iinclude -I. utilities/comp_client_err.cc print_version.c -o comp_client_err `mysql_config --libs`
         g++ -std=c++17 -Iinclude -I. scripts/comp_sql.cc -o comp_sql
         mv uca9dump /usr/bin/
         mv comp_sql /usr/bin/

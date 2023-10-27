@@ -112,4 +112,5 @@ jobs:
         if: failure()
         shell: bash
         run: |
+          cat /Users/runner/work/mysql_scanner/mysql_scanner/vcpkg/buildtrees/libmysql/*.log
           cat /Users/runner/work/mysql_scanner/mysql_scanner/build/release/*.log
