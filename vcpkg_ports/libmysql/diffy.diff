@@ -1,0 +1,56 @@
+diff --git a/ports/libmysql/portfile.cmake b/ports/libmysql/portfile.cmake
+index f0ba0bbbc..bd6fef3bf 100644
+--- a/ports/libmysql/portfile.cmake
++++ b/ports/libmysql/portfile.cmake
+@@ -71,39 +71,6 @@ vcpkg_cmake_configure(
+ 
+ vcpkg_cmake_install(ADD_BIN_TO_PATH)
+ 
+-list(APPEND MYSQL_TOOLS
+-    comp_err
+-    my_print_defaults
+-    mysql
+-    mysql_config_editor
+-    mysql_migrate_keyring
+-    mysql_secure_installation
+-    mysql_ssl_rsa_setup
+-    mysqladmin
+-    mysqlbinlog
+-    mysqlcheck
+-    mysqldump
+-    mysqlimport
+-    mysqlpump
+-    mysqlshow
+-    mysqlslap
+-    mysqltest
+-    perror
+-    zlib_decompress
+-)
+-
+-if (VCPKG_TARGET_IS_WINDOWS)
+-    list(APPEND MYSQL_TOOLS
+-        echo
+-    )
+-else()
+-    list(APPEND MYSQL_TOOLS
+-        mysql_config
+-    )
+-endif()
+-
+-vcpkg_copy_tools(TOOL_NAMES ${MYSQL_TOOLS} AUTO_CLEAN)
+-
+ file(RENAME "${CURRENT_PACKAGES_DIR}/share" "${CURRENT_PACKAGES_DIR}/${PORT}")
+ file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/share")
+ file(RENAME "${CURRENT_PACKAGES_DIR}/${PORT}" "${CURRENT_PACKAGES_DIR}/share/${PORT}")
+diff --git a/ports/libmysql/vcpkg.json b/ports/libmysql/vcpkg.json
+index d8995dbc1..6cff10cde 100644
+--- a/ports/libmysql/vcpkg.json
++++ b/ports/libmysql/vcpkg.json
+@@ -12,7 +12,6 @@
+     "boost-geometry",
+     "boost-graph",
+     "boost-optional",
+-    "icu",
+     "libevent",
+     "lz4",
+     {
