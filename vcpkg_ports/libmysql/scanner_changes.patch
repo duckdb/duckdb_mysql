@@ -374,6 +374,23 @@ index 6bfaf188..c45512bf 100644
  class thread {
   public:
    template <typename TCallable>
+diff --git a/cmake/build_configurations/compiler_options.cmake b/cmake/build_configurations/compiler_options.cmake
+index 5dd2499c..f60d2b67 100644
+--- a/cmake/build_configurations/compiler_options.cmake
++++ b/cmake/build_configurations/compiler_options.cmake
+@@ -64,12 +64,6 @@ IF(UNIX)
+     SET(COMMON_CXX_FLAGS             "-std=c++17 -fno-omit-frame-pointer")
+   ENDIF()
+ 
+-  # Faster TLS model
+-  IF(MY_COMPILER_IS_GNU_OR_CLANG AND NOT SOLARIS AND NOT LINUX_RHEL6)
+-    STRING_APPEND(COMMON_C_FLAGS     " -ftls-model=initial-exec")
+-    STRING_APPEND(COMMON_CXX_FLAGS   " -ftls-model=initial-exec")
+-  ENDIF()
+-
+   # Use STRING_PREPEND here, so command-line input can override our defaults.
+   STRING_PREPEND(CMAKE_C_FLAGS                  "${COMMON_C_FLAGS} ")
+   STRING_PREPEND(CMAKE_C_FLAGS_RELWITHDEBINFO   "${SECTIONS_FLAG} ")
 diff --git a/cmake/libevent.cmake b/cmake/libevent.cmake
 index 364d9cca..06b8172c 100644
 --- a/cmake/libevent.cmake
