@@ -1,5 +1,5 @@
 name: MacOS
-on: [push, pull_request,repository_dispatch]
+on: [repository_dispatch]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref || '' }}-${{ github.base_ref || '' }}-${{ github.ref != 'refs/heads/main' || github.sha }}
   cancel-in-progress: true
@@ -77,7 +77,7 @@ jobs:
           wget https://github.com/mysql/mysql-server/archive/mysql-8.0.32.tar.gz
           tar xvf mysql-8.0.32.tar.gz
           cd mysql-server-mysql-8.0.32
-          wget https://raw.githubusercontent.com/jacob5412/MySQL-Medium/main/my_config.h
+          cp ../.github/cifiles/my_config.h .
           printf '#include "print_version.h"\nextern "C" {\nvoid print_version() {}\n}' > print_version.c
           clang++ -std=c++17 -Iinclude -I. strings/uca9-dump.cc -o uca9dump
           clang++ -std=c++17 `mysql_config --cflags` -Iinclude -I. -I$HOMEBREW_PREFIX/include/ utilities/comp_client_err.cc print_version.c -o comp_client_err `mysql_config --libs`
