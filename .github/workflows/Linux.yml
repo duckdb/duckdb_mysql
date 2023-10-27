@@ -61,6 +61,31 @@ jobs:
         fetch-depth: 0
         submodules: 'true'
 
+    - name: Install MySQL Server
+      if: ${{ matrix.arch == 'linux_arm64' }}
+      shell: bash
+      run: |
+        apt-get install -y -qq mysql-server
+
+    - name: Build uca9dump
+      if: ${{ matrix.arch == 'linux_arm64' }}
+      shell: bash
+      run: |
+        # because we are cross compiling we need to build this separately for the CURRENT machine
+        wget https://github.com/mysql/mysql-server/archive/mysql-8.0.32.tar.gz
+        tar xvf mysql-8.0.32.tar.gz
+        cd mysql-server-mysql-8.0.32
+        wget https://raw.githubusercontent.com/jacob5412/MySQL-Medium/main/my_config.h
+        printf '#include "print_version.h"\nextern "C" {\nvoid print_version() {}\n}' > print_version.c
+        g++ -std=c++17 -Iinclude -I. strings/uca9-dump.cc -o uca9dump
+        g++ -std=c++17 `mysql_config --cflags` -Iinclude -I. -I$HOMEBREW_PREFIX/include/ utilities/comp_client_err.cc print_version.c -o comp_client_err `mysql_config --libs`
+        g++ -std=c++17 -Iinclude -I. -I$HOMEBREW_PREFIX/include/ scripts/comp_sql.cc -o comp_sql
+        mv uca9dump /usr/bin/
+        mv comp_client_err /usr/bin/
+        mv comp_sql /usr/bin/
+        uca9dump
+        cd ..
+
     - name: Checkout DuckDB to version
       if: ${{ matrix.duckdb_version != '<submodule_version>'}}
       run: |
