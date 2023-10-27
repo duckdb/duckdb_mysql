@@ -61,6 +61,14 @@ jobs:
         fetch-depth: 0
         submodules: 'true'
 
+    - name: Install MySQL Server
+      if: ${{ matrix.arch == 'linux_arm64' }}
+      shell: bash
+      run: |
+        curl -sSLO https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
+        rpm -ivh mysql57-community-release-el7-9.noarch.rpm
+        yum install mysql-server
+
     - name: Build uca9dump
       if: ${{ matrix.arch == 'linux_arm64' }}
       shell: bash
