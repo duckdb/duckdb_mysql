@@ -46,6 +46,7 @@ jobs:
           brew install libevent
           brew install jemalloc
           brew install mysql
+          brew services start mysql
           touch build.ninja
 
       - name: Setup Ccache
@@ -57,13 +58,6 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: '3.7'
-
-      - name: Setup MySQL
-        if: ${{ matrix.osx_build_arch == 'x86_64'}}
-        run: |
-          brew services start mysql
-          mysql -u root < test/test_data.sql
-          mysql -u root -e "SELECT 42"
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
@@ -77,6 +71,12 @@ jobs:
           export PATCH_PATH=`pwd`/.github/patches/vcpkg_macos.patch
           cp .github/patches/mysql_macos.patch $VCPKG_BASE_PATH/ports/libmysql/mysql_patch.patch
           (cd $VCPKG_BASE_PATH && git apply $PATCH_PATH)
+
+      - name: Setup MySQL
+        if: ${{ matrix.osx_build_arch == 'x86_64'}}
+        run: |
+          mysql -u root < test/test_data.sql
+          mysql -u root -e "SELECT 42"
 
       - name: Build uca9dump
         shell: bash
