@@ -65,7 +65,7 @@ jobs:
       if: ${{ matrix.arch == 'linux_arm64' }}
       shell: bash
       run: |
-        apt-get install -y -qq mysql-server
+        apt-get install -y -qq libmysqlclient-dev
 
     - name: Build uca9dump
       if: ${{ matrix.arch == 'linux_arm64' }}
