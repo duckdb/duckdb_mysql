@@ -165,8 +165,36 @@ SELECT * FROM mysql_db.tmp;
 
 > Note that DDL statements are not transactional in MySQL.
 
-## Building & Loading the Extension
+## Development
 
+#### Dependencies
+
+The package depends on `vcpkg`, and has several platform-specific dependencies that must be installed in order for compilation to succeed.
+
+##### vcpkg
+
+`vcpkg` must be installed and configured for building. For more information, see [here](https://github.com/duckdb/extension-template/tree/main#managing-dependencies).
+
+```bash
+git clone https://github.com/Microsoft/vcpkg.git
+./vcpkg/bootstrap-vcpkg.sh
+export VCPKG_TOOLCHAIN_PATH=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake
+```
+
+##### Ubuntu
+
+```bash
+sudo apt-get install -y ninja-build cmake build-essential make ccache
+sudo apt-get install -y pkg-config autoconf autoconf-archive
+```
+
+##### MacOS
+
+```bash
+brew install pkg-config ninja automake autoconf autoconf-archive libevent
+```
+
+## Building & Loading the Extension
 To build, type:
 
 ```
@@ -182,3 +210,5 @@ Then, load the MySQL extension like so:
 ```SQL
 LOAD 'build/release/extension/mysql_scanner/mysql_scanner.duckdb_extension';
 ```
+
+
