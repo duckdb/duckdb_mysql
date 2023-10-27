@@ -38,16 +38,23 @@ jobs:
     - name: Install required ubuntu packages
       if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
       run: |
-        mkdir ubuntu_18_setup
-        cd ubuntu_18_setup
-        wget https://raw.githubusercontent.com/duckdb/duckdb/main/.github/actions/ubuntu_18_setup/action.yml
-        cd ..
+        apt-get update -y -qq
+        apt-get install -y -qq software-properties-common
+        add-apt-repository ppa:git-core/ppa
+        apt-get update -y -qq
+        apt-get install -y -qq ninja-build make gcc-multilib g++-multilib libssl-dev wget openjdk-8-jdk zip maven unixodbc-dev libc6-dev-i386 lib32readline6-dev libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip build-essential checkinstall libffi-dev curl libz-dev openssh-client
+        apt-get install -y -qq tar pkg-config cmake autoconf autoconf-archive libicu-dev
+        apt-get install -y -qq gcc-8 g++-8
 
-    - name: Setup Ubuntu
+    - name: Install Git 2.18.5
       if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
-      uses: ./ubuntu_18_setup
-      with:
-        aarch64_cross_compile: 1
+      run: |
+        wget https://github.com/git/git/archive/refs/tags/v2.18.5.tar.gz
+        tar xvf v2.18.5.tar.gz
+        cd git-2.18.5
+        make
+        make prefix=/usr install
+        git --version
 
     - uses: actions/checkout@v3
       with:
@@ -66,6 +73,12 @@ jobs:
         ./duckdb/scripts/setup_manylinux2014.sh general aws-cli ccache ssh openssl python_alias
         yum install -y m4 automake autoconf pkgconfig libevent-devel autoconf-archive libicu
         yum install -y devtoolset-11-gcc devtoolset-11-gcc-c++ devtoolset-11-binutils
+
+    - name: Setup Ubuntu
+      if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
+      uses: ./duckdb/.github/actions/ubuntu_18_setup
+      with:
+        aarch64_cross_compile: 1
 
     - name: Install extra ubuntu packages
       if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
