@@ -145,7 +145,16 @@ int main(int argc, char *argv[]) {
 { "CR_INVALID_FACTOR_NO", 2072, "Invalid first argument for MYSQL_OPT_USER_PASSWORD option. Valid value should be between 1 and 3 inclusive.", 0, 0, 0},
 { "CR_CANT_GET_SESSION_DATA", 2073, "Can't get session data: %s", 0, 0, 0},
 )MYSQLERRFILE";
-  ofstream ofs(OUTFILE, std::ofstream::out);
+  std::string out_file(OUTFILE);
+  for(size_t i = 0; i < argc; i++) {
+    std::string arg(argv[i]);
+    if (arg.rfind("--out_file=") == 0) {
+      out_file = arg.substr(11);
+    } else if (arg == "-O" && i + 1 < argc) {
+      out_file = argv[i + 1];
+    }
+  }
+  ofstream ofs(out_file, std::ofstream::out);
   ofs << error_file;
   ofs.close();
   return 0;
