@@ -71,7 +71,7 @@ jobs:
         cd mysql-server-mysql-8.0.32
         cp ../.github/cifiles/my_config.h .
         g++ -std=c++17 -Iinclude -I. strings/uca9-dump.cc -o uca9dump
-        g++ -std=c++17 ../.github/comp_client_err_fake.cc -o comp_client_err
+        g++ -std=c++17 ../.github/cifiles/comp_client_err_fake.cc -o comp_client_err
         g++ -std=c++17 -Iinclude -I. scripts/comp_sql.cc -o comp_sql
         mv uca9dump /usr/bin/
         mv comp_sql /usr/bin/
