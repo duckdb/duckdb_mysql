@@ -74,6 +74,7 @@ jobs:
         g++ -std=c++17 ../.github/cifiles/comp_client_err_fake.cc -o comp_client_err
         g++ -std=c++17 -Iinclude -I. scripts/comp_sql.cc -o comp_sql
         mv uca9dump /usr/bin/
+        mv comp_client_err /usr/bin/
         mv comp_sql /usr/bin/
         uca9dump
         cd ..
