@@ -85,6 +85,8 @@ vcpkg_cmake_configure(
         LINK_STATIC_RUNTIME_LIBRARIES # only on windows
         WIX_DIR # only on windows
         WITH_BUILD_ID # only on windows
+        IGNORE_BOOST_VERSION # only on windows
+        DOWNLOAD_BOOST # only on windows
 )
 
 vcpkg_cmake_install(ADD_BIN_TO_PATH)
