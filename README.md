@@ -171,6 +171,15 @@ SELECT * FROM mysql_db.tmp;
 
 The package depends on `vcpkg`, and has several platform-specific dependencies that must be installed in order for compilation to succeed.
 
+##### Submodules
+
+The DuckDB submodule must be initialized prior to building.
+
+```bash
+git submodule init
+git pull --recurse-submodules
+```
+
 ##### vcpkg
 
 `vcpkg` must be installed and configured for building. For more information, see [here](https://github.com/duckdb/extension-template/tree/main#managing-dependencies).
@@ -184,7 +193,7 @@ export VCPKG_TOOLCHAIN_PATH=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake
 ##### Ubuntu
 
 ```bash
-sudo apt-get install -y ninja-build cmake build-essential make ccache
+sudo apt-get install -y ninja-build cmake build-essential make ccache curl zip unzip tar
 sudo apt-get install -y pkg-config autoconf autoconf-archive
 ```
 
