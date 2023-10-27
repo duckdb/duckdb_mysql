@@ -26,10 +26,12 @@ if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86" OR VCPKG_TARGET_ARCHITECTURE STREQUA
 else()
     # ARM builds are always cross compiled
     # as such we build the executables (comp_sql, uca9dump, comp_client_err) separately
-    set(PATCH_FILES
-        ${PATCH_FILES}
-        remove_executables.patch
-    )
+    if(UNIX)
+        set(PATCH_FILES
+            ${PATCH_FILES}
+            remove_executables.patch
+        )
+    endif()
 endif()
 
 
