@@ -1,5 +1,5 @@
 name: MacOS
-on: [repository_dispatch]
+on: [push, pull_request,repository_dispatch]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref || '' }}-${{ github.base_ref || '' }}-${{ github.ref != 'refs/heads/main' || github.sha }}
   cancel-in-progress: true
@@ -97,11 +97,17 @@ jobs:
           echo 'SET(HAVE_IB_GCC_ATOMIC_BUILTINS 0)' >> ${VCPKG_TOOLCHAIN_PATH}
           make release
 
+      - name: Setup MySQL
+        if: ${{ matrix.osx_build_arch == 'x86_64'}}
+        run: |
+          mysql -u root < test/test_data.sql
+          mysql -u root -e "SELECT 42"
+
       - name: Test Extension
         if: ${{ matrix.osx_build_arch == 'x86_64'}}
         shell: bash
         run: |
-          ./build/release/test/unittest "*test/sql/failed_to_connect.test"
+          ./build/release/test/unittest "*test/sql/*"
 
       - uses: actions/upload-artifact@v2
         with:
@@ -110,7 +116,7 @@ jobs:
             build/release/extension/mysql_scanner/mysql_scanner.duckdb_extension
 
       - name: Log Errors
-        if: always()
+        if: error()
         shell: bash
         run: |
           cat /Users/runner/work/mysql_scanner/mysql_scanner/build/release/*.log

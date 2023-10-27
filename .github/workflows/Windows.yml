@@ -61,7 +61,7 @@ jobs:
             build/release/extension/mysql_scanner/mysql_scanner.duckdb_extension
 
       - name: Log Errors
-        if: always()
+        if: error()
         shell: bash
         run: |
           cat D:/a/mysql_scanner/mysql_scanner/build/release/*.log
