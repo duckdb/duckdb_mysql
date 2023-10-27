@@ -4,11 +4,16 @@
 
 require mysql_scanner
 
+require icu
+
 statement ok
 ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS msql (TYPE MYSQL_SCANNER)
 
 statement ok
 USE msql
+
+statement ok
+SET TimeZone='UTC'
 
 query IIIII
 SELECT * FROM datetime_tbl
