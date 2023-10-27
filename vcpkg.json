@@ -1,5 +1,10 @@
 {
   "dependencies": [
     "libmysql"
-  ]
+  ],
+  "vcpkg-configuration": {
+    "overlay-ports": [
+      "./vcpkg_ports"
+    ]
+  }
 }

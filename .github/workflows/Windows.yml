@@ -41,11 +41,13 @@ jobs:
       - name: Checkout DuckDB to version
         # Add commits/tags to build against other DuckDB versions
         if: ${{ matrix.duckdb_version != '<submodule_version>'}}
+        shell: bash
         run: |
           cd duckdb
           git checkout ${{ matrix.duckdb_version }}
 
       - name: Build extension
+        shell: bash
         run: |
           make release
 
