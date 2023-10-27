@@ -24,6 +24,11 @@ jobs:
       VCPKG_TOOLCHAIN_PATH: ${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake
 
     steps:
+      - name: Keep \n line endings
+        shell: bash
+        run: |
+          echo '* text=auto eol=lf' > .gitattributes
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
