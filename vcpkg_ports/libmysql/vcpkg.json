@@ -7,7 +7,6 @@
   "license": "GPL-2.0-or-later",
   "supports": "!(windows & x86) & !uwp & !xbox",
   "dependencies": [
-    "boost-algorithm",
     "lz4",
     "openssl",
     {

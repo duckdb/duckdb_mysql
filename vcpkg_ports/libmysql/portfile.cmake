@@ -48,12 +48,10 @@ vcpkg_cmake_configure(
         -DENABLE_TESTING=OFF
         -DWIX_DIR=OFF
         ${STACK_DIRECTION}
-        -DIGNORE_BOOST_VERSION=ON
         -DWITH_SYSTEMD=OFF
         -DWITH_TEST_TRACE_PLUGIN=OFF
         -DMYSQL_MAINTAINER_MODE=OFF
         -DBUNDLE_RUNTIME_LIBRARIES=OFF
-        -DDOWNLOAD_BOOST=OFF
         -DWITH_SSL=system
         -DWITH_ICU=system
         -DWITH_LZ4=system
