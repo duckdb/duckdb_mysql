@@ -109,3 +109,24 @@ index 96664b1..99e2644 100644
  
  IF(NOT STACK_DIRECTION)
    IF(CMAKE_CROSSCOMPILING)
+diff --git a/test/mysql-server-mysql-8.0.32/libmysql/CMakeLists.txt b/test/mysql-server-mysql-8.0.32/libmysql/CMakeLists.txt
+index 2ee26bfa..5b247f43 100644
+--- a/test/mysql-server-mysql-8.0.32/libmysql/CMakeLists.txt
++++ b/test/mysql-server-mysql-8.0.32/libmysql/CMakeLists.txt
+@@ -252,13 +252,9 @@ ELSEIF(FREEBSD)
+   SET(HAVE_UNIX_DNS_SRV 1 PARENT_SCOPE)
+   MESSAGE(STATUS "BSD built in DNS SRV APIs")
+ ELSE()
+-  FIND_LIBRARY(RESOLV_LIBRARY NAMES resolv)
+-  IF (RESOLV_LIBRARY)
+-    LIST(APPEND LIBS_TO_LINK ${RESOLV_LIBRARY})
+-    SET(HAVE_UNIX_DNS_SRV 1 PARENT_SCOPE)
+-    SET(HAVE_DNS_SRV 1)
+-    MESSAGE(STATUS "Found Unix DNS SRV APIs")
+-  ENDIF()
++  SET(HAVE_UNIX_DNS_SRV 1 PARENT_SCOPE)
++  SET(HAVE_DNS_SRV 1)
++  MESSAGE(STATUS "Found Unix DNS SRV APIs")
+ ENDIF()
+
+ IF(HAVE_DNS_SRV EQUAL 0)
