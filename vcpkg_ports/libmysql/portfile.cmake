@@ -56,7 +56,6 @@ vcpkg_cmake_configure(
         -DDOWNLOAD_BOOST=OFF
         -DWITH_SSL=system
         -DWITH_ICU=system
-        -DWITH_LIBEVENT=system
         -DWITH_LZ4=system
         -DWITH_ZLIB=system
         -DWITH_LTO=OFF
