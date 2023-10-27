@@ -9,8 +9,13 @@
   "dependencies": [
     "boost-algorithm",
     "boost-functional",
+    "boost-optional",
     "libevent",
     "lz4",
+    {
+      "name": "ncurses",
+      "platform": "!windows | mingw"
+    },
     "openssl",
     {
       "name": "vcpkg-cmake",

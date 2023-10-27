@@ -1,3 +1,66 @@
+diff --git a/client/dump/object_filter.cc b/client/dump/object_filter.cc
+index 39b34ab..0cf9d23 100644
+--- a/client/dump/object_filter.cc
++++ b/client/dump/object_filter.cc
+@@ -36,57 +36,13 @@
+ #endif
+ #include <stddef.h>
+ #include <boost/algorithm/string.hpp>
+-#include <boost/tokenizer.hpp>
+ 
+ using std::placeholders::_1;
+ 
+ std::string parse_inclusion_string(
+     std::string val, std::vector<std::pair<std::string, std::string>> &list,
+     bool allow_schema, bool is_user_object) {
+-  try {
+-    typedef boost::tokenizer<boost::escaped_list_separator<char>> tokenizer_t;
+-    typedef boost::tokenizer<boost::escaped_list_separator<char>>::iterator
+-        titerator_t;
+-    typedef boost::escaped_list_separator<char> separator_t;
+-
+-    const separator_t sep_csl('\\', ',', '\"');
+-    const separator_t sep_user('\\', '@', '\"');
+-    const separator_t sep_object('\\', '.', '\'');
+-    const separator_t *sep = is_user_object ? &sep_user : &sep_object;
+-
+-    tokenizer_t outer_tok(val, sep_csl);
+-    for (titerator_t it = outer_tok.begin(); it != outer_tok.end(); ++it) {
+-      std::string elt = *it;
+-      boost::trim(elt);
+-      tokenizer_t itok(elt, *sep);
+-      std::vector<std::string> object_parts;
+-      for (titerator_t iit = itok.begin(); iit != itok.end(); ++iit) {
+-        std::string s = *iit;
+-        boost::trim(s);
+-        if (s.length() == 0)
+-          return "empty object element specified (\"" + *it + "\")";
+-        if (is_user_object)
+-          object_parts.push_back(("'" + s + "'"));
+-        else
+-          object_parts.push_back(s);
+-      }
+-
+-      if (object_parts.size() == 1) {
+-        if (is_user_object)
+-          list.push_back(std::make_pair(object_parts[0], "%"));
+-        else
+-          list.push_back(std::make_pair("%", object_parts[0]));
+-      } else if (object_parts.size() == 2 && (allow_schema || is_user_object)) {
+-        list.push_back(std::make_pair(object_parts[0], object_parts[1]));
+-      } else
+-        return "Invalid object name specified (\"" + *it + "\")";
+-    }
+-  } catch (std::exception const &ex) {
+-    return ex.what();
+-  } catch (...) {
+-    return "unknown exception";
+-  }
+-  return "";
++  return "tokenize not supported";
+ }
+ 
+ #ifndef UNITTEST_OBJECT_FILTER_PARSER
 diff --git a/cmake/libevent.cmake b/cmake/libevent.cmake
 index 364d9cc..06b8172 100644
 --- a/cmake/libevent.cmake
