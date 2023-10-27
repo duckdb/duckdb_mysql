@@ -80,12 +80,6 @@ jobs:
       with:
         aarch64_cross_compile: 1
 
-    - name: Install extra ubuntu packages
-      if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
-      run: |
-        apt-get install -y -qq tar pkg-config cmake autoconf autoconf-archive libicu-dev
-        apt-get install -y -qq gcc-8 g++-8
-
     - name: Install MySQL (amd64)
       if: ${{ matrix.arch == 'linux_amd64' }}
       run: |
