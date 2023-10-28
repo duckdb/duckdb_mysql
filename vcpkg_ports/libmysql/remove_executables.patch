@@ -1,30 +1,17 @@
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index d5fcfe04..eb55c11a 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -2218,7 +2218,7 @@ ENDIF()
- 
- # scripts/mysql_config depends on client and server targets loaded above.
- # It is referenced by some of the directories below, so we insert it here.
--ADD_SUBDIRECTORY(scripts)
-+# ADD_SUBDIRECTORY(scripts)
- 
- IF(NOT WITHOUT_SERVER)
-   ADD_SUBDIRECTORY(mysql-test)
 diff --git a/scripts/CMakeLists.txt b/scripts/CMakeLists.txt
-index 987870e9..ce94d2ce 100644
+index 987870e9..2b8fb038 100644
 --- a/scripts/CMakeLists.txt
 +++ b/scripts/CMakeLists.txt
-@@ -24,8 +24,6 @@ DISABLE_MISSING_PROFILE_WARNING()
+@@ -24,7 +24,7 @@ DISABLE_MISSING_PROFILE_WARNING()
  
  ADD_SUBDIRECTORY(sys_schema)
  
 -MYSQL_ADD_EXECUTABLE(comp_sql comp_sql.cc SKIP_INSTALL)
--
++MYSQL_ADD_EXECUTABLE(comp_sql_unused comp_sql.cc SKIP_INSTALL)
+ 
  # Add compiler information, for easier debugging of output from mysql_config.
  SET(COMPILER_ID_AND_VERSION
-   "${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-@@ -62,7 +60,6 @@ ADD_CUSTOM_COMMAND(
+@@ -62,7 +62,6 @@ ADD_CUSTOM_COMMAND(
    mysql_fix_privilege_tables.sql
    mysql_fix_privilege_tables_sql.h
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -32,7 +19,7 @@ index 987870e9..ce94d2ce 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables.sql
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables_fix.sql
  )
-@@ -80,7 +77,6 @@ ADD_CUSTOM_COMMAND(
+@@ -80,7 +79,6 @@ ADD_CUSTOM_COMMAND(
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_sys_schema.sql
    sql_commands_sys_schema.h
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -40,7 +27,7 @@ index 987870e9..ce94d2ce 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_sys_schema.sql
    )
  
-@@ -91,7 +87,6 @@ ADD_CUSTOM_COMMAND(
+@@ -91,7 +89,6 @@ ADD_CUSTOM_COMMAND(
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables_data.sql
    sql_commands_system_data.h
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -48,7 +35,7 @@ index 987870e9..ce94d2ce 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables_data.sql
  )
  
-@@ -102,7 +97,6 @@ ADD_CUSTOM_COMMAND(
+@@ -102,7 +99,6 @@ ADD_CUSTOM_COMMAND(
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables_data_fix.sql
    sql_commands_system_tables_data_fix.h
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -56,7 +43,7 @@ index 987870e9..ce94d2ce 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables_data_fix.sql
  )
  
-@@ -113,7 +107,6 @@ ADD_CUSTOM_COMMAND(
+@@ -113,7 +109,6 @@ ADD_CUSTOM_COMMAND(
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables.sql
    sql_commands_system_tables.h
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -64,7 +51,7 @@ index 987870e9..ce94d2ce 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_tables.sql
  )
  
-@@ -124,7 +117,6 @@ ADD_CUSTOM_COMMAND(
+@@ -124,7 +119,6 @@ ADD_CUSTOM_COMMAND(
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_users.sql
    sql_commands_system_users.h
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -72,7 +59,7 @@ index 987870e9..ce94d2ce 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/mysql_system_users.sql
  )
  
-@@ -135,7 +127,6 @@ ADD_CUSTOM_COMMAND(
+@@ -135,7 +129,6 @@ ADD_CUSTOM_COMMAND(
    ${CMAKE_CURRENT_SOURCE_DIR}/fill_help_tables.sql
    sql_commands_help_data.h
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -80,7 +67,7 @@ index 987870e9..ce94d2ce 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/fill_help_tables.sql
  )
  
-@@ -146,7 +137,6 @@ ADD_CUSTOM_COMMAND(
+@@ -146,7 +139,6 @@ ADD_CUSTOM_COMMAND(
    ${CMAKE_CURRENT_SOURCE_DIR}/firewall_stored_procedures.sql
    sql_firewall_stored_procedures.h
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
