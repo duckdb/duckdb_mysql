@@ -61,19 +61,6 @@ jobs:
         fetch-depth: 0
         submodules: 'true'
 
-    - name: Build uca9dump
-      if: ${{ matrix.arch == 'linux_arm64' }}
-      shell: bash
-      run: |
-        # because we are cross compiling we need to build this separately for the CURRENT machine
-        wget https://github.com/mysql/mysql-server/archive/mysql-8.0.32.tar.gz
-        tar xvf mysql-8.0.32.tar.gz
-        cd mysql-server-mysql-8.0.32
-        cp ../.github/cifiles/my_config.h .
-        g++ -std=c++17 ../.github/cifiles/comp_err_fake.cc -o comp_err
-        mv comp_err /usr/bin/
-        cd ..
-
     - name: Checkout DuckDB to version
       if: ${{ matrix.duckdb_version != '<submodule_version>'}}
       run: |
