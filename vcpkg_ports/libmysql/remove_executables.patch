@@ -1,3 +1,16 @@
+diff --git a/libmysql/CMakeLists.txt b/libmysql/CMakeLists.txt
+index 475559a2..77735719 100644
+--- a/libmysql/CMakeLists.txt
++++ b/libmysql/CMakeLists.txt
+@@ -255,6 +255,8 @@ ELSE()
+   FIND_LIBRARY(RESOLV_LIBRARY NAMES resolv)
+   IF (RESOLV_LIBRARY)
+     LIST(APPEND LIBS_TO_LINK ${RESOLV_LIBRARY})
++  ELSE()
++    LIST(APPEND LIBS_TO_LINK resolv)    
+   ENDIF()
+   SET(HAVE_UNIX_DNS_SRV 1 PARENT_SCOPE)
+   SET(HAVE_DNS_SRV 1)
 diff --git a/scripts/CMakeLists.txt b/scripts/CMakeLists.txt
 index 987870e9..b0d31db6 100644
 --- a/scripts/CMakeLists.txt
