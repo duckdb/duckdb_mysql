@@ -19,10 +19,6 @@ if(NOT VCPKG_TARGET_IS_WINDOWS)
         posix_changes.patch
     )
 endif()
-set(PATCH_FILES
-    ${PATCH_FILES}
-    remove_executables.patch
-)
 
 set(CROSS_COMPILING "")
 set(STACK_DIRECTION "")
@@ -31,6 +27,10 @@ if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86" OR VCPKG_TARGET_ARCHITECTURE STREQUA
 else()
     # ARM builds are always cross compiled
     # as such we build the executables (comp_sql, uca9dump, comp_client_err) separately
+    set(PATCH_FILES
+        ${PATCH_FILES}
+        remove_executables.patch
+    )
     if(VCPKG_TARGET_IS_LINUX)
         set(CROSS_COMPILING -DCMAKE_CROSSCOMPILING=1)
         set(STACK_DIRECTION -DSTACK_DIRECTION=-1)
