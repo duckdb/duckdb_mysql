@@ -1,3 +1,39 @@
+diff --git a/cmake/floating_point.cmake b/cmake/floating_point.cmake
+index c460e3d9..21d18ee5 100644
+--- a/cmake/floating_point.cmake
++++ b/cmake/floating_point.cmake
+@@ -51,9 +51,4 @@ SET(code "
+ CMAKE_PUSH_CHECK_STATE()
+ STRING_APPEND(CMAKE_REQUIRED_FLAGS " -O3")
+ 
+-IF(MY_COMPILER_IS_GNU)
+-  CHECK_C_SOURCE_RUNS("${code}" HAVE_C_FLOATING_POINT_FUSED_MADD)
+-  CHECK_CXX_SOURCE_RUNS("${code}" HAVE_CXX_FLOATING_POINT_FUSED_MADD)
+-ENDIF()
+-
+ CMAKE_POP_CHECK_STATE()
+diff --git a/configure.cmake b/configure.cmake
+index 99e26446..d71f522b 100644
+--- a/configure.cmake
++++ b/configure.cmake
+@@ -311,16 +311,7 @@ CHECK_FUNCTION_EXISTS (timer_settime HAVE_TIMER_SETTIME)
+ CHECK_FUNCTION_EXISTS (kqueue HAVE_KQUEUE)
+ 
+ # Check whether the setns() API function supported by a target platform
+-CHECK_C_SOURCE_RUNS("
+-#ifndef _GNU_SOURCE
+-#define _GNU_SOURCE
+-#endif
+-#include <sched.h>
+-int main()
+-{
+-  (void)setns(0, 0);
+-  return 0;
+-}" HAVE_SETNS)
++SET(HAVE_SETNS 0)
+ 
+ CHECK_SYMBOL_EXISTS(EVFILT_TIMER "sys/types.h;sys/event.h;sys/time.h" HAVE_EVFILT_TIMER)
+ IF(HAVE_KQUEUE AND HAVE_EVFILT_TIMER)
 diff --git a/libmysql/CMakeLists.txt b/libmysql/CMakeLists.txt
 index 475559a2..77735719 100644
 --- a/libmysql/CMakeLists.txt
@@ -118,6 +154,30 @@ index d8076220..a033f3ea 100644
    COMMENT "Generating Sys Schema C code"
  )
  
+diff --git a/share/CMakeLists.txt b/share/CMakeLists.txt
+index 41f9e8dd..e74e1e49 100644
+--- a/share/CMakeLists.txt
++++ b/share/CMakeLists.txt
+@@ -47,19 +47,6 @@ SET(dirs
+   ukrainian
+   )
+ 
+-FOREACH (dir ${dirs})
+-  INSTALL(DIRECTORY ${CMAKE_BINARY_DIR}/${INSTALL_MYSQLSHAREDIR}/${dir}
+-    DESTINATION ${INSTALL_MYSQLSHAREDIR}
+-    COMPONENT Server
+-    )
+-ENDFOREACH()
+-
+-INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/charsets
+-  DESTINATION ${INSTALL_MYSQLSHAREDIR}
+-  COMPONENT Server
+-  PATTERN "languages.html" EXCLUDE
+-)
+-
+ # Don't copy if we're building in-source.
+ IF (NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+   CONFIGURE_FILE(dictionary.txt
 diff --git a/strings/CMakeLists.txt b/strings/CMakeLists.txt
 index 2feec0c9..a18ab66e 100644
 --- a/strings/CMakeLists.txt
