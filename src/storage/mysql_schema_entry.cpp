@@ -47,17 +47,17 @@ optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateFunction(CatalogTransaction t
 	throw BinderException("MySQL databases do not support creating functions");
 }
 
-void UnqualifyColumnReferences(ParsedExpression &expr) {
+void MySQLUnqualifyColumnRef(ParsedExpression &expr) {
 	if (expr.type == ExpressionType::COLUMN_REF) {
 		auto &colref = expr.Cast<ColumnRefExpression>();
 		auto name = std::move(colref.column_names.back());
 		colref.column_names = {std::move(name)};
 		return;
 	}
-	ParsedExpressionIterator::EnumerateChildren(expr, UnqualifyColumnReferences);
+	ParsedExpressionIterator::EnumerateChildren(expr, MySQLUnqualifyColumnRef);
 }
 
-string GetCreateIndexSQL(CreateIndexInfo &info, TableCatalogEntry &tbl) {
+string GetMySQLCreateIndex(CreateIndexInfo &info, TableCatalogEntry &tbl) {
 	string sql;
 	sql = "CREATE";
 	if (info.constraint_type == IndexConstraintType::UNIQUE) {
@@ -72,7 +72,7 @@ string GetCreateIndexSQL(CreateIndexInfo &info, TableCatalogEntry &tbl) {
 		if (i > 0) {
 			sql += ", ";
 		}
-		UnqualifyColumnReferences(*info.parsed_expressions[i]);
+		MySQLUnqualifyColumnRef(*info.parsed_expressions[i]);
 		if (info.parsed_expressions[i]->type == ExpressionType::COLUMN_REF) {
 			// index on column
 			sql += info.parsed_expressions[i]->ToString();
@@ -89,11 +89,11 @@ string GetCreateIndexSQL(CreateIndexInfo &info, TableCatalogEntry &tbl) {
 optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateIndex(ClientContext &context, CreateIndexInfo &info,
                                                          TableCatalogEntry &table) {
 	auto &mysql_transaction = MySQLTransaction::Get(context, table.catalog);
-	mysql_transaction.Query(GetCreateIndexSQL(info, table));
+	mysql_transaction.Query(GetMySQLCreateIndex(info, table));
 	return nullptr;
 }
 
-string GetCreateViewSQL(CreateViewInfo &info) {
+string GetMySQLCreateView(CreateViewInfo &info) {
 	string sql;
 	sql = "CREATE VIEW ";
 	sql += MySQLUtils::WriteIdentifier(info.view_name);
@@ -130,7 +130,7 @@ optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateView(CatalogTransaction trans
 		}
 	}
 	auto &mysql_transaction = GetMySQLTransaction(transaction);
-	mysql_transaction.Query(GetCreateViewSQL(info));
+	mysql_transaction.Query(GetMySQLCreateView(info));
 	return tables.RefreshTable(transaction.GetContext(), info.view_name);
 }
 
