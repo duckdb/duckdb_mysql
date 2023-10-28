@@ -70,9 +70,7 @@ jobs:
         tar xvf mysql-8.0.32.tar.gz
         cd mysql-server-mysql-8.0.32
         cp ../.github/cifiles/my_config.h .
-        g++ -std=c++17 -Iinclude -I. scripts/comp_sql.cc -o comp_sql
         g++ -std=c++17 ../.github/cifiles/comp_err_fake.cc -o comp_err
-        mv comp_sql /usr/bin/
         mv comp_err /usr/bin/
         cd ..
 
