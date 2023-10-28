@@ -1,3 +1,15 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d5fcfe04..d5d43007 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2154,7 +2154,6 @@ IF(WITH_UNIT_TESTS)
+ ENDIF()
+ 
+ ADD_SUBDIRECTORY(client)
+-ADD_SUBDIRECTORY(utilities)
+ ADD_SUBDIRECTORY(share)
+ ADD_SUBDIRECTORY(libservices)
+ 
 diff --git a/scripts/CMakeLists.txt b/scripts/CMakeLists.txt
 index 987870e9..b0d31db6 100644
 --- a/scripts/CMakeLists.txt
