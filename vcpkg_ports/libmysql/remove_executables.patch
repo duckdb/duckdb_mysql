@@ -1,3 +1,16 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d5fcfe04..eb55c11a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2218,7 +2218,7 @@ ENDIF()
+ 
+ # scripts/mysql_config depends on client and server targets loaded above.
+ # It is referenced by some of the directories below, so we insert it here.
+-ADD_SUBDIRECTORY(scripts)
++# ADD_SUBDIRECTORY(scripts)
+ 
+ IF(NOT WITHOUT_SERVER)
+   ADD_SUBDIRECTORY(mysql-test)
 diff --git a/scripts/CMakeLists.txt b/scripts/CMakeLists.txt
 index 987870e9..ce94d2ce 100644
 --- a/scripts/CMakeLists.txt
@@ -120,13 +133,21 @@ index 2feec0c9..4c79d495 100644
  
  SET_SOURCE_FILES_PROPERTIES(
 diff --git a/utilities/CMakeLists.txt b/utilities/CMakeLists.txt
-index c0dfac56..cb1752a1 100644
+index c0dfac56..557a388b 100644
 --- a/utilities/CMakeLists.txt
 +++ b/utilities/CMakeLists.txt
-@@ -31,13 +31,6 @@ IF(NOT CMAKE_CROSSCOMPILING)
-     )
- ENDIF()
+@@ -23,21 +23,6 @@
+ ADD_WSHADOW_WARNING()
+ DISABLE_MISSING_PROFILE_WARNING()
  
+-IF(NOT CMAKE_CROSSCOMPILING)
+-  MYSQL_ADD_EXECUTABLE(comp_err
+-    comp_err.cc
+-    COMPONENT Test
+-    LINK_LIBRARIES mysys
+-    )
+-ENDIF()
+-
 -MYSQL_ADD_EXECUTABLE(comp_client_err
 -  comp_client_err.cc
 -  ${CMAKE_SOURCE_DIR}/libmysql/errmsg.cc
