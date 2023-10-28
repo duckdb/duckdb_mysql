@@ -1,15 +1,3 @@
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index d5fcfe04..d5d43007 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -2154,7 +2154,6 @@ IF(WITH_UNIT_TESTS)
- ENDIF()
- 
- ADD_SUBDIRECTORY(client)
--ADD_SUBDIRECTORY(utilities)
- ADD_SUBDIRECTORY(share)
- ADD_SUBDIRECTORY(libservices)
- 
 diff --git a/scripts/CMakeLists.txt b/scripts/CMakeLists.txt
 index 987870e9..b0d31db6 100644
 --- a/scripts/CMakeLists.txt
@@ -140,7 +128,7 @@ index 2feec0c9..a18ab66e 100644
  
  SET_SOURCE_FILES_PROPERTIES(
 diff --git a/utilities/CMakeLists.txt b/utilities/CMakeLists.txt
-index c0dfac56..1bd5df48 100644
+index c0dfac56..557a388b 100644
 --- a/utilities/CMakeLists.txt
 +++ b/utilities/CMakeLists.txt
 @@ -23,21 +23,6 @@
@@ -165,28 +153,3 @@ index c0dfac56..1bd5df48 100644
  ADD_CUSTOM_COMMAND(OUTPUT ${PROJECT_BINARY_DIR}/include/mysqlclient_ername.h
    COMMAND comp_client_err
    --in_file=${PROJECT_SOURCE_DIR}/include/errmsg.h
-@@ -61,24 +46,6 @@ FILE(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/${INSTALL_MYSQLSHAREDIR})
- #
- # Please see errmsg_readme.txt in the same directory for more information.
- #
--ADD_CUSTOM_COMMAND(OUTPUT
--  ${PROJECT_BINARY_DIR}/include/mysqld_error.h
--  ${PROJECT_BINARY_DIR}/include/mysqld_ername.h
--  ${PROJECT_BINARY_DIR}/include/mysqld_errmsg.h
--  ${PROJECT_BINARY_DIR}/${INSTALL_MYSQLSHAREDIR}/english/errmsg.sys
--  COMMAND comp_err
--  --charset=${PROJECT_SOURCE_DIR}/share/charsets
--  --out-dir=${PROJECT_BINARY_DIR}/${INSTALL_MYSQLSHAREDIR}/
--  --header_file=${PROJECT_BINARY_DIR}/include/mysqld_error.h
--  --name_file=${PROJECT_BINARY_DIR}/include/mysqld_ername.h
--  --errmsg_file=${PROJECT_BINARY_DIR}/include/mysqld_errmsg.h
--  --in_file_errlog=${PROJECT_SOURCE_DIR}/share/messages_to_error_log.txt
--  --in_file_toclient=${PROJECT_SOURCE_DIR}/share/messages_to_clients.txt
--  DEPENDS
--  ${PROJECT_SOURCE_DIR}/share/messages_to_error_log.txt
--  ${PROJECT_SOURCE_DIR}/share/messages_to_clients.txt
--  ${CMAKE_CURRENT_SOURCE_DIR}/comp_err.cc)
--
- 
- MY_ADD_CUSTOM_TARGET(GenError ALL
-   DEPENDS
