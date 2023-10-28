@@ -72,5 +72,5 @@ jobs:
         if: failure()
         shell: bash
         run: |
-          cat D:/a/mysql_scanner/mysql_scanner/vcpkg/buildtrees/libmysql/*.log
-          cat D:/a/mysql_scanner/mysql_scanner/build/release/*.log
+          cat D:/a/duckdb_mysql/duckdb_mysql/vcpkg/buildtrees/libmysql/*.log
+          cat D:/a/duckdb_mysql/duckdb_mysql/build/release/*.log
