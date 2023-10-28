@@ -141,28 +141,34 @@ index 2feec0c9..a18ab66e 100644
  
  SET_SOURCE_FILES_PROPERTIES(
 diff --git a/utilities/CMakeLists.txt b/utilities/CMakeLists.txt
-index c0dfac56..557a388b 100644
+index c0dfac56..95e7c417 100644
 --- a/utilities/CMakeLists.txt
 +++ b/utilities/CMakeLists.txt
-@@ -23,21 +23,6 @@
- ADD_WSHADOW_WARNING()
+@@ -24,14 +24,14 @@ ADD_WSHADOW_WARNING()
  DISABLE_MISSING_PROFILE_WARNING()
  
--IF(NOT CMAKE_CROSSCOMPILING)
+ IF(NOT CMAKE_CROSSCOMPILING)
 -  MYSQL_ADD_EXECUTABLE(comp_err
--    comp_err.cc
--    COMPONENT Test
--    LINK_LIBRARIES mysys
--    )
--ENDIF()
--
++  MYSQL_ADD_EXECUTABLE(comp_err_unused
+     comp_err.cc
+     COMPONENT Test
+     LINK_LIBRARIES mysys
+     )
+ ENDIF()
+ 
 -MYSQL_ADD_EXECUTABLE(comp_client_err
--  comp_client_err.cc
--  ${CMAKE_SOURCE_DIR}/libmysql/errmsg.cc
--  LINK_LIBRARIES mysys
--  SKIP_INSTALL
--  )
--
- ADD_CUSTOM_COMMAND(OUTPUT ${PROJECT_BINARY_DIR}/include/mysqlclient_ername.h
-   COMMAND comp_client_err
-   --in_file=${PROJECT_SOURCE_DIR}/include/errmsg.h
++MYSQL_ADD_EXECUTABLE(comp_client_err_unused
+   comp_client_err.cc
+   ${CMAKE_SOURCE_DIR}/libmysql/errmsg.cc
+   LINK_LIBRARIES mysys
+@@ -102,8 +102,8 @@ ADD_DEFINITIONS(-DMUTEX_EVENT)
+ # The copied shared libraries must be available at build time.
+ IF(TARGET copy_openssl_dlls)
+   ADD_DEPENDENCIES(GenError copy_openssl_dlls)
+-  ADD_DEPENDENCIES(comp_client_err copy_openssl_dlls)
+-  ADD_DEPENDENCIES(comp_err copy_openssl_dlls)
++  ADD_DEPENDENCIES(comp_client_err_unused copy_openssl_dlls)
++  ADD_DEPENDENCIES(comp_err_unused copy_openssl_dlls)
+ ENDIF()
+ 
+ MYSQL_ADD_EXECUTABLE(static_thread_local_test
