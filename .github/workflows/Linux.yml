@@ -115,6 +115,7 @@ jobs:
         make release
 
     - name: Test Extension
+      if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_amd64_gcc4' }}
       shell: bash
       run: |
         build/release/test/unittest "*test/sql/failed_to_connect.test"
