@@ -31,6 +31,10 @@ static void LoadInternal(DatabaseInstance &db) {
 	                          Value::BOOLEAN(false));
 	config.AddExtensionOption("mysql_debug_show_queries", "DEBUG SETTING: print all queries sent to MySQL to stdout",
 	                          LogicalType::BOOLEAN, Value::BOOLEAN(false), SetMySQLDebugQueryPrint);
+	
+	config.AddExtensionOption("mysql_max_threads",
+													  "Maximum number of threads to use for MySQL queries",
+	                          LogicalType::SMALLINT, Value::SMALLINT(1));
 }
 
 void MySQLScannerExtension::Load(DuckDB &db) {

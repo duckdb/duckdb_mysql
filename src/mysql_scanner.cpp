@@ -20,9 +20,10 @@ struct MySQLGlobalState : public GlobalTableFunctionState {
 
 	unique_ptr<MySQLResult> result;
 	DataChunk varchar_chunk;
+	idx_t max_threads;
 
 	idx_t MaxThreads() const override {
-		return 1;
+		return max_threads;
 	}
 };
 
@@ -62,6 +63,11 @@ static unique_ptr<GlobalTableFunctionState> MySQLInitGlobalState(ClientContext &
 	auto &con = transaction.GetConnection();
 	auto query_result = con.Query(select);
 	auto result = make_uniq<MySQLGlobalState>(std::move(query_result));
+
+	Value max_threads;
+	if (context.TryGetCurrentSetting("mysql_max_threads", max_threads)) {
+		result->max_threads = BooleanValue::Get(max_threads);
+	}
 
 	// generate the varchar chunk
 	vector<LogicalType> varchar_types;
