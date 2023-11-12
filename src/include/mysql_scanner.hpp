@@ -24,6 +24,8 @@ struct MySQLBindData : public FunctionData {
 	vector<MySQLType> mysql_types;
 	vector<string> names;
 	vector<LogicalType> types;
+	//Filter pushdown to apply
+	vector<unique_ptr<Expression>> filters_to_apply;
 
 public:
 	unique_ptr<FunctionData> Copy() const override {

@@ -35,6 +35,7 @@ TableFunction MySQLTableEntry::GetScanFunction(ClientContext &context, unique_pt
 	Value filter_pushdown;
 	if (context.TryGetCurrentSetting("mysql_experimental_filter_pushdown", filter_pushdown)) {
 		function.filter_pushdown = BooleanValue::Get(filter_pushdown);
+		function.pushdown_complex_filter = MySQLFilterPushdown::ComplexFilterPushdown;
 	}
 	return function;
 }
