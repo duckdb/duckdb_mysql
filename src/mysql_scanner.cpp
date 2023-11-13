@@ -107,7 +107,7 @@ static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChun
 			output.data[c].Reinterpret(gstate.varchar_chunk.data[c]);
 			break;
 		default:
-			VectorOperations::Cast(context, gstate.varchar_chunk.data[c], output.data[c], r);
+			VectorOperations::TryCast(context, gstate.varchar_chunk.data[c], output.data[c], r, nullptr);
 			break;
 		}
 	}
