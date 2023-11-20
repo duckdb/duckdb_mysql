@@ -24,6 +24,7 @@ public:
 	virtual void DropEntry(ClientContext &context, DropInfo &info);
 	void Scan(ClientContext &context, const std::function<void(CatalogEntry &)> &callback);
 	optional_ptr<CatalogEntry> CreateEntry(unique_ptr<CatalogEntry> entry);
+	void CacheEntries(ClientContext &context);
 	void ClearEntries();
 
 protected:

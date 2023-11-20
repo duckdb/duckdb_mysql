@@ -23,6 +23,10 @@ public:
 
 protected:
 	void LoadEntries(ClientContext &context) override;
+  void PutInCache(ClientContext &context, vector<string> &schemas);
+  vector<string> LoadSchemasFromMysqlInformationSchema(ClientContext &context);
 };
+
+extern const string MYSQL_SCHEMA_ENTRIES_CACHE_KEY;
 
 } // namespace duckdb

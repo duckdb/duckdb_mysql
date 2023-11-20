@@ -55,6 +55,7 @@ public:
 	bool InMemory() override;
 	string GetDBPath() override;
 
+	void CacheSchema(ClientContext &context);
 	void ClearCache();
 
 private:

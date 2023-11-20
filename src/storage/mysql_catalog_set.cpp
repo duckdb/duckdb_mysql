@@ -64,6 +64,13 @@ optional_ptr<CatalogEntry> MySQLCatalogSet::CreateEntry(unique_ptr<CatalogEntry>
 	return result;
 }
 
+void MySQLCatalogSet::CacheEntries(ClientContext &context) {
+	if (!is_loaded) {
+		is_loaded = true;
+		LoadEntries(context);
+	}
+}
+
 void MySQLCatalogSet::ClearEntries() {
 	entries.clear();
 	is_loaded = false;
