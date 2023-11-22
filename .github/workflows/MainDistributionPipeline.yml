@@ -21,7 +21,7 @@ jobs:
       exclude_archs: 'osx_amd64;osx_arm64'
       vcpkg_commit: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
 
-  # Note: this workaround is required for building
+  # Note: this workaround is required for building MacOS where extra toolchain config is required
   duckdb-stable-build-macos:
     name: Build extension binaries
     uses: ./.github/workflows/_extension_distribution_macos.yml
