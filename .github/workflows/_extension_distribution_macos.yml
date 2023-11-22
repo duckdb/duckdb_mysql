@@ -47,8 +47,6 @@ jobs:
     name: Generate matrix
     runs-on: ubuntu-latest
     outputs:
-      linux_matrix: ${{ steps.set-matrix-linux.outputs.linux_matrix }}
-      windows_matrix: ${{ steps.set-matrix-windows.outputs.windows_matrix }}
       osx_matrix: ${{ steps.set-matrix-osx.outputs.osx_matrix }}
     steps:
       - uses: actions/checkout@v3
@@ -63,26 +61,12 @@ jobs:
 
       - id: parse-matrices
         run: |
-          python3 ${{ inputs.matrix_parse_script }} --input ./duckdb/.github/config/distribution_matrix.json --select_os linux --output linux_matrix.json --exclude "${{ inputs.exclude_archs }}" --pretty 
-          python3 ${{ inputs.matrix_parse_script }} --input ./duckdb/.github/config/distribution_matrix.json --select_os osx --output osx_matrix.json --exclude "${{ inputs.exclude_archs }}" --pretty 
-          python3 ${{ inputs.matrix_parse_script }} --input ./duckdb/.github/config/distribution_matrix.json --select_os windows --output windows_matrix.json --exclude "${{ inputs.exclude_archs }}" --pretty          
-
-      - id: set-matrix-linux
-        run: |
-          linux_matrix="`cat linux_matrix.json`"
-          echo linux_matrix=$linux_matrix >> $GITHUB_OUTPUT
-          echo `cat $GITHUB_OUTPUT`
+          python3 ${{ inputs.matrix_parse_script }} --input ./duckdb/.github/config/distribution_matrix.json --select_os osx --output osx_matrix.json --exclude "${{ inputs.exclude_archs }}" --pretty           
 
       - id: set-matrix-osx
         run: |
           osx_matrix="`cat osx_matrix.json`"
           echo osx_matrix=$osx_matrix >> $GITHUB_OUTPUT
-          echo `cat $GITHUB_OUTPUT`
-
-      - id: set-matrix-windows
-        run: |
-          windows_matrix="`cat windows_matrix.json`"
-          echo windows_matrix=$windows_matrix >> $GITHUB_OUTPUT
           echo `cat $GITHUB_OUTPUT`
 
   macos:
