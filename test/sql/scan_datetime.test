@@ -4,6 +4,8 @@
 
 require mysql_scanner
 
+require-env MYSQL_TEST_DATABASE_AVAILABLE
+
 require icu
 
 statement ok

@@ -78,8 +78,10 @@ jobs:
       - name: Test Extension
         if: ${{ matrix.osx_build_arch == 'x86_64'}}
         shell: bash
+        env:
+          MYSQL_TEST_DATABASE_AVAILABLE: 1
         run: |
-          ./build/release/test/unittest "*mysql_scanner/test/*"
+          make test
 
       - uses: actions/upload-artifact@v2
         with:
