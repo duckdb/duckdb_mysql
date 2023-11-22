@@ -17,7 +17,7 @@ jobs:
       matrix:
         # Add commits/tags to build against other DuckDB versions
         duckdb_version: [ '<submodule_version>' ]
-        arch: ['linux_amd64', 'linux_arm64', 'linux_amd64_gcc4']
+        arch: ['linux_amd64', 'linux_amd64_gcc4']
         vcpkg_version: [ '2023.10.19' ]
         include:
           - arch: 'linux_amd64_gcc4'
@@ -26,9 +26,6 @@ jobs:
           - arch: 'linux_amd64'
             container: 'ubuntu:18.04'
             vcpkg_triplet: 'x64-linux'
-          - arch: 'linux_arm64'
-            container: 'ubuntu:18.04'
-            vcpkg_triplet: 'arm64-linux'
     env:
       VCPKG_TARGET_TRIPLET: ${{ matrix.vcpkg_triplet }}
       GEN: Ninja
