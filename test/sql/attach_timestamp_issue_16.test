@@ -1,0 +1,21 @@
+# name: test/sql/attach_timestamp_issue_16.test
+# description: Test creating a table with TIMESTAMP_TZ values
+# group: [sql]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS s (TYPE MYSQL_SCANNER)
+
+statement ok
+USE s
+
+statement ok
+DROP TABLE IF EXISTS datetime_tbl_2
+
+statement ok
+CREATE TABLE datetime_tbl_2 AS SELECT * FROM datetime_tbl
+
+query IIIII
+SELECT * FROM datetime_tbl_2 EXCEPT SELECT * FROM datetime_tbl
+----

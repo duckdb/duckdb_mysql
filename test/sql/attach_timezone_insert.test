@@ -1,0 +1,22 @@
+# name: test/sql/attach_timezone_insert.test
+# description: Test inserting timestamp with time zones into MySQL
+# group: [sql]
+
+require mysql_scanner
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS s (TYPE MYSQL_SCANNER)
+
+statement ok
+USE s
+
+statement ok
+CREATE OR REPLACE TABLE timestamp_with_tz_tbl(ts TIMESTAMP WITH TIME ZONE);
+
+statement ok
+INSERT INTO timestamp_with_tz_tbl VALUES (TIMESTAMP '2000-01-01 12:12:12')
+
+query I
+SELECT * FROM timestamp_with_tz_tbl
+----
+2000-01-01 12:12:12+00
