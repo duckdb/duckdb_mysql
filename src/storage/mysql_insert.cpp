@@ -152,6 +152,12 @@ SinkResultType MySQLInsert::Sink(ExecutionContext &context, DataChunk &chunk, Op
 		case LogicalTypeId::BLOB:
 			MySQLCastBlob(chunk.data[c], gstate.varchar_chunk.data[c], chunk.size());
 			break;
+		case LogicalTypeId::TIMESTAMP_TZ: {
+			Vector timestamp_vector(LogicalType::TIMESTAMP);
+			timestamp_vector.Reinterpret(chunk.data[c]);
+			VectorOperations::Cast(context.client, timestamp_vector, gstate.varchar_chunk.data[c], chunk.size());
+			break;
+		}
 		default:
 			VectorOperations::Cast(context.client, chunk.data[c], gstate.varchar_chunk.data[c], chunk.size());
 			break;
