@@ -18,11 +18,21 @@ jobs:
     with:
       duckdb_version: v0.9.2
       extension_name: mysql
+      exclude_archs: 'osx_amd64;osx_arm64'
+      vcpkg_commit: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
+
+  # Note: this workaround is required for building
+  duckdb-stable-build-macos:
+    name: Build extension binaries
+    uses: ./.github/workflows/_extension_distribution_macos.yml
+    with:
+      duckdb_version: v0.9.2
+      extension_name: mysql
       vcpkg_commit: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
 
   duckdb-stable-deploy:
     name: Deploy extension binaries
-    needs: duckdb-stable-build
+    needs: [duckdb-stable-build, duckdb-stable-build-macos]
     uses: ./.github/workflows/_extension_deploy.yml
     secrets: inherit
     with:
