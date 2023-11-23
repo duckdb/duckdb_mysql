@@ -1,4 +1,4 @@
-name: MacOS
+name: MacOS Tests
 on: [push, pull_request,repository_dispatch]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref || '' }}-${{ github.base_ref || '' }}-${{ github.ref != 'refs/heads/main' || github.sha }}
@@ -16,14 +16,11 @@ jobs:
         # Add commits/tags to build against other DuckDB versions
         duckdb_version: [ '<submodule_version>' ]
         vcpkg_version: [ '2023.10.19' ]
-        vcpkg_triplet: [ 'x64-osx', 'arm64-osx' ]
+        vcpkg_triplet: [ 'x64-osx' ]
         include:
           - vcpkg_triplet: 'x64-osx'
             osx_build_arch: 'x86_64'
             duckdb_arch: 'osx_amd64'
-          - vcpkg_triplet: 'arm64-osx'
-            osx_build_arch: 'arm64'
-            duckdb_arch: 'osx_arm64'
 
     env:
       VCPKG_TARGET_TRIPLET: ${{ matrix.vcpkg_triplet }}
@@ -60,9 +57,9 @@ jobs:
           python-version: '3.7'
 
       - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
+        uses: lukka/run-vcpkg@v11.1
         with:
-          vcpkgGitCommitId: 8eb57355a4ffb410a2e94c07b4dca2dffbee8e50
+          vcpkgGitCommitId: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
 
       - name: Setup MySQL
         if: ${{ matrix.osx_build_arch == 'x86_64'}}
@@ -81,14 +78,10 @@ jobs:
       - name: Test Extension
         if: ${{ matrix.osx_build_arch == 'x86_64'}}
         shell: bash
+        env:
+          MYSQL_TEST_DATABASE_AVAILABLE: 1
         run: |
-          ./build/release/test/unittest "*mysql_scanner/test/*"
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: osx-${{ matrix.osx_build_arch }}-extension
-          path: |
-            build/release/extension/mysql_scanner/mysql_scanner.duckdb_extension
+          make test
 
       - name: Log Errors
         if: failure()

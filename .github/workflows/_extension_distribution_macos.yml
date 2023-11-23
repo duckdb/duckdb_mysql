@@ -1,0 +1,133 @@
+# Reusable workflow for building a DuckDB extensions on MacOS
+#
+# Based on github.com/duckdb/duckdb/.github/workflows/_extension_distribution.yml
+# - Only the MacOS build is used
+# - some flags are added to vcpkg toolchain
+
+name: Extension distribution MacOS
+on:
+  workflow_call:
+    inputs:
+      # The name with which the extension will be built
+      extension_name:
+        required: true
+        type: string
+      # DuckDB version to build against, should in most cases be identical to
+      duckdb_version:
+        required: true
+        type: string
+      # ';' separated list of architectures to exclude, for example: 'linux_amd64;osx_arm64'
+      exclude_archs:
+        required: false
+        type: string
+        default: ""
+      # Postfix added to artifact names. Can be used to guarantee unique names when this workflow is called multiple times
+      artifact_postfix:
+        required: false
+        type: string
+        default: ""
+      # Override the default vcpkg commit used by this version of DuckDB
+      vcpkg_commit:
+        required: false
+        type: string
+        default: "a42af01b72c28a8e1d7b48107b33e4f286a55ef6"
+      # Override the default script producing the matrices. Allows specifying custom matrices.
+      matrix_parse_script:
+        required: false
+        type: string
+        default: "./duckdb/scripts/modify_distribution_matrix.py"
+      # Enable building the DuckDB Shell
+      build_duckdb_shell:
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  generate_matrix:
+    name: Generate matrix
+    runs-on: ubuntu-latest
+    outputs:
+      osx_matrix: ${{ steps.set-matrix-osx.outputs.osx_matrix }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: 'true'
+
+      - name: Checkout DuckDB to version
+        run: |
+          cd duckdb
+          git checkout ${{ inputs.duckdb_version }}
+
+      - id: parse-matrices
+        run: |
+          python3 ${{ inputs.matrix_parse_script }} --input ./duckdb/.github/config/distribution_matrix.json --select_os osx --output osx_matrix.json --exclude "${{ inputs.exclude_archs }}" --pretty           
+
+      - id: set-matrix-osx
+        run: |
+          osx_matrix="`cat osx_matrix.json`"
+          echo osx_matrix=$osx_matrix >> $GITHUB_OUTPUT
+          echo `cat $GITHUB_OUTPUT`
+
+  macos:
+    name: MacOS
+    runs-on: macos-latest
+    needs: generate_matrix
+    if: ${{ needs.generate_matrix.outputs.osx_matrix != '{}' && needs.generate_matrix.outputs.osx_matrix != '' }}
+    strategy:
+      matrix: ${{fromJson(needs.generate_matrix.outputs.osx_matrix)}}
+    env:
+      VCPKG_TOOLCHAIN_PATH: ${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+      VCPKG_TARGET_TRIPLET: ${{ matrix.vcpkg_triplet }}
+      OSX_BUILD_ARCH: ${{ matrix.osx_build_arch }}
+      GEN: Ninja
+      BUILD_SHELL: ${{ inputs.build_duckdb_shell && '1' || '0' }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: 'true'
+
+      - name: Install Ninja
+        run: |
+          brew install ninja
+
+      - name: Setup Ccache
+        uses: hendrikmuhs/ccache-action@main
+        with:
+          key: ${{ github.job }}-${{ matrix.duckdb_arch }}
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+
+      - name: Checkout DuckDB to version
+        run: |
+          cd duckdb
+          git checkout ${{ inputs.duckdb_version }}
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11.1
+        with:
+          vcpkgGitCommitId: ${{ inputs.vcpkg_commit }}
+
+      - name: Build extension
+        shell: bash
+        run: |
+          # needed for MySQL cross compilation - see https://mariadb.com/kb/en/cross-compiling-mariadb/
+          echo 'SET(STACK_DIRECTION -1)' >> ${VCPKG_TOOLCHAIN_PATH}
+          echo 'SET(HAVE_IB_GCC_ATOMIC_BUILTINS 0)' >> ${VCPKG_TOOLCHAIN_PATH}
+          make release
+
+      - name: Test Extension
+        if: ${{ matrix.osx_build_arch == 'x86_64'}}
+        shell: bash
+        run: |
+          make test
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ inputs.extension_name }}-${{ inputs.duckdb_version }}-extension-${{matrix.duckdb_arch}}${{inputs.artifact_postfix}}
+          path: |
+            build/release/extension/${{ inputs.extension_name }}/${{ inputs.extension_name }}.duckdb_extension

@@ -225,5 +225,8 @@ LOAD 'build/release/extension/mysql_scanner/mysql_scanner.duckdb_extension';
 Tests can be run with the following command:
 
 ```bash
-build/release/test/unittest --test-dir . "test/sql/*"
+make test
 ```
+
+Note that most test will require to have a mysql server running to actually run. To run these tests, setup the mysql server
+and set the environment variable `MYSQL_TEST_DATABASE_AVAILABLE=1`. 

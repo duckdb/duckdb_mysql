@@ -4,6 +4,8 @@
 
 require mysql_scanner
 
+require-env MYSQL_TEST_DATABASE_AVAILABLE
+
 statement error
 ATTACH 'host=localhost user=root port=0 database=xxzxzx' AS simple (TYPE MYSQL_SCANNER)
 ----

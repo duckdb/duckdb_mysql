@@ -1,0 +1,41 @@
+#
+# This workflow calls the main distribution pipeline from DuckDB to build, test and (optionally) release the extension
+#
+name: Main Extension Distribution Pipeline
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref || '' }}-${{ github.base_ref || '' }}-${{ github.ref != 'refs/heads/main' || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  duckdb-stable-build:
+    name: Build extension binaries
+    uses: duckdb/duckdb/.github/workflows/_extension_distribution.yml@671faf92411182f81dce42ac43de8bfb05d9909e
+    with:
+      duckdb_version: v0.9.2
+      extension_name: mysql_scanner
+      exclude_archs: 'osx_amd64;osx_arm64'
+      vcpkg_commit: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
+
+  # Note: this workaround is required for building MacOS where extra toolchain config is required
+  duckdb-stable-build-macos:
+    name: Build extension binaries
+    uses: ./.github/workflows/_extension_distribution_macos.yml
+    with:
+      duckdb_version: v0.9.2
+      extension_name: mysql_scanner
+      vcpkg_commit: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
+
+  duckdb-stable-deploy:
+    name: Deploy extension binaries
+    needs: [duckdb-stable-build, duckdb-stable-build-macos]
+    uses: ./.github/workflows/_extension_deploy.yml
+    secrets: inherit
+    with:
+      duckdb_version: v0.9.2
+      extension_name: mysql_scanner
+      deploy_latest: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
