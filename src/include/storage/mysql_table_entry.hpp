@@ -10,6 +10,7 @@
 
 #include "duckdb/catalog/catalog_entry/table_catalog_entry.hpp"
 #include "duckdb/parser/parsed_data/create_table_info.hpp"
+#include "mysql_filter_pushdown.hpp"
 #include "mysql_utils.hpp"
 
 namespace duckdb {

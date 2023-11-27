@@ -1,5 +1,7 @@
 #include "mysql_filter_pushdown.hpp"
+#include "mysql_scanner.hpp"
 #include "mysql_utils.hpp"
+#include <iostream>
 
 namespace duckdb {
 
@@ -25,6 +27,8 @@ string MySQLFilterPushdown::TransformComparision(ExpressionType type) {
 		return "<=";
 	case ExpressionType::COMPARE_GREATERTHANOREQUALTO:
 		return ">=";
+	case ExpressionType::COMPARE_IN:
+		return "IN";	
 	default:
 		throw NotImplementedException("Unsupported expression type");
 	}
@@ -57,8 +61,11 @@ string MySQLFilterPushdown::TransformFilter(string &column_name, TableFilter &fi
 
 string MySQLFilterPushdown::TransformFilters(const vector<column_t> &column_ids, optional_ptr<TableFilterSet> filters,
                                              const vector<string> &names) {
+	
+	std::cout << "TransformFilters" << std::endl;
 	if (!filters || filters->filters.empty()) {
 		// no filters
+		std::cout << "No filter" << std::endl;
 		return string();
 	}
 	string result;
@@ -68,9 +75,38 @@ string MySQLFilterPushdown::TransformFilters(const vector<column_t> &column_ids,
 		}
 		auto column_name = MySQLUtils::WriteIdentifier(names[column_ids[entry.first]]);
 		auto &filter = *entry.second;
+		std::cout << "filter: " << filter.ToString(column_name) << std::endl;
 		result += TransformFilter(column_name, filter);
 	}
 	return result;
+}
+
+void MySQLFilterPushdown::ComplexFilterPushdown(ClientContext &context, LogicalGet &get, FunctionData *bind_data_p,
+                                     vector<unique_ptr<Expression>> &filters) {
+	
+	auto &data = bind_data_p->Cast<MySQLBindData>();
+	vector<unique_ptr<Expression>> filters_to_apply;
+	vector<unique_ptr<Expression>> unsupported_filters;
+
+	for (idx_t j = 0; j < filters.size(); j++) {
+			auto &filter = filters[j];
+			std::cout << "current filter : " << filter->ToString() << std::endl;
+			unique_ptr<Expression> filter_copy = filter->Copy();
+			if (filter->expression_class == ExpressionClass::BOUND_EXPRESSION ||
+					filter->expression_class == ExpressionClass::BOUND_CONSTANT || 
+					filter->expression_class == ExpressionClass::BOUND_CONJUNCTION ||
+					filter->expression_class == ExpressionClass::BOUND_COMPARISON ||
+					filter->expression_class == ExpressionClass::BOUND_OPERATOR) {
+					filters_to_apply.emplace_back(std::move(filter_copy));
+					std::cout << "filters_to_apply : " << filter->ToString() << std::endl;
+			} else {
+					unsupported_filters.emplace_back(std::move(filter_copy));
+					std::cout << "unsupported_filters : " << filter->ToString() << " with class: " << static_cast<int>(filter->expression_class) << std::endl;
+			}
+		}
+	
+	data.filters_to_apply = std::move(filters_to_apply);	
+	filters = std::move(unsupported_filters);
 }
 
 } // namespace duckdb

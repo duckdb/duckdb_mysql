@@ -79,6 +79,7 @@ static unique_ptr<LocalTableFunctionState> MySQLInitLocalState(ExecutionContext 
 
 static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChunk &output) {
 	auto &gstate = data.global_state->Cast<MySQLGlobalState>();
+	data.bind_data->Cast<MySQLBindData>();
 	idx_t r;
 	for (r = 0; r < STANDARD_VECTOR_SIZE; r++) {
 		if (!gstate.result->Next()) {
