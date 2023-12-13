@@ -92,6 +92,10 @@ WHERE table_schema = ${SCHEMA_NAME};
 	return size;
 }
 
+void MySQLCatalog::CacheSchema(ClientContext &context) {
+	schemas.CacheEntries(context);
+}
+
 void MySQLCatalog::ClearCache() {
 	schemas.ClearEntries();
 }
