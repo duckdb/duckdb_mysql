@@ -80,6 +80,7 @@ static unique_ptr<LocalTableFunctionState> MySQLInitLocalState(ExecutionContext 
 static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChunk &output) {
 	auto &gstate = data.global_state->Cast<MySQLGlobalState>();
 	idx_t r;
+	gstate.varchar_chunk.Reset();
 	for (r = 0; r < STANDARD_VECTOR_SIZE; r++) {
 		if (!gstate.result->Next()) {
 			// exhausted result
