@@ -1,0 +1,24 @@
+# name: test/sql/attach_many_nulls.test
+# description: Test reading a table with many NULL values
+# group: [sql]
+
+require mysql_scanner
+
+require-env MYSQL_TEST_DATABASE_AVAILABLE
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS s (TYPE MYSQL_SCANNER)
+
+statement ok
+CREATE OR REPLACE TABLE s.many_nulls(id INT);
+
+statement ok
+INSERT INTO s.many_nulls SELECT NULL FROM range(10000);
+
+statement ok
+INSERT INTO s.many_nulls VALUES (42);
+
+query I
+SELECT * FROM s.many_nulls WHERE id IS NOT NULL
+----
+42
