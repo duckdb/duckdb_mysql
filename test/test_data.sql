@@ -117,3 +117,14 @@ INSERT INTO set_tbl (col) VALUES ('a,d'), ('d,a'), ('a,d,a'), ('a,d,d'), ('d,a,d
 
 CREATE TABLE json_tbl (col JSON);
 INSERT INTO json_tbl (col) VALUES ('{"k1": "value", "k2": 10}'), ('["abc", 10, null, true, false]'), (NULL);
+
+CREATE TABLE `latin_unicode` (
+  `id_user` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  PRIMARY KEY (`id_user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO latin_unicode (name) VALUES ('Graça');
+
+SET sql_mode = '';
+CREATE TABLE zero_date(d DATE, ts TIMESTAMP);
+INSERT INTO zero_date VALUES ('0000-00-00', '0000-00-00 00:00:00');

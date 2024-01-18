@@ -1,0 +1,15 @@
+# name: test/sql/attach_zero_date.test
+# description: Test querying zero dates
+# group: [sql]
+
+require mysql_scanner
+
+require-env MYSQL_TEST_DATABASE_AVAILABLE
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS simple (TYPE MYSQL_SCANNER)
+
+query II
+SELECT * FROM simple.zero_date
+----
+NULL	NULL

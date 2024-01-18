@@ -30,6 +30,7 @@ MySQLConnection MySQLConnection::Open(const string &connection_string) {
 	MySQLConnection result;
 	result.connection = make_shared<OwnedMySQLConnection>(MySQLUtils::Connect(connection_string));
 	result.dsn = connection_string;
+	result.Execute("SET character_set_results = 'utf8mb4';");
 	return result;
 }
 
