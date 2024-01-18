@@ -77,6 +77,24 @@ static unique_ptr<LocalTableFunctionState> MySQLInitLocalState(ExecutionContext 
 	return make_uniq<MySQLLocalState>();
 }
 
+void CastBoolFromMySQL(ClientContext &context, Vector &input, Vector &result, idx_t size) {
+	auto input_data = FlatVector::GetData<string_t>(input);
+	auto result_data = FlatVector::GetData<bool>(result);
+	for (idx_t r = 0; r < size; r++) {
+		if (FlatVector::IsNull(input, r)) {
+			FlatVector::SetNull(result, r, true);
+			continue;
+		}
+		auto str_data = input_data[r].GetData();
+		auto str_size = input_data[r].GetSize();
+		if (str_size != 1) {
+			throw BinderException("Failed to cast MySQL boolean - expected 1 byte element but got element of size %s", str_size);
+		}
+		auto bool_char = *str_data;
+		result_data[r] = bool_char == '\1' || bool_char == '1';
+	}
+}
+
 static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChunk &output) {
 	auto &gstate = data.global_state->Cast<MySQLGlobalState>();
 	idx_t r;
@@ -92,7 +110,7 @@ static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChun
 				FlatVector::SetNull(vec, r, true);
 			} else {
 				auto string_data = FlatVector::GetData<string_t>(vec);
-				string_data[r] = StringVector::AddString(vec, gstate.result->GetString(c));
+				string_data[r] = StringVector::AddString(vec, gstate.result->GetStringT(c));
 			}
 		}
 	}
@@ -107,9 +125,15 @@ static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChun
 			// blobs are sent over the wire as-is
 			output.data[c].Reinterpret(gstate.varchar_chunk.data[c]);
 			break;
-		default:
-			VectorOperations::TryCast(context, gstate.varchar_chunk.data[c], output.data[c], r, nullptr);
+		case LogicalTypeId::BOOLEAN:
+			// booleans can be sent either as numbers ('0' or '1') or as bits ('\0' or '\1')
+			CastBoolFromMySQL(context, gstate.varchar_chunk.data[c], output.data[c], r);
 			break;
+		default: {
+			string error;
+			VectorOperations::TryCast(context, gstate.varchar_chunk.data[c], output.data[c], r, &error);
+			break;
+		}
 		}
 	}
 	output.SetCardinality(r);

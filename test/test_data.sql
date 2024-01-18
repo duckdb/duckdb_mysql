@@ -80,6 +80,9 @@ INSERT INTO decimals VALUES (
 	NULL
 );
 
+-- MySQL doesn't support a "proper" boolean so people often use TINYINT(1) or BIT(1) as boolean
+CREATE TABLE fake_booleans(tinyint_bool TINYINT(1), bit_bool BIT(1));
+INSERT INTO fake_booleans VALUES (true, true), (false, false), (NULL, NULL);
 
 CREATE TABLE bits(b BIT(6), bl BIT(64));
 INSERT INTO bits VALUES (b'000101', b'010101010101010101');

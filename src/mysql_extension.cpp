@@ -31,6 +31,12 @@ static void LoadInternal(DatabaseInstance &db) {
 	                          Value::BOOLEAN(false));
 	config.AddExtensionOption("mysql_debug_show_queries", "DEBUG SETTING: print all queries sent to MySQL to stdout",
 	                          LogicalType::BOOLEAN, Value::BOOLEAN(false), SetMySQLDebugQueryPrint);
+	config.AddExtensionOption("mysql_tinyint1_as_boolean",
+							  "Whether or not to convert TINYINT(1) columns to BOOLEAN", LogicalType::BOOLEAN,
+							  Value::BOOLEAN(true), MySQLClearCacheFunction::ClearCacheOnSetting);
+	config.AddExtensionOption("mysql_bit1_as_boolean",
+							  "Whether or not to convert BIT(1) columns to BOOLEAN", LogicalType::BOOLEAN,
+							  Value::BOOLEAN(true), MySQLClearCacheFunction::ClearCacheOnSetting);
 }
 
 void MySQLScannerExtension::Load(DuckDB &db) {

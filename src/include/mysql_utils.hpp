@@ -46,7 +46,7 @@ public:
 	static MYSQL *Connect(const string &dsn);
 
 	static LogicalType ToMySQLType(const LogicalType &input);
-	static LogicalType TypeToLogicalType(const MySQLTypeData &input);
+	static LogicalType TypeToLogicalType(ClientContext &context, const MySQLTypeData &input);
 	static string TypeToString(const LogicalType &input);
 
 	static string WriteIdentifier(const string &identifier);

@@ -21,11 +21,7 @@ static unique_ptr<FunctionData> ClearCacheBind(ClientContext &context, TableFunc
 	return std::move(result);
 }
 
-static void ClearCacheFunction(ClientContext &context, TableFunctionInput &data_p, DataChunk &output) {
-	auto &data = data_p.bind_data->CastNoConst<ClearCacheFunctionData>();
-	if (data.finished) {
-		return;
-	}
+static void ClearMySQLCaches(ClientContext &context) {
 	auto databases = DatabaseManager::Get(context).GetDatabases(context);
 	for (auto &db_ref : databases) {
 		auto &db = db_ref.get();
@@ -35,10 +31,22 @@ static void ClearCacheFunction(ClientContext &context, TableFunctionInput &data_
 		}
 		catalog.Cast<MySQLCatalog>().ClearCache();
 	}
+}
+
+static void ClearCacheFunction(ClientContext &context, TableFunctionInput &data_p, DataChunk &output) {
+	auto &data = data_p.bind_data->CastNoConst<ClearCacheFunctionData>();
+	if (data.finished) {
+		return;
+	}
+	ClearMySQLCaches(context);
 	data.finished = true;
 }
 
+void MySQLClearCacheFunction::ClearCacheOnSetting(ClientContext &context, SetScope scope, Value &parameter) {
+	ClearMySQLCaches(context);
+}
+
 MySQLClearCacheFunction::MySQLClearCacheFunction()
-    : TableFunction("pg_clear_cache", {}, ClearCacheFunction, ClearCacheBind) {
+    : TableFunction("mysql_clear_cache", {}, ClearCacheFunction, ClearCacheBind) {
 }
 } // namespace duckdb
