@@ -117,3 +117,7 @@ INSERT INTO set_tbl (col) VALUES ('a,d'), ('d,a'), ('a,d,a'), ('a,d,d'), ('d,a,d
 
 CREATE TABLE json_tbl (col JSON);
 INSERT INTO json_tbl (col) VALUES ('{"k1": "value", "k2": 10}'), ('["abc", 10, null, true, false]'), (NULL);
+
+SET GLOBAL sql_mode='TRADITIONAL';
+CREATE TABLE zero_date(d DATE, ts TIMESTAMP);
+INSERT INTO zero_date VALUES ('0000-00-00', '0000-00-00 00:00:00');
