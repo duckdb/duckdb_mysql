@@ -24,9 +24,7 @@ public:
 public:
 	optional_ptr<CatalogEntry> CreateTable(ClientContext &context, BoundCreateTableInfo &info);
 
-	static unique_ptr<MySQLTableInfo> GetTableInfo(MySQLTransaction &transaction, MySQLSchemaEntry &schema,
-	                                               const string &table_name);
-	static unique_ptr<MySQLTableInfo> GetTableInfo(MySQLConnection &connection, const string &schema_name,
+	static unique_ptr<MySQLTableInfo> GetTableInfo(ClientContext &context, MySQLSchemaEntry &schema,
 	                                               const string &table_name);
 	optional_ptr<CatalogEntry> RefreshTable(ClientContext &context, const string &table_name);
 
@@ -40,7 +38,7 @@ protected:
 	void AlterTable(ClientContext &context, AddColumnInfo &info);
 	void AlterTable(ClientContext &context, RemoveColumnInfo &info);
 
-	static void AddColumn(MySQLResult &result, MySQLTableInfo &table_info, idx_t column_offset = 0);
+	static void AddColumn(ClientContext &context, MySQLResult &result, MySQLTableInfo &table_info, idx_t column_offset = 0);
 
 protected:
 	MySQLSchemaEntry &schema;

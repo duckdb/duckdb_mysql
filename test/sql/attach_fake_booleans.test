@@ -1,0 +1,52 @@
+# name: test/sql/attach_fake_booleans.test
+# description: Test fake booleans
+# group: [sql]
+
+require mysql_scanner
+
+require-env MYSQL_TEST_DATABASE_AVAILABLE
+
+statement ok
+SET GLOBAL mysql_experimental_filter_pushdown=true;
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS s1 (TYPE MYSQL_SCANNER)
+
+query II
+SELECT * FROM s1.fake_booleans
+----
+true	true
+false	false
+NULL	NULL
+
+query II
+SELECT typeof(tinyint_bool), typeof(bit_bool) FROM s1.fake_booleans LIMIT 1
+----
+BOOLEAN	BOOLEAN
+
+statement ok
+SET mysql_tinyint1_as_boolean=false
+
+query II
+SELECT typeof(tinyint_bool), typeof(bit_bool) FROM s1.fake_booleans LIMIT 1
+----
+TINYINT	BOOLEAN
+
+statement ok
+SET mysql_bit1_as_boolean=false
+
+query II
+SELECT typeof(tinyint_bool), typeof(bit_bool) FROM s1.fake_booleans LIMIT 1
+----
+TINYINT	BLOB
+
+statement ok
+SET mysql_tinyint1_as_boolean=true
+
+statement ok
+SET mysql_bit1_as_boolean=true
+
+query II
+SELECT typeof(tinyint_bool), typeof(bit_bool) FROM s1.fake_booleans LIMIT 1
+----
+BOOLEAN	BOOLEAN

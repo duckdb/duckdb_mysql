@@ -16,7 +16,7 @@ namespace duckdb {
 MySQLTableSet::MySQLTableSet(MySQLSchemaEntry &schema) : MySQLCatalogSet(schema.ParentCatalog()), schema(schema) {
 }
 
-void MySQLTableSet::AddColumn(MySQLResult &result, MySQLTableInfo &table_info, idx_t column_offset) {
+void MySQLTableSet::AddColumn(ClientContext &context, MySQLResult &result, MySQLTableInfo &table_info, idx_t column_offset) {
 	MySQLTypeData type_info;
 	idx_t column_index = column_offset;
 	auto column_name = result.GetString(column_index);
@@ -27,7 +27,7 @@ void MySQLTableSet::AddColumn(MySQLResult &result, MySQLTableInfo &table_info, i
 	type_info.precision = result.IsNull(column_index + 5) ? -1 : result.GetInt64(column_index + 5);
 	type_info.scale = result.IsNull(column_index + 6) ? -1 : result.GetInt64(column_index + 6);
 
-	auto column_type = MySQLUtils::TypeToLogicalType(type_info);
+	auto column_type = MySQLUtils::TypeToLogicalType(context, type_info);
 	ColumnDefinition column(std::move(column_name), std::move(column_type));
 	if (!default_value.empty()) {
 		auto expressions = Parser::ParseExpressionList(default_value);
@@ -67,7 +67,7 @@ ORDER BY table_name, ordinal_position;
 			}
 			info = make_uniq<MySQLTableInfo>(schema, table_name);
 		}
-		AddColumn(*result, *info, 1);
+		AddColumn(context, *result, *info, 1);
 	}
 	if (info) {
 		tables.push_back(std::move(info));
@@ -89,31 +89,20 @@ ORDER BY table_name, ordinal_position;
 	                           "${TABLE_NAME}", MySQLUtils::WriteLiteral(table_name));
 }
 
-unique_ptr<MySQLTableInfo> MySQLTableSet::GetTableInfo(MySQLTransaction &transaction, MySQLSchemaEntry &schema,
+unique_ptr<MySQLTableInfo> MySQLTableSet::GetTableInfo(ClientContext &context, MySQLSchemaEntry &schema,
                                                        const string &table_name) {
+		auto &transaction = MySQLTransaction::Get(context, schema.ParentCatalog());
 	auto query = GetTableInfoQuery(schema.name, table_name);
 	auto result = transaction.Query(query);
 	auto table_info = make_uniq<MySQLTableInfo>(schema, table_name);
 	while (result->Next()) {
-		AddColumn(*result, *table_info, 0);
-	}
-	return table_info;
-}
-
-unique_ptr<MySQLTableInfo> MySQLTableSet::GetTableInfo(MySQLConnection &connection, const string &schema_name,
-                                                       const string &table_name) {
-	auto query = GetTableInfoQuery(schema_name, table_name);
-	auto result = connection.Query(query);
-	auto table_info = make_uniq<MySQLTableInfo>(schema_name, table_name);
-	while (result->Next()) {
-		AddColumn(*result, *table_info, 0);
+		AddColumn(context, *result, *table_info, 0);
 	}
 	return table_info;
 }
 
 optional_ptr<CatalogEntry> MySQLTableSet::RefreshTable(ClientContext &context, const string &table_name) {
-	auto &transaction = MySQLTransaction::Get(context, catalog);
-	auto table_info = GetTableInfo(transaction, schema, table_name);
+	auto table_info = GetTableInfo(context, schema, table_name);
 	auto table_entry = make_uniq<MySQLTableEntry>(catalog, schema, *table_info);
 	auto table_ptr = table_entry.get();
 	CreateEntry(std::move(table_entry));

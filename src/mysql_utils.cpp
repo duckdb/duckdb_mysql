@@ -88,8 +88,16 @@ string MySQLUtils::TypeToString(const LogicalType &input) {
 	}
 }
 
-LogicalType MySQLUtils::TypeToLogicalType(const MySQLTypeData &type_info) {
+LogicalType MySQLUtils::TypeToLogicalType(ClientContext &context, const MySQLTypeData &type_info) {
 	if (type_info.type_name == "tinyint") {
+		if (type_info.column_type == "tinyint(1)") {
+			Value tinyint_as_boolean;
+			if (context.TryGetCurrentSetting("mysql_tinyint1_as_boolean", tinyint_as_boolean)) {
+				if (BooleanValue::Get(tinyint_as_boolean)) {
+					return LogicalType::BOOLEAN;
+				}
+			}
+		}
 		if (StringUtil::Contains(type_info.column_type, "unsigned")) {
 			return LogicalType::UTINYINT;
 		} else {
@@ -144,7 +152,17 @@ LogicalType MySQLUtils::TypeToLogicalType(const MySQLTypeData &type_info) {
 	} else if (type_info.type_name == "set") {
 		// FIXME: set is essentially a list of enum
 		return LogicalType::VARCHAR;
-	} else if (type_info.type_name == "bit" || type_info.type_name == "blob" || type_info.type_name == "binary" ||
+	} else if (type_info.type_name == "bit") {
+		if (type_info.column_type == "bit(1)") {
+			Value bit_as_boolean;
+			if (context.TryGetCurrentSetting("mysql_bit1_as_boolean", bit_as_boolean)) {
+				if (BooleanValue::Get(bit_as_boolean)) {
+					return LogicalType::BOOLEAN;
+				}
+			}
+		}
+		return LogicalType::BLOB;
+	} else if (type_info.type_name == "blob" || type_info.type_name == "binary" ||
 	           type_info.type_name == "varbinary") {
 		return LogicalType::BLOB;
 	} else if (type_info.type_name == "varchar" || type_info.type_name == "mediumtext" ||

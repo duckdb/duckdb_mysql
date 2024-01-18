@@ -1,0 +1,67 @@
+# name: test/sql/attach_clear_cache.test
+# description: Vigorously clear caches
+# group: [sql]
+
+require mysql_scanner
+
+require-env MYSQL_TEST_DATABASE_AVAILABLE
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysql' AS simple (TYPE MYSQL_SCANNER)
+
+statement ok
+DROP TABLE IF EXISTS simple.test
+
+statement ok
+CALL mysql_clear_cache();
+
+statement ok
+CREATE TABLE simple.test(i INTEGER);
+
+statement ok
+CALL mysql_clear_cache();
+
+query I
+INSERT INTO simple.test VALUES (42);
+----
+1
+
+statement ok
+CALL mysql_clear_cache();
+
+query I
+SELECT * FROM simple.test
+----
+42
+
+statement ok
+CALL mysql_clear_cache();
+
+# insert into a non-existent table
+statement error
+INSERT INTO simple.tst VALUES (84)
+----
+test
+
+statement ok
+CALL mysql_clear_cache();
+
+statement error
+INSERT INTO simple.tst VALUES (84)
+----
+test
+
+statement ok
+CALL mysql_clear_cache();
+
+# create table as
+statement ok
+CREATE OR REPLACE TABLE simple.test2 AS SELECT 84
+
+statement ok
+CALL mysql_clear_cache();
+
+query I
+SELECT * FROM simple.test2
+----
+84

@@ -29,6 +29,10 @@ public:
 		D_ASSERT(res);
 		return string(GetNonNullValue(col), lengths[col]);
 	}
+	string_t GetStringT(idx_t col) {
+		D_ASSERT(res);
+		return string_t(GetNonNullValue(col), lengths[col]);
+	}
 	int32_t GetInt32(idx_t col) {
 		return atoi(GetNonNullValue(col));
 	}
