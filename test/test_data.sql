@@ -126,6 +126,5 @@ CREATE TABLE `latin_unicode` (
 INSERT INTO latin_unicode (name) VALUES ('Graça');
 
 SET sql_mode = '';
-SET GLOBAL sql_mode='';
 CREATE TABLE zero_date(d DATE, ts TIMESTAMP);
 INSERT INTO zero_date VALUES ('0000-00-00', '0000-00-00 00:00:00');
