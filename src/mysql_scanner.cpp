@@ -97,6 +97,7 @@ void CastBoolFromMySQL(ClientContext &context, Vector &input, Vector &result, id
 
 static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChunk &output) {
 	auto &gstate = data.global_state->Cast<MySQLGlobalState>();
+	data.bind_data->Cast<MySQLBindData>();
 	idx_t r;
 	gstate.varchar_chunk.Reset();
 	for (r = 0; r < STANDARD_VECTOR_SIZE; r++) {
