@@ -16,7 +16,8 @@ namespace duckdb {
 MySQLTableSet::MySQLTableSet(MySQLSchemaEntry &schema) : MySQLCatalogSet(schema.ParentCatalog()), schema(schema) {
 }
 
-void MySQLTableSet::AddColumn(ClientContext &context, MySQLResult &result, MySQLTableInfo &table_info, idx_t column_offset) {
+void MySQLTableSet::AddColumn(ClientContext &context, MySQLResult &result, MySQLTableInfo &table_info,
+                              idx_t column_offset) {
 	MySQLTypeData type_info;
 	idx_t column_index = column_offset;
 	auto column_name = result.GetString(column_index);
@@ -91,7 +92,7 @@ ORDER BY table_name, ordinal_position;
 
 unique_ptr<MySQLTableInfo> MySQLTableSet::GetTableInfo(ClientContext &context, MySQLSchemaEntry &schema,
                                                        const string &table_name) {
-		auto &transaction = MySQLTransaction::Get(context, schema.ParentCatalog());
+	auto &transaction = MySQLTransaction::Get(context, schema.ParentCatalog());
 	auto query = GetTableInfoQuery(schema.name, table_name);
 	auto result = transaction.Query(query);
 	auto table_info = make_uniq<MySQLTableInfo>(schema, table_name);

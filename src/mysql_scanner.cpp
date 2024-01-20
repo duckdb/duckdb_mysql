@@ -57,6 +57,9 @@ static unique_ptr<GlobalTableFunctionState> MySQLInitGlobalState(ClientContext &
 	if (!filter_string.empty()) {
 		select += " WHERE " + filter_string;
 	}
+	if (!bind_data.limit.empty()) {
+		select += bind_data.limit;
+	}
 	// run the query
 	auto &transaction = MySQLTransaction::Get(context, bind_data.table.catalog);
 	auto &con = transaction.GetConnection();
@@ -88,7 +91,8 @@ void CastBoolFromMySQL(ClientContext &context, Vector &input, Vector &result, id
 		auto str_data = input_data[r].GetData();
 		auto str_size = input_data[r].GetSize();
 		if (str_size != 1) {
-			throw BinderException("Failed to cast MySQL boolean - expected 1 byte element but got element of size %s", str_size);
+			throw BinderException("Failed to cast MySQL boolean - expected 1 byte element but got element of size %s",
+			                      str_size);
 		}
 		auto bool_char = *str_data;
 		result_data[r] = bool_char == '\1' || bool_char == '1';

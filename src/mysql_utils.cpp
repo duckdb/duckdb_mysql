@@ -162,8 +162,7 @@ LogicalType MySQLUtils::TypeToLogicalType(ClientContext &context, const MySQLTyp
 			}
 		}
 		return LogicalType::BLOB;
-	} else if (type_info.type_name == "blob" || type_info.type_name == "binary" ||
-	           type_info.type_name == "varbinary") {
+	} else if (type_info.type_name == "blob" || type_info.type_name == "binary" || type_info.type_name == "varbinary") {
 		return LogicalType::BLOB;
 	} else if (type_info.type_name == "varchar" || type_info.type_name == "mediumtext" ||
 	           type_info.type_name == "longtext" || type_info.type_name == "text" || type_info.type_name == "enum" ||

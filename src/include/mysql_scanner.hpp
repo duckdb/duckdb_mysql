@@ -24,10 +24,11 @@ struct MySQLBindData : public FunctionData {
 	vector<MySQLType> mysql_types;
 	vector<string> names;
 	vector<LogicalType> types;
+	string limit;
 
 public:
 	unique_ptr<FunctionData> Copy() const override {
-		throw NotImplementedException("");
+		throw NotImplementedException("MySQLBindData copy not supported");
 	}
 	bool Equals(const FunctionData &other_p) const override {
 		return false;

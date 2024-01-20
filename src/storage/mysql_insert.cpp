@@ -253,7 +253,7 @@ SourceResultType MySQLInsert::GetData(ExecutionContext &context, DataChunk &chun
 // Helpers
 //===--------------------------------------------------------------------===//
 string MySQLInsert::GetName() const {
-	return table ? "INSERT" : "CREATE_TABLE_AS";
+	return table ? "MYSQL_INSERT" : "MYSQL_CREATE_TABLE_AS";
 }
 
 string MySQLInsert::ParamsToString() const {
