@@ -8,6 +8,7 @@ add_library(
   mysql_index_entry.cpp
   mysql_index_set.cpp
   mysql_insert.cpp
+  mysql_optimizer.cpp
   mysql_schema_entry.cpp
   mysql_schema_set.cpp
   mysql_table_entry.cpp

@@ -38,7 +38,8 @@ protected:
 	void AlterTable(ClientContext &context, AddColumnInfo &info);
 	void AlterTable(ClientContext &context, RemoveColumnInfo &info);
 
-	static void AddColumn(ClientContext &context, MySQLResult &result, MySQLTableInfo &table_info, idx_t column_offset = 0);
+	static void AddColumn(ClientContext &context, MySQLResult &result, MySQLTableInfo &table_info,
+	                      idx_t column_offset = 0);
 
 protected:
 	MySQLSchemaEntry &schema;
