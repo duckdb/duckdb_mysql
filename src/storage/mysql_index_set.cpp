@@ -7,7 +7,7 @@
 
 namespace duckdb {
 
-MySQLIndexSet::MySQLIndexSet(MySQLSchemaEntry &schema) : MySQLCatalogSet(schema.ParentCatalog()), schema(schema) {
+MySQLIndexSet::MySQLIndexSet(MySQLSchemaEntry &schema) : MySQLInSchemaSet(schema) {
 }
 
 void MySQLIndexSet::DropEntry(ClientContext &context, DropInfo &info) {

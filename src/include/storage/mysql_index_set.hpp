@@ -14,7 +14,7 @@
 namespace duckdb {
 class MySQLSchemaEntry;
 
-class MySQLIndexSet : public MySQLCatalogSet {
+class MySQLIndexSet : public MySQLInSchemaSet {
 public:
 	MySQLIndexSet(MySQLSchemaEntry &schema);
 
@@ -22,9 +22,6 @@ public:
 
 protected:
 	void LoadEntries(ClientContext &context) override;
-
-protected:
-	MySQLSchemaEntry &schema;
 };
 
 } // namespace duckdb
