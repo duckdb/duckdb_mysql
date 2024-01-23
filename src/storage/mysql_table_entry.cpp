@@ -66,11 +66,7 @@ static bool TableIsInternal(const SchemaCatalogEntry &schema, const string &name
 		"time_zone_transition_type",
 		"user"
 	};
-	auto is_internal = system_tables.find(name) != system_tables.end();
-	if (name == "tables_priv" && !is_internal) {
-		throw InternalException("eek");
-	}
-	return is_internal;
+	return system_tables.find(name) != system_tables.end();
 }
 
 MySQLTableEntry::MySQLTableEntry(Catalog &catalog, SchemaCatalogEntry &schema, CreateTableInfo &info)
