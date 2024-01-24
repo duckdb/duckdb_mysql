@@ -1,6 +1,8 @@
 #include "storage/mysql_catalog_set.hpp"
 #include "storage/mysql_transaction.hpp"
 #include "duckdb/parser/parsed_data/drop_info.hpp"
+#include "storage/mysql_schema_entry.hpp"
+
 namespace duckdb {
 
 MySQLCatalogSet::MySQLCatalogSet(Catalog &catalog) : catalog(catalog), is_loaded(false) {
@@ -67,6 +69,17 @@ optional_ptr<CatalogEntry> MySQLCatalogSet::CreateEntry(unique_ptr<CatalogEntry>
 void MySQLCatalogSet::ClearEntries() {
 	entries.clear();
 	is_loaded = false;
+}
+
+MySQLInSchemaSet::MySQLInSchemaSet(MySQLSchemaEntry &schema) :
+	MySQLCatalogSet(schema.ParentCatalog()), schema(schema) {
+}
+
+optional_ptr<CatalogEntry> MySQLInSchemaSet::CreateEntry(unique_ptr<CatalogEntry> entry) {
+	if (!entry->internal) {
+		entry->internal = schema.internal;
+	}
+	return MySQLCatalogSet::CreateEntry(std::move(entry));
 }
 
 } // namespace duckdb

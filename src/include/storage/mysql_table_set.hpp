@@ -17,7 +17,7 @@ class MySQLConnection;
 class MySQLResult;
 class MySQLSchemaEntry;
 
-class MySQLTableSet : public MySQLCatalogSet {
+class MySQLTableSet : public MySQLInSchemaSet {
 public:
 	explicit MySQLTableSet(MySQLSchemaEntry &schema);
 
@@ -40,9 +40,6 @@ protected:
 
 	static void AddColumn(ClientContext &context, MySQLResult &result, MySQLTableInfo &table_info,
 	                      idx_t column_offset = 0);
-
-protected:
-	MySQLSchemaEntry &schema;
 };
 
 } // namespace duckdb

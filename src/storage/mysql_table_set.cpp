@@ -13,7 +13,7 @@
 
 namespace duckdb {
 
-MySQLTableSet::MySQLTableSet(MySQLSchemaEntry &schema) : MySQLCatalogSet(schema.ParentCatalog()), schema(schema) {
+MySQLTableSet::MySQLTableSet(MySQLSchemaEntry &schema) : MySQLInSchemaSet(schema) {
 }
 
 void MySQLTableSet::AddColumn(ClientContext &context, MySQLResult &result, MySQLTableInfo &table_info,
