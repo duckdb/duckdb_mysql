@@ -7,26 +7,26 @@ MySQLTransactionManager::MySQLTransactionManager(AttachedDatabase &db_p, MySQLCa
     : TransactionManager(db_p), mysql_catalog(mysql_catalog) {
 }
 
-Transaction *MySQLTransactionManager::StartTransaction(ClientContext &context) {
+Transaction &MySQLTransactionManager::StartTransaction(ClientContext &context) {
 	auto transaction = make_uniq<MySQLTransaction>(mysql_catalog, *this, context);
 	transaction->Start();
-	auto result = transaction.get();
+	auto &result = *transaction;
 	lock_guard<mutex> l(transaction_lock);
 	transactions[result] = std::move(transaction);
 	return result;
 }
 
-string MySQLTransactionManager::CommitTransaction(ClientContext &context, Transaction *transaction) {
-	auto mysql_transaction = (MySQLTransaction *)transaction;
-	mysql_transaction->Commit();
+ErrorData MySQLTransactionManager::CommitTransaction(ClientContext &context, Transaction &transaction) {
+	auto &mysql_transaction = transaction.Cast<MySQLTransaction>();
+	mysql_transaction.Commit();
 	lock_guard<mutex> l(transaction_lock);
 	transactions.erase(transaction);
-	return string();
+	return ErrorData();
 }
 
-void MySQLTransactionManager::RollbackTransaction(Transaction *transaction) {
-	auto mysql_transaction = (MySQLTransaction *)transaction;
-	mysql_transaction->Rollback();
+void MySQLTransactionManager::RollbackTransaction(Transaction &transaction) {
+	auto &mysql_transaction = transaction.Cast<MySQLTransaction>();
+	mysql_transaction.Rollback();
 	lock_guard<mutex> l(transaction_lock);
 	transactions.erase(transaction);
 }
