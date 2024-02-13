@@ -18,7 +18,7 @@ jobs:
     with:
       duckdb_version: v0.10.0
       extension_name: mysql_scanner
-      exclude_archs: 'osx_amd64;osx_arm64'
+      exclude_archs: 'osx_amd64;osx_arm64;wasm_mvp;wasm_eh;wasm_threads;windows_amd64_rtools'
       vcpkg_commit: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
 
   # Note: this workaround is required for building MacOS where extra toolchain config is required
