@@ -4,6 +4,13 @@
 
 namespace duckdb {
 
+static bool MySQLSchemaIsInternal(const string &name) {
+	if (name == "information_schema" || name == "performance_schema" || name == "sys") {
+		return true;
+	}
+	return false;
+}
+
 MySQLSchemaSet::MySQLSchemaSet(Catalog &catalog) : MySQLCatalogSet(catalog) {
 }
 
@@ -16,8 +23,10 @@ FROM information_schema.schemata;
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	auto result = transaction.Query(query);
 	while (result->Next()) {
-		auto schema_name = result->GetString(0);
-		auto schema = make_uniq<MySQLSchemaEntry>(catalog, schema_name);
+		CreateSchemaInfo info;
+		info.schema = result->GetString(0);
+		info.internal = MySQLSchemaIsInternal(info.schema);
+		auto schema = make_uniq<MySQLSchemaEntry>(catalog, info);
 		CreateEntry(std::move(schema));
 	}
 }
@@ -27,7 +36,7 @@ optional_ptr<CatalogEntry> MySQLSchemaSet::CreateSchema(ClientContext &context, 
 
 	string create_sql = "CREATE SCHEMA " + MySQLUtils::WriteIdentifier(info.schema);
 	transaction.Query(create_sql);
-	auto schema_entry = make_uniq<MySQLSchemaEntry>(catalog, info.schema);
+	auto schema_entry = make_uniq<MySQLSchemaEntry>(catalog, info);
 	return CreateEntry(std::move(schema_entry));
 }
 

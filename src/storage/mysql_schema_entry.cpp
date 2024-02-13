@@ -13,15 +13,8 @@
 
 namespace duckdb {
 
-static bool MySQLSchemaIsInternal(const string &name) {
-	if (name == "information_schema" || name == "performance_schema" || name == "sys") {
-		return true;
-	}
-	return false;
-}
-
-MySQLSchemaEntry::MySQLSchemaEntry(Catalog &catalog, string name)
-    : SchemaCatalogEntry(catalog, name, MySQLSchemaIsInternal(name)), tables(*this), indexes(*this) {
+MySQLSchemaEntry::MySQLSchemaEntry(Catalog &catalog, CreateSchemaInfo &info)
+    : SchemaCatalogEntry(catalog, info), tables(*this), indexes(*this) {
 }
 
 MySQLTransaction &GetMySQLTransaction(CatalogTransaction transaction) {

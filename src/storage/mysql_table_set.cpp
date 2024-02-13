@@ -181,8 +181,8 @@ string MySQLColumnsToSQL(const ColumnList &columns, const vector<unique_ptr<Cons
 		}
 		if (column.Generated()) {
 			ss << " GENERATED ALWAYS AS(" << column.GeneratedExpression().ToString() << ")";
-		} else if (column.DefaultValue()) {
-			ss << " DEFAULT(" << column.DefaultValue()->ToString() << ")";
+		} else if (column.HasDefaultValue()) {
+			ss << " DEFAULT(" << column.DefaultValue().ToString() << ")";
 		}
 	}
 	// print any extra constraints that still need to be printed

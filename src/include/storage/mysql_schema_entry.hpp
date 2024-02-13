@@ -17,7 +17,7 @@ class MySQLTransaction;
 
 class MySQLSchemaEntry : public SchemaCatalogEntry {
 public:
-	MySQLSchemaEntry(Catalog &catalog, string name);
+	MySQLSchemaEntry(Catalog &catalog, CreateSchemaInfo &info);
 
 public:
 	optional_ptr<CatalogEntry> CreateTable(CatalogTransaction transaction, BoundCreateTableInfo &info) override;

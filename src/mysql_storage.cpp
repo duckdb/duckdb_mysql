@@ -7,7 +7,7 @@
 
 namespace duckdb {
 
-static unique_ptr<Catalog> MySQLAttach(StorageExtensionInfo *storage_info, AttachedDatabase &db, const string &name,
+static unique_ptr<Catalog> MySQLAttach(StorageExtensionInfo *storage_info, ClientContext &context, AttachedDatabase &db, const string &name,
                                        AttachInfo &info, AccessMode access_mode) {
 	return make_uniq<MySQLCatalog>(db, info.path, access_mode);
 }
