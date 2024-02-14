@@ -33,7 +33,7 @@ jobs:
   duckdb-stable-deploy:
     name: Deploy extension binaries
     needs: [duckdb-stable-build, duckdb-stable-build-macos]
-    uses: ./.github/workflows/_extension_deploy.yml
+    uses: duckdb/duckdb/.github/workflows/_extension_deploy.yml@0e784765f6f87bd1ce9034afcce1e7f89fcd8777
     secrets: inherit
     with:
       duckdb_version: v0.10.0
