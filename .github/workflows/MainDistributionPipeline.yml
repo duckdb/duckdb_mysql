@@ -16,7 +16,7 @@ jobs:
     name: Build extension binaries
     uses: duckdb/duckdb/.github/workflows/_extension_distribution.yml@0e784765f6f87bd1ce9034afcce1e7f89fcd8777
     with:
-      duckdb_version: v0.10.0
+      duckdb_version: v0.10.1
       extension_name: mysql_scanner
       exclude_archs: 'osx_amd64;osx_arm64;wasm_mvp;wasm_eh;wasm_threads;windows_amd64_rtools'
       vcpkg_commit: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
@@ -26,7 +26,7 @@ jobs:
     name: Build extension binaries
     uses: ./.github/workflows/_extension_distribution_macos.yml
     with:
-      duckdb_version: v0.10.0
+      duckdb_version: v0.10.1
       extension_name: mysql_scanner
       vcpkg_commit: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
 
