@@ -36,7 +36,7 @@ jobs:
     uses: duckdb/duckdb/.github/workflows/_extension_deploy.yml@0e784765f6f87bd1ce9034afcce1e7f89fcd8777
     secrets: inherit
     with:
-      duckdb_version: v0.10.0
+      duckdb_version: v0.10.1
       extension_name: mysql_scanner
       exclude_archs: 'wasm_mvp;wasm_eh;wasm_threads;windows_amd64_rtools'
       deploy_latest: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
