@@ -71,8 +71,7 @@ void MySQLCatalogSet::ClearEntries() {
 	is_loaded = false;
 }
 
-MySQLInSchemaSet::MySQLInSchemaSet(MySQLSchemaEntry &schema) :
-	MySQLCatalogSet(schema.ParentCatalog()), schema(schema) {
+MySQLInSchemaSet::MySQLInSchemaSet(MySQLSchemaEntry &schema) : MySQLCatalogSet(schema.ParentCatalog()), schema(schema) {
 }
 
 optional_ptr<CatalogEntry> MySQLInSchemaSet::CreateEntry(unique_ptr<CatalogEntry> entry) {

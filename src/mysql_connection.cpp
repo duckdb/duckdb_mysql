@@ -46,7 +46,7 @@ MYSQL_RES *MySQLConnection::MySQLExecute(const string &query) {
 	return mysql_store_result(con);
 }
 
-unique_ptr<MySQLResult> MySQLConnection::Query(const string &query) {
+unique_ptr<MySQLResult> MySQLConnection::Query(const string &query, optional_ptr<ClientContext> context) {
 	auto con = GetConn();
 	auto result = MySQLExecute(query);
 	auto field_count = mysql_field_count(con);
@@ -62,7 +62,21 @@ unique_ptr<MySQLResult> MySQLConnection::Query(const string &query) {
 		return make_uniq<MySQLResult>(mysql_affected_rows(con));
 	} else {
 		// result set
-		return make_uniq<MySQLResult>(result, field_count);
+		if (!context) {
+			return make_uniq<MySQLResult>(result, field_count);
+		}
+		vector<MySQLField> fields;
+		for(idx_t i = 0; i < field_count; i++) {
+			auto field = mysql_fetch_field_direct(result, i);
+			MySQLField mysql_field;
+			if (field->name && field->name_length > 0) {
+				mysql_field.name = string(field->name, field->name_length);
+			}
+			mysql_field.type = MySQLUtils::FieldToLogicalType(*context, field);
+			fields.push_back(std::move(mysql_field));
+		}
+
+		return make_uniq<MySQLResult>(result, std::move(fields));
 	}
 }
 

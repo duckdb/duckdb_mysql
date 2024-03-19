@@ -12,9 +12,18 @@
 
 namespace duckdb {
 
+struct MySQLField {
+	string name;
+	LogicalType type;
+};
+
 class MySQLResult {
 public:
-	MySQLResult(MYSQL_RES *res_p, idx_t field_count) : res(res_p), field_count(field_count) {
+	MySQLResult(MYSQL_RES *res_p, idx_t field_count) :
+		res(res_p), field_count(field_count) {
+	}
+	MySQLResult(MYSQL_RES *res_p, vector<MySQLField> fields_p) :
+	   res(res_p), field_count(fields_p.size()), fields(std::move(fields_p)) {
 	}
 	MySQLResult(idx_t affected_rows) : affected_rows(affected_rows) {
 	}
@@ -59,6 +68,12 @@ public:
 		}
 		return affected_rows;
 	}
+	idx_t ColumnCount() {
+		return field_count;
+	}
+	const vector<MySQLField> &Fields() {
+		return fields;
+	}
 
 private:
 	MYSQL_RES *res = nullptr;
@@ -66,6 +81,7 @@ private:
 	MYSQL_ROW mysql_row = nullptr;
 	unsigned long *lengths = nullptr;
 	idx_t field_count = 0;
+	vector<MySQLField> fields;
 
 	char *GetNonNullValue(idx_t col) {
 		auto val = GetValueInternal(col);

@@ -40,6 +40,11 @@ public:
 	MySQLScanFunction();
 };
 
+class MySQLQueryFunction : public TableFunction {
+public:
+	MySQLQueryFunction();
+};
+
 class MySQLClearCacheFunction : public TableFunction {
 public:
 	MySQLClearCacheFunction();

@@ -4,21 +4,76 @@
 
 namespace duckdb {
 
+static bool ParseValue(const string &dsn, idx_t &pos, string &result) {
+	// skip leading spaces
+	while(pos < dsn.size() && StringUtil::CharacterIsSpace(dsn[pos])) {
+		pos++;
+	}
+	if (pos >= dsn.size()) {
+		return false;
+	}
+	// check if we are parsing a quoted value or not
+	if (dsn[pos] == '"') {
+		pos++;
+		// scan until we find another quote
+		bool found_quote = false;
+		for(; pos < dsn.size(); pos++) {
+			if (dsn[pos] == '"') {
+				found_quote = true;
+				pos++;
+				break;
+			}
+			if (dsn[pos] == '\\') {
+				// backslash escapes the backslash or double-quote
+				if (pos + 1 >= dsn.size()) {
+					throw InvalidInputException("Invalid dsn \"%s\" - backslash at end of dsn", dsn);
+				}
+				if (dsn[pos + 1] != '\\' && dsn[pos + 1] != '"') {
+					throw InvalidInputException("Invalid dsn \"%s\" - backslash can only escape \\ or \"", dsn);
+				}
+				result += dsn[pos + 1];
+				pos++;
+			} else {
+				result += dsn[pos];
+			}
+		}
+		if (!found_quote) {
+			throw InvalidInputException("Invalid dsn \"%s\" - unterminated quote", dsn);
+		}
+	} else {
+		// unquoted value, continue until space, equality sign or end of string
+		for(; pos < dsn.size(); pos++) {
+			if (dsn[pos] == '=') {
+				break;
+			}
+			if (StringUtil::CharacterIsSpace(dsn[pos])) {
+				break;
+			}
+			result += dsn[pos];
+		}
+	}
+	return true;
+}
+
 MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &dsn) {
 	MySQLConnectionParameters result;
 	// parse options
-	auto parameters = StringUtil::Split(dsn, ' ');
-	for (auto &param : parameters) {
-		StringUtil::Trim(param);
-		if (param.empty()) {
-			continue;
+
+	idx_t pos = 0;
+	while(pos < dsn.size()) {
+		string key;
+		string value;
+		if (!ParseValue(dsn, pos, key)) {
+			break;
 		}
-		auto splits = StringUtil::Split(param, '=');
-		if (splits.size() != 2) {
+		if (pos >= dsn.size() || dsn[pos] != '=') {
 			throw InvalidInputException("Invalid dsn \"%s\" - expected key=value pairs separated by spaces", dsn);
 		}
-		auto key = StringUtil::Lower(splits[0]);
-		auto &value = splits[1];
+		pos++;
+		if (!ParseValue(dsn, pos, value)) {
+			throw InvalidInputException("Invalid dsn \"%s\" - expected key=value pairs separated by spaces", dsn);
+		}
+		key = StringUtil::Lower(key);
 		if (key == "host") {
 			result.host = value;
 		} else if (key == "user") {
@@ -61,6 +116,13 @@ MYSQL *MySQLUtils::Connect(const string &dsn) {
 	const char *unix_socket = config.unix_socket.size() == 0 ? nullptr : config.unix_socket.c_str();
 	result = mysql_real_connect(mysql, host, user, passwd, db, config.port, unix_socket, config.client_flag);
 	if (!result) {
+		if (config.host.empty() || config.host == "localhost") {
+			// retry
+			result = mysql_real_connect(mysql, "127.0.0.1", user, passwd, db, config.port, unix_socket, config.client_flag);
+			if (result) {
+				return result;
+			}
+		}
 		throw IOException("Failed to connect to MySQL database with parameters \"%s\": %s", dsn, mysql_error(mysql));
 	}
 	D_ASSERT(mysql == result);
@@ -162,7 +224,11 @@ LogicalType MySQLUtils::TypeToLogicalType(ClientContext &context, const MySQLTyp
 			}
 		}
 		return LogicalType::BLOB;
-	} else if (type_info.type_name == "blob" || type_info.type_name == "binary" || type_info.type_name == "varbinary") {
+	} else if (type_info.type_name == "blob" || type_info.type_name == "binary" || type_info.type_name == "varbinary" ||
+	           type_info.type_name == "geometry" || type_info.type_name == "point" ||
+	           type_info.type_name == "linestring" || type_info.type_name == "polygon" ||
+	           type_info.type_name == "multipoint" || type_info.type_name == "multilinestring" ||
+	           type_info.type_name == "multipolygon" || type_info.type_name == "geomcollection") {
 		return LogicalType::BLOB;
 	} else if (type_info.type_name == "varchar" || type_info.type_name == "mediumtext" ||
 	           type_info.type_name == "longtext" || type_info.type_name == "text" || type_info.type_name == "enum" ||
@@ -171,6 +237,89 @@ LogicalType MySQLUtils::TypeToLogicalType(ClientContext &context, const MySQLTyp
 	}
 	// fallback for unknown types
 	return LogicalType::VARCHAR;
+}
+
+LogicalType MySQLUtils::FieldToLogicalType(ClientContext &context, MYSQL_FIELD *field) {
+	MySQLTypeData type_data;
+	switch(field->type) {
+	case MYSQL_TYPE_TINY:
+		type_data.type_name = "tinyint";
+		break;
+	case MYSQL_TYPE_SHORT:
+		type_data.type_name = "smallint";
+		break;
+	case MYSQL_TYPE_INT24:
+		type_data.type_name = "mediumint";
+		break;
+	case MYSQL_TYPE_LONG:
+		type_data.type_name = "int";
+		break;
+	case MYSQL_TYPE_LONGLONG:
+		type_data.type_name = "bigint";
+		break;
+	case MYSQL_TYPE_FLOAT:
+		type_data.type_name = "float";
+		break;
+	case MYSQL_TYPE_DOUBLE:
+		type_data.type_name = "double";
+		break;
+	case MYSQL_TYPE_DECIMAL:
+	case MYSQL_TYPE_NEWDECIMAL:
+		type_data.precision = int64_t(field->max_length) - 2; // -2 for minus sign and dot
+		type_data.scale = field->decimals;
+		type_data.type_name = "decimal";
+		break;
+	case MYSQL_TYPE_TIMESTAMP:
+		type_data.type_name = "timestamp";
+		break;
+	case MYSQL_TYPE_DATE:
+		type_data.type_name = "date";
+		break;
+	case MYSQL_TYPE_TIME:
+		type_data.type_name = "time";
+		break;
+	case MYSQL_TYPE_DATETIME:
+		type_data.type_name = "datetime";
+		break;
+	case MYSQL_TYPE_YEAR:
+		type_data.type_name = "year";
+		break;
+	case MYSQL_TYPE_BIT:
+		type_data.type_name = "bit";
+		break;
+	case MYSQL_TYPE_GEOMETRY:
+		type_data.type_name = "geometry";
+		break;
+	case MYSQL_TYPE_NULL:
+		type_data.type_name = "null";
+		break;
+	case MYSQL_TYPE_SET:
+		type_data.type_name = "set";
+		break;
+	case MYSQL_TYPE_ENUM:
+		type_data.type_name = "enum";
+		break;
+	case MYSQL_TYPE_BLOB:
+	case MYSQL_TYPE_STRING:
+	case MYSQL_TYPE_VAR_STRING:
+		if (field->flags & BINARY_FLAG) {
+			type_data.type_name = "blob";
+		} else {
+			type_data.type_name = "varchar";
+		}
+		break;
+	default:
+		type_data.type_name = "__unknown_type";
+		break;
+	}
+	type_data.column_type = type_data.type_name;
+	if (field->max_length != 0) {
+		type_data.column_type += "(" + std::to_string(field->max_length) + ")";
+	}
+	if (field->flags & UNSIGNED_FLAG && field->flags & NUM_FLAG) {
+		type_data.column_type += " unsigned";
+	}
+	return MySQLUtils::TypeToLogicalType(context, type_data);
 }
 
 LogicalType MySQLUtils::ToMySQLType(const LogicalType &input) {

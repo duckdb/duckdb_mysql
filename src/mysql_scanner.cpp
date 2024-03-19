@@ -7,6 +7,8 @@
 #include "storage/mysql_transaction.hpp"
 #include "storage/mysql_table_set.hpp"
 #include "mysql_filter_pushdown.hpp"
+#include "duckdb/main/database_manager.hpp"
+#include "duckdb/main/attached_database.hpp"
 
 namespace duckdb {
 
@@ -114,7 +116,7 @@ static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChun
 				FlatVector::SetNull(vec, r, true);
 			} else {
 				auto string_data = FlatVector::GetData<string_t>(vec);
-				string_data[r] = StringVector::AddString(vec, gstate.result->GetStringT(c));
+				string_data[r] = StringVector::AddStringOrBlob(vec, gstate.result->GetStringT(c));
 			}
 		}
 	}
@@ -164,6 +166,84 @@ MySQLScanFunction::MySQLScanFunction()
 	serialize = MySQLScanSerialize;
 	deserialize = MySQLScanDeserialize;
 	projection_pushdown = true;
+}
+
+//===--------------------------------------------------------------------===//
+// MySQL Query
+//===--------------------------------------------------------------------===//
+struct MySQLQueryBindData : public FunctionData {
+	MySQLQueryBindData(Catalog &catalog, unique_ptr<MySQLResult> result_p, string query_p) :
+	   catalog(catalog), result(std::move(result_p)), query(std::move(query_p)) {
+	}
+
+	Catalog &catalog;
+	unique_ptr<MySQLResult> result;
+	string query;
+
+public:
+	unique_ptr<FunctionData> Copy() const override {
+		throw NotImplementedException("MySQLBindData copy not supported");
+	}
+	bool Equals(const FunctionData &other_p) const override {
+		return false;
+	}
+};
+
+static unique_ptr<FunctionData> MySQLQueryBind(ClientContext &context, TableFunctionBindInput &input,
+										  vector<LogicalType> &return_types, vector<string> &names) {
+	if (input.inputs[0].IsNull() || input.inputs[1].IsNull()) {
+		throw BinderException("Parameters to mysql_query cannot be NULL");
+	}
+
+	// look up the database to query
+	auto db_name = input.inputs[0].GetValue<string>();
+	auto &db_manager = DatabaseManager::Get(context);
+	auto db = db_manager.GetDatabase(context, db_name);
+	if (!db) {
+		throw BinderException("Failed to find attached database \"%s\" referenced in mysql_query", db_name);
+	}
+	auto &catalog = db->GetCatalog();
+	if (catalog.GetCatalogType() != "mysql") {
+		throw BinderException("Attached database \"%s\" does not refer to a MySQL database", db_name);
+	}
+	auto &transaction = MySQLTransaction::Get(context, catalog);
+	auto sql = input.inputs[1].GetValue<string>();
+	auto result = transaction.GetConnection().Query(sql, &context);
+	for(auto &field : result->Fields()) {
+		names.push_back(field.name);
+		return_types.push_back(field.type);
+	}
+	return make_uniq<MySQLQueryBindData>(catalog, std::move(result), std::move(sql));
+}
+
+static unique_ptr<GlobalTableFunctionState> MySQLQueryInitGlobalState(ClientContext &context,
+																 TableFunctionInitInput &input) {
+	auto &bind_data = input.bind_data->CastNoConst<MySQLQueryBindData>();
+	unique_ptr<MySQLResult> mysql_result;
+	if (bind_data.result) {
+		mysql_result = std::move(bind_data.result);
+	} else {
+		auto &transaction = MySQLTransaction::Get(context, bind_data.catalog);
+		mysql_result = transaction.GetConnection().Query(bind_data.query, &context);
+	}
+	auto column_count = mysql_result->ColumnCount();
+
+	auto result = make_uniq<MySQLGlobalState>(std::move(mysql_result));
+
+	// generate the varchar chunk
+	vector<LogicalType> varchar_types;
+	for (idx_t c = 0; c < column_count; c++) {
+		varchar_types.push_back(LogicalType::VARCHAR);
+	}
+	result->varchar_chunk.Initialize(Allocator::DefaultAllocator(), varchar_types);
+	return std::move(result);
+}
+
+MySQLQueryFunction::MySQLQueryFunction()
+	: TableFunction("mysql_query", {LogicalType::VARCHAR, LogicalType::VARCHAR}, MySQLScan,
+					MySQLQueryBind, MySQLQueryInitGlobalState, MySQLInitLocalState) {
+	serialize = MySQLScanSerialize;
+	deserialize = MySQLScanDeserialize;
 }
 
 } // namespace duckdb
