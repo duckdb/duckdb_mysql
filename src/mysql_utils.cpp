@@ -4,21 +4,76 @@
 
 namespace duckdb {
 
+static bool ParseValue(const string &dsn, idx_t &pos, string &result) {
+	// skip leading spaces
+	while(pos < dsn.size() && StringUtil::CharacterIsSpace(dsn[pos])) {
+		pos++;
+	}
+	if (pos >= dsn.size()) {
+		return false;
+	}
+	// check if we are parsing a quoted value or not
+	if (dsn[pos] == '"') {
+		pos++;
+		// scan until we find another quote
+		bool found_quote = false;
+		for(; pos < dsn.size(); pos++) {
+			if (dsn[pos] == '"') {
+				found_quote = true;
+				pos++;
+				break;
+			}
+			if (dsn[pos] == '\\') {
+				// backslash escapes the backslash or double-quote
+				if (pos + 1 >= dsn.size()) {
+					throw InvalidInputException("Invalid dsn \"%s\" - backslash at end of dsn", dsn);
+				}
+				if (dsn[pos + 1] != '\\' && dsn[pos + 1] != '"') {
+					throw InvalidInputException("Invalid dsn \"%s\" - backslash can only escape \\ or \"", dsn);
+				}
+				result += dsn[pos + 1];
+				pos++;
+			} else {
+				result += dsn[pos];
+			}
+		}
+		if (!found_quote) {
+			throw InvalidInputException("Invalid dsn \"%s\" - unterminated quote", dsn);
+		}
+	} else {
+		// unquoted value, continue until space, equality sign or end of string
+		for(; pos < dsn.size(); pos++) {
+			if (dsn[pos] == '=') {
+				break;
+			}
+			if (StringUtil::CharacterIsSpace(dsn[pos])) {
+				break;
+			}
+			result += dsn[pos];
+		}
+	}
+	return true;
+}
+
 MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &dsn) {
 	MySQLConnectionParameters result;
 	// parse options
-	auto parameters = StringUtil::Split(dsn, ' ');
-	for (auto &param : parameters) {
-		StringUtil::Trim(param);
-		if (param.empty()) {
-			continue;
+
+	idx_t pos = 0;
+	while(pos < dsn.size()) {
+		string key;
+		string value;
+		if (!ParseValue(dsn, pos, key)) {
+			break;
 		}
-		auto splits = StringUtil::Split(param, '=');
-		if (splits.size() != 2) {
+		if (pos >= dsn.size() || dsn[pos] != '=') {
 			throw InvalidInputException("Invalid dsn \"%s\" - expected key=value pairs separated by spaces", dsn);
 		}
-		auto key = StringUtil::Lower(splits[0]);
-		auto &value = splits[1];
+		pos++;
+		if (!ParseValue(dsn, pos, value)) {
+			throw InvalidInputException("Invalid dsn \"%s\" - expected key=value pairs separated by spaces", dsn);
+		}
+		key = StringUtil::Lower(key);
 		if (key == "host") {
 			result.host = value;
 		} else if (key == "user") {
