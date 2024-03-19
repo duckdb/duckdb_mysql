@@ -47,4 +47,9 @@ public:
 	static void ClearCacheOnSetting(ClientContext &context, SetScope scope, Value &parameter);
 };
 
+class MySQLExecuteFunction : public TableFunction {
+public:
+	MySQLExecuteFunction();
+};
+
 } // namespace duckdb

@@ -24,6 +24,9 @@ static void LoadInternal(DatabaseInstance &db) {
 	MySQLClearCacheFunction clear_cache_func;
 	ExtensionUtil::RegisterFunction(db, clear_cache_func);
 
+	MySQLExecuteFunction execute_function;
+	ExtensionUtil::RegisterFunction(db, execute_function);
+
 	auto &config = DBConfig::GetConfig(db);
 	config.storage_extensions["mysql_scanner"] = make_uniq<MySQLStorageExtension>();
 
