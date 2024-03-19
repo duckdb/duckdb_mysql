@@ -47,6 +47,7 @@ public:
 
 	static LogicalType ToMySQLType(const LogicalType &input);
 	static LogicalType TypeToLogicalType(ClientContext &context, const MySQLTypeData &input);
+	static LogicalType FieldToLogicalType(ClientContext &context, MYSQL_FIELD *field);
 	static string TypeToString(const LogicalType &input);
 
 	static string WriteIdentifier(const string &identifier);
