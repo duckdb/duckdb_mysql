@@ -54,16 +54,21 @@ MYSQL *MySQLUtils::Connect(const string &dsn) {
 	}
 	MYSQL *result;
 	auto config = ParseConnectionParameters(dsn);
-	if (config.host.empty() || config.host == "localhost") {
-		config.host = "127.0.0.1";
-	}
-	const char *host = config.host.c_str();
+	const char *host = config.host.size() == 0 ? nullptr : config.host.c_str();
 	const char *user = config.user.size() == 0 ? nullptr : config.user.c_str();
 	const char *passwd = config.passwd.size() == 0 ? nullptr : config.passwd.c_str();
 	const char *db = config.db.size() == 0 ? nullptr : config.db.c_str();
 	const char *unix_socket = config.unix_socket.size() == 0 ? nullptr : config.unix_socket.c_str();
 	result = mysql_real_connect(mysql, host, user, passwd, db, config.port, unix_socket, config.client_flag);
 	if (!result) {
+		if (config.host.empty() || config.host == "localhost") {
+			// retry
+			config.host = "127.0.0.1";
+			result = mysql_real_connect(mysql, host, user, passwd, db, config.port, unix_socket, config.client_flag);
+			if (result) {
+				return result;
+			}
+		}
 		throw IOException("Failed to connect to MySQL database with parameters \"%s\": %s", dsn, mysql_error(mysql));
 	}
 	D_ASSERT(mysql == result);
