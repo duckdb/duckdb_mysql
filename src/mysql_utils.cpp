@@ -239,6 +239,89 @@ LogicalType MySQLUtils::TypeToLogicalType(ClientContext &context, const MySQLTyp
 	return LogicalType::VARCHAR;
 }
 
+LogicalType MySQLUtils::FieldToLogicalType(ClientContext &context, MYSQL_FIELD *field) {
+	MySQLTypeData type_data;
+	switch(field->type) {
+	case MYSQL_TYPE_TINY:
+		type_data.type_name = "tinyint";
+		break;
+	case MYSQL_TYPE_SHORT:
+		type_data.type_name = "smallint";
+		break;
+	case MYSQL_TYPE_INT24:
+		type_data.type_name = "mediumint";
+		break;
+	case MYSQL_TYPE_LONG:
+		type_data.type_name = "int";
+		break;
+	case MYSQL_TYPE_LONGLONG:
+		type_data.type_name = "bigint";
+		break;
+	case MYSQL_TYPE_FLOAT:
+		type_data.type_name = "float";
+		break;
+	case MYSQL_TYPE_DOUBLE:
+		type_data.type_name = "double";
+		break;
+	case MYSQL_TYPE_DECIMAL:
+	case MYSQL_TYPE_NEWDECIMAL:
+		type_data.precision = int64_t(field->max_length) - 2; // -2 for minus sign and dot
+		type_data.scale = field->decimals;
+		type_data.type_name = "decimal";
+		break;
+	case MYSQL_TYPE_TIMESTAMP:
+		type_data.type_name = "timestamp";
+		break;
+	case MYSQL_TYPE_DATE:
+		type_data.type_name = "date";
+		break;
+	case MYSQL_TYPE_TIME:
+		type_data.type_name = "time";
+		break;
+	case MYSQL_TYPE_DATETIME:
+		type_data.type_name = "datetime";
+		break;
+	case MYSQL_TYPE_YEAR:
+		type_data.type_name = "year";
+		break;
+	case MYSQL_TYPE_BIT:
+		type_data.type_name = "bit";
+		break;
+	case MYSQL_TYPE_GEOMETRY:
+		type_data.type_name = "geometry";
+		break;
+	case MYSQL_TYPE_NULL:
+		type_data.type_name = "null";
+		break;
+	case MYSQL_TYPE_SET:
+		type_data.type_name = "set";
+		break;
+	case MYSQL_TYPE_ENUM:
+		type_data.type_name = "enum";
+		break;
+	case MYSQL_TYPE_BLOB:
+	case MYSQL_TYPE_STRING:
+	case MYSQL_TYPE_VAR_STRING:
+		if (field->flags & BINARY_FLAG) {
+			type_data.type_name = "blob";
+		} else {
+			type_data.type_name = "varchar";
+		}
+		break;
+	default:
+		type_data.type_name = "__unknown_type";
+		break;
+	}
+	type_data.column_type = type_data.type_name;
+	if (field->max_length != 0) {
+		type_data.column_type += "(" + std::to_string(field->max_length) + ")";
+	}
+	if (field->flags & UNSIGNED_FLAG && field->flags & NUM_FLAG) {
+		type_data.column_type += " unsigned";
+	}
+	return MySQLUtils::TypeToLogicalType(context, type_data);
+}
+
 LogicalType MySQLUtils::ToMySQLType(const LogicalType &input) {
 	switch (input.id()) {
 	case LogicalTypeId::BOOLEAN:

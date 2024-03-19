@@ -49,7 +49,7 @@ public:
 public:
 	static MySQLConnection Open(const string &connection_string);
 	void Execute(const string &query);
-	unique_ptr<MySQLResult> Query(const string &query);
+	unique_ptr<MySQLResult> Query(const string &query, optional_ptr<ClientContext> context = nullptr);
 
 	vector<IndexInfo> GetIndexInfo(const string &table_name);
 

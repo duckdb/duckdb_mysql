@@ -1,0 +1,167 @@
+# name: test/sql/mysql_query.test
+# description: Test mysql_query
+# group: [sql]
+
+require mysql_scanner
+
+require-env MYSQL_TEST_DATABASE_AVAILABLE
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS simple (TYPE MYSQL_SCANNER)
+
+# simple example
+query I
+SELECT * FROM mysql_query('simple', 'SELECT 42')
+----
+42
+
+query I
+SELECT col FROM mysql_query('simple', 'SELECT 42 AS col')
+----
+42
+
+query I
+SELECT * FROM mysql_query('simple', 'SELECT NULL')
+----
+NULL
+
+# test many types
+query I
+SELECT typeof(COLUMNS(*)) FROM mysql_query('simple', 'SELECT * FROM booleans') LIMIT 1
+----
+BOOLEAN
+
+query I
+SELECT * FROM mysql_query('simple', 'SELECT * FROM booleans')
+----
+false
+true
+NULL
+
+query IIIII
+SELECT typeof(COLUMNS(*)) FROM mysql_query('simple', 'SELECT * FROM signed_integers') LIMIT 1
+----
+TINYINT	SMALLINT	INTEGER	INTEGER	BIGINT
+
+query IIIII
+SELECT * FROM mysql_query('simple', 'SELECT * FROM signed_integers')
+----
+-128	-32768	-8388608	-2147483648	-9223372036854775808
+127	32767	8388607	2147483647	9223372036854775807
+NULL	NULL	NULL	NULL	NULL
+
+query IIIII
+SELECT typeof(COLUMNS(*)) FROM mysql_query('simple', 'SELECT * FROM unsigned_integers') LIMIT 1
+----
+UTINYINT	USMALLINT	UINTEGER	UINTEGER	UBIGINT
+
+query IIIII
+SELECT * FROM mysql_query('simple', 'SELECT * FROM unsigned_integers')
+----
+0	0	0	0	0
+255	65535	16777215	4294967295	18446744073709551615
+NULL	NULL	NULL	NULL	NULL
+
+query IIII
+SELECT typeof(COLUMNS(*)) FROM mysql_query('simple', 'SELECT * FROM floating_points') LIMIT 1
+----
+FLOAT	DOUBLE	FLOAT	DOUBLE
+
+query IIII
+SELECT * FROM mysql_query('simple', 'SELECT * FROM floating_points')
+----
+0.0	0.0	0.0	0.0
+0.5	0.5	0.5	0.5
+-0.5	-0.5	0.0	0.0
+NULL	NULL	NULL	NULL
+
+query IIIII
+SELECT * FROM mysql_query('simple', 'SELECT * FROM decimals')
+----
+0.5	1234.1	12345678.12	12345678901234567.123	1.2345678901234568e+35
+-0.5	-1234.1	-12345678.12	-12345678901234567.123	-1.2345678901234568e+35
+NULL	NULL	NULL	NULL	NULL
+
+query IIIII
+SELECT typeof(COLUMNS(*)) FROM mysql_query('simple', 'SELECT * FROM decimals') LIMIT 1
+----
+DECIMAL(2,1)	DECIMAL(5,1)	DECIMAL(10,2)	DECIMAL(20,3)	DOUBLE
+
+query II
+SELECT * FROM mysql_query('simple', 'SELECT * FROM fake_booleans')
+----
+true	true
+false	false
+NULL	NULL
+
+query II
+SELECT * FROM mysql_query('simple', 'SELECT * FROM bits')
+----
+false	\x00\x00\x00\x00\x00\x01UU
+NULL	NULL
+
+query III
+SELECT * FROM mysql_query('simple', 'SELECT * FROM text_tbl')
+----
+ab  	ab	thisisalongstring
+(empty)	(empty)	(empty)
+🦆	🦆	🦆🦆🦆🦆
+NULL	NULL	NULL
+
+query III
+SELECT * FROM mysql_query('simple', 'SELECT * FROM blob_tbl')
+----
+c\x00\x00\x00	c\x00\x00	c\x00\x00
+\x00\x00\x00\x00	(empty)	(empty)
+\x80\x00\x00\x00	\x80	\x80
+NULL	NULL	NULL
+
+query I
+SELECT * FROM mysql_query('simple', 'SELECT * FROM enum_tbl')
+----
+x-small
+small
+medium
+large
+x-large
+NULL
+
+query I
+SELECT * FROM mysql_query('simple', 'SELECT * FROM set_tbl')
+----
+a,d
+a,d
+a,d
+a,d
+a,d
+
+query I
+SELECT * FROM mysql_query('simple', 'SELECT * FROM json_tbl')
+----
+{"k1": "value", "k2": 10}
+["abc", 10, null, true, false]
+NULL
+
+# errors
+statement error
+SELECT * FROM mysql_query('simple', 'SELEC 42')
+----
+Failed to run query
+
+statement error
+SELECT * FROM mysql_query('simple', 'SELECT 42 a, 42 a')
+----
+duplicate column
+
+require icu
+
+statement ok
+SET TimeZone='UTC'
+
+query IIIII
+SELECT * FROM mysql_query('simple', 'SELECT * FROM datetime_tbl')
+----
+2020-02-03	2029-02-14 08:47:23	2029-02-14 14:47:23+00	23:59:59	1901
+1000-01-01	1000-01-01 00:00:00	1970-01-01 06:00:01+00	-838:59:59	2155
+9999-12-31	9999-12-31 23:59:59	2038-01-19 04:14:07+00	838:59:59	2000
+NULL	NULL	NULL	NULL	NULL
