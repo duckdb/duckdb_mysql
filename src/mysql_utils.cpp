@@ -224,7 +224,11 @@ LogicalType MySQLUtils::TypeToLogicalType(ClientContext &context, const MySQLTyp
 			}
 		}
 		return LogicalType::BLOB;
-	} else if (type_info.type_name == "blob" || type_info.type_name == "binary" || type_info.type_name == "varbinary") {
+	} else if (type_info.type_name == "blob" || type_info.type_name == "binary" || type_info.type_name == "varbinary" ||
+	           type_info.type_name == "geometry" || type_info.type_name == "point" ||
+	           type_info.type_name == "linestring" || type_info.type_name == "polygon" ||
+	           type_info.type_name == "multipoint" || type_info.type_name == "multilinestring" ||
+	           type_info.type_name == "multipolygon" || type_info.type_name == "geomcollection") {
 		return LogicalType::BLOB;
 	} else if (type_info.type_name == "varchar" || type_info.type_name == "mediumtext" ||
 	           type_info.type_name == "longtext" || type_info.type_name == "text" || type_info.type_name == "enum" ||
