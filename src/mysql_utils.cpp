@@ -54,7 +54,10 @@ MYSQL *MySQLUtils::Connect(const string &dsn) {
 	}
 	MYSQL *result;
 	auto config = ParseConnectionParameters(dsn);
-	const char *host = config.host.size() == 0 ? nullptr : config.host.c_str();
+	if (config.host.empty() || config.host == "localhost") {
+		config.host = "127.0.0.1";
+	}
+	const char *host = config.host.c_str();
 	const char *user = config.user.size() == 0 ? nullptr : config.user.c_str();
 	const char *passwd = config.passwd.size() == 0 ? nullptr : config.passwd.c_str();
 	const char *db = config.db.size() == 0 ? nullptr : config.db.c_str();
