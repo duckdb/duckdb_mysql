@@ -63,8 +63,7 @@ MYSQL *MySQLUtils::Connect(const string &dsn) {
 	if (!result) {
 		if (config.host.empty() || config.host == "localhost") {
 			// retry
-			config.host = "127.0.0.1";
-			result = mysql_real_connect(mysql, host, user, passwd, db, config.port, unix_socket, config.client_flag);
+			result = mysql_real_connect(mysql, "127.0.0.1", user, passwd, db, config.port, unix_socket, config.client_flag);
 			if (result) {
 				return result;
 			}
