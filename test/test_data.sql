@@ -128,3 +128,24 @@ INSERT INTO latin_unicode (name) VALUES ('Graça');
 SET sql_mode = '';
 CREATE TABLE zero_date(d DATE, ts TIMESTAMP);
 INSERT INTO zero_date VALUES ('0000-00-00', '0000-00-00 00:00:00');
+
+CREATE TABLE geom (
+	g GEOMETRY,
+	p POINT,
+    ls LINESTRING,
+    poly POLYGON,
+    mp MULTIPOINT,
+    mls MULTILINESTRING,
+    mpoly MULTIPOLYGON,
+    gc GEOMETRYCOLLECTION);
+INSERT INTO geom
+VALUES (
+	ST_GeomFromText('POINT(1 1)'),
+	ST_GeomFromText('POINT(1 1)'),
+	ST_GeomFromText('LINESTRING(2 1, 6 6)'),
+	ST_GeomFromText('POLYGON((0 5, 2 5, 2 7, 0 7, 0 5))'),
+	ST_GeomFromText('MULTIPOINT((1 1))'),
+	ST_GeomFromText('MULTILINESTRING((2 1, 6 6))'),
+	ST_GeomFromText('MULTIPOLYGON(((0 5, 2 5, 2 7, 0 7, 0 5)))'),
+	ST_GeomFromText('GEOMETRYCOLLECTION EMPTY')
+);

@@ -114,7 +114,7 @@ static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChun
 				FlatVector::SetNull(vec, r, true);
 			} else {
 				auto string_data = FlatVector::GetData<string_t>(vec);
-				string_data[r] = StringVector::AddString(vec, gstate.result->GetStringT(c));
+				string_data[r] = StringVector::AddStringOrBlob(vec, gstate.result->GetStringT(c));
 			}
 		}
 	}
