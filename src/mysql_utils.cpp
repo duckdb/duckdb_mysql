@@ -137,7 +137,7 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 	}
 	if (set_options.find("port") == set_options.end()) {
 		string port_number;
-		if (ReadOptionFromEnv("MYSQL_UNIX_PORT", port_number)) {
+		if (ReadOptionFromEnv("MYSQLX_TCP_PORT", port_number)) {
 			result.port = ParsePort(port_number);
 		}
 	}
