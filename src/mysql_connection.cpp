@@ -66,7 +66,7 @@ unique_ptr<MySQLResult> MySQLConnection::Query(const string &query, optional_ptr
 			return make_uniq<MySQLResult>(result, field_count);
 		}
 		vector<MySQLField> fields;
-		for(idx_t i = 0; i < field_count; i++) {
+		for (idx_t i = 0; i < field_count; i++) {
 			auto field = mysql_fetch_field_direct(result, i);
 			MySQLField mysql_field;
 			if (field->name && field->name_length > 0) {

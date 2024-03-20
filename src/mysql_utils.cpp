@@ -6,7 +6,7 @@ namespace duckdb {
 
 static bool ParseValue(const string &dsn, idx_t &pos, string &result) {
 	// skip leading spaces
-	while(pos < dsn.size() && StringUtil::CharacterIsSpace(dsn[pos])) {
+	while (pos < dsn.size() && StringUtil::CharacterIsSpace(dsn[pos])) {
 		pos++;
 	}
 	if (pos >= dsn.size()) {
@@ -17,7 +17,7 @@ static bool ParseValue(const string &dsn, idx_t &pos, string &result) {
 		pos++;
 		// scan until we find another quote
 		bool found_quote = false;
-		for(; pos < dsn.size(); pos++) {
+		for (; pos < dsn.size(); pos++) {
 			if (dsn[pos] == '"') {
 				found_quote = true;
 				pos++;
@@ -42,7 +42,7 @@ static bool ParseValue(const string &dsn, idx_t &pos, string &result) {
 		}
 	} else {
 		// unquoted value, continue until space, equality sign or end of string
-		for(; pos < dsn.size(); pos++) {
+		for (; pos < dsn.size(); pos++) {
 			if (dsn[pos] == '=') {
 				break;
 			}
@@ -60,7 +60,7 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 	// parse options
 
 	idx_t pos = 0;
-	while(pos < dsn.size()) {
+	while (pos < dsn.size()) {
 		string key;
 		string value;
 		if (!ParseValue(dsn, pos, key)) {
@@ -118,7 +118,8 @@ MYSQL *MySQLUtils::Connect(const string &dsn) {
 	if (!result) {
 		if (config.host.empty() || config.host == "localhost") {
 			// retry
-			result = mysql_real_connect(mysql, "127.0.0.1", user, passwd, db, config.port, unix_socket, config.client_flag);
+			result =
+			    mysql_real_connect(mysql, "127.0.0.1", user, passwd, db, config.port, unix_socket, config.client_flag);
 			if (result) {
 				return result;
 			}
@@ -241,7 +242,7 @@ LogicalType MySQLUtils::TypeToLogicalType(ClientContext &context, const MySQLTyp
 
 LogicalType MySQLUtils::FieldToLogicalType(ClientContext &context, MYSQL_FIELD *field) {
 	MySQLTypeData type_data;
-	switch(field->type) {
+	switch (field->type) {
 	case MYSQL_TYPE_TINY:
 		type_data.type_name = "tinyint";
 		break;
