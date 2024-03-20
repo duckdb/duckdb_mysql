@@ -1,4 +1,4 @@
-name: MacOS Tests
+name: MySQL Tests
 on: [push, pull_request,repository_dispatch]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref || '' }}-${{ github.base_ref || '' }}-${{ github.ref != 'refs/heads/main' || github.sha }}
@@ -9,7 +9,7 @@ defaults:
 
 jobs:
   macos:
-    name: MacOS Release (${{ matrix.osx_build_arch }})
+    name: MySQL tests (${{ matrix.osx_build_arch }})
     runs-on: macos-latest
     strategy:
       matrix:
@@ -59,7 +59,7 @@ jobs:
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11.1
         with:
-          vcpkgGitCommitId: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
+          vcpkgGitCommitId: a1a1cbc975abf909a6c8985a6a2b8fe20bbd9bd6
 
       - name: Setup MySQL
         if: ${{ matrix.osx_build_arch == 'x86_64'}}
