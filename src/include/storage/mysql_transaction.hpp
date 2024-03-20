@@ -30,6 +30,9 @@ public:
 	MySQLConnection &GetConnection();
 	unique_ptr<MySQLResult> Query(const string &query);
 	static MySQLTransaction &Get(ClientContext &context, Catalog &catalog);
+	AccessMode GetAccessMode() const {
+		return access_mode;
+	}
 
 private:
 	MySQLConnection connection;

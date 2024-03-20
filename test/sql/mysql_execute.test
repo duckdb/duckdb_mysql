@@ -1,0 +1,29 @@
+# name: test/sql/mysql_execute.test
+# description: Test mysql_execute
+# group: [storage]
+
+require mysql_scanner
+
+require-env MYSQL_TEST_DATABASE_AVAILABLE
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS s (TYPE MYSQL_SCANNER)
+
+statement ok
+CALL mysql_execute('s', 'DROP TABLE IF EXISTS test_execute_tbl')
+
+statement ok
+CALL mysql_execute('s', 'CREATE TABLE test_execute_tbl(i INTEGER)')
+
+statement ok
+INSERT INTO s.test_execute_tbl VALUES(42)
+
+query I
+FROM s.test_execute_tbl
+----
+42
+
+statement error
+CALL mysql_execute('s', 'CREATE TABLE test_execute_tbl(i INTEGER)')
+----
+already exists
