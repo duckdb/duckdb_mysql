@@ -19,11 +19,10 @@ struct MySQLField {
 
 class MySQLResult {
 public:
-	MySQLResult(MYSQL_RES *res_p, idx_t field_count) :
-		res(res_p), field_count(field_count) {
+	MySQLResult(MYSQL_RES *res_p, idx_t field_count) : res(res_p), field_count(field_count) {
 	}
-	MySQLResult(MYSQL_RES *res_p, vector<MySQLField> fields_p) :
-	   res(res_p), field_count(fields_p.size()), fields(std::move(fields_p)) {
+	MySQLResult(MYSQL_RES *res_p, vector<MySQLField> fields_p)
+	    : res(res_p), field_count(fields_p.size()), fields(std::move(fields_p)) {
 	}
 	MySQLResult(idx_t affected_rows) : affected_rows(affected_rows) {
 	}

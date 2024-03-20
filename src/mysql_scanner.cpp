@@ -172,8 +172,8 @@ MySQLScanFunction::MySQLScanFunction()
 // MySQL Query
 //===--------------------------------------------------------------------===//
 struct MySQLQueryBindData : public FunctionData {
-	MySQLQueryBindData(Catalog &catalog, unique_ptr<MySQLResult> result_p, string query_p) :
-	   catalog(catalog), result(std::move(result_p)), query(std::move(query_p)) {
+	MySQLQueryBindData(Catalog &catalog, unique_ptr<MySQLResult> result_p, string query_p)
+	    : catalog(catalog), result(std::move(result_p)), query(std::move(query_p)) {
 	}
 
 	Catalog &catalog;
@@ -190,7 +190,7 @@ public:
 };
 
 static unique_ptr<FunctionData> MySQLQueryBind(ClientContext &context, TableFunctionBindInput &input,
-										  vector<LogicalType> &return_types, vector<string> &names) {
+                                               vector<LogicalType> &return_types, vector<string> &names) {
 	if (input.inputs[0].IsNull() || input.inputs[1].IsNull()) {
 		throw BinderException("Parameters to mysql_query cannot be NULL");
 	}
@@ -209,7 +209,7 @@ static unique_ptr<FunctionData> MySQLQueryBind(ClientContext &context, TableFunc
 	auto &transaction = MySQLTransaction::Get(context, catalog);
 	auto sql = input.inputs[1].GetValue<string>();
 	auto result = transaction.GetConnection().Query(sql, &context);
-	for(auto &field : result->Fields()) {
+	for (auto &field : result->Fields()) {
 		names.push_back(field.name);
 		return_types.push_back(field.type);
 	}
@@ -217,7 +217,7 @@ static unique_ptr<FunctionData> MySQLQueryBind(ClientContext &context, TableFunc
 }
 
 static unique_ptr<GlobalTableFunctionState> MySQLQueryInitGlobalState(ClientContext &context,
-																 TableFunctionInitInput &input) {
+                                                                      TableFunctionInitInput &input) {
 	auto &bind_data = input.bind_data->CastNoConst<MySQLQueryBindData>();
 	unique_ptr<MySQLResult> mysql_result;
 	if (bind_data.result) {
@@ -240,8 +240,8 @@ static unique_ptr<GlobalTableFunctionState> MySQLQueryInitGlobalState(ClientCont
 }
 
 MySQLQueryFunction::MySQLQueryFunction()
-	: TableFunction("mysql_query", {LogicalType::VARCHAR, LogicalType::VARCHAR}, MySQLScan,
-					MySQLQueryBind, MySQLQueryInitGlobalState, MySQLInitLocalState) {
+    : TableFunction("mysql_query", {LogicalType::VARCHAR, LogicalType::VARCHAR}, MySQLScan, MySQLQueryBind,
+                    MySQLQueryInitGlobalState, MySQLInitLocalState) {
 	serialize = MySQLScanSerialize;
 	deserialize = MySQLScanDeserialize;
 }

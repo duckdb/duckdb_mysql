@@ -11,7 +11,7 @@ string MySQLFilterPushdown::CreateExpression(string &column_name, vector<unique_
 	return "(" + StringUtil::Join(filter_entries, " " + op + " ") + ")";
 }
 
-string MySQLFilterPushdown::TransformComparision(ExpressionType type) {
+string MySQLFilterPushdown::TransformComparison(ExpressionType type) {
 	switch (type) {
 	case ExpressionType::COMPARE_EQUAL:
 		return "=";
@@ -30,6 +30,16 @@ string MySQLFilterPushdown::TransformComparision(ExpressionType type) {
 	}
 }
 
+string MySQLFilterPushdown::TransformConstant(const Value &val) {
+	if (val.type().IsNumeric()) {
+		return val.ToSQLString();
+	}
+	if (val.type().id() == LogicalTypeId::BLOB) {
+		throw NotImplementedException("Unsupported type for filter pushdown: BLOB");
+	}
+	return val.DefaultCastAs(LogicalType::VARCHAR).ToSQLString();
+}
+
 string MySQLFilterPushdown::TransformFilter(string &column_name, TableFilter &filter) {
 	switch (filter.filter_type) {
 	case TableFilterType::IS_NULL:
@@ -46,8 +56,8 @@ string MySQLFilterPushdown::TransformFilter(string &column_name, TableFilter &fi
 	}
 	case TableFilterType::CONSTANT_COMPARISON: {
 		auto &constant_filter = filter.Cast<ConstantFilter>();
-		auto constant_string = constant_filter.constant.ToSQLString();
-		auto operator_string = TransformComparision(constant_filter.comparison_type);
+		auto constant_string = TransformConstant(constant_filter.constant);
+		auto operator_string = TransformComparison(constant_filter.comparison_type);
 		return StringUtil::Format("%s %s %s", column_name, operator_string, constant_string);
 	}
 	default:

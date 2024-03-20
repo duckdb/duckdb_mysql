@@ -33,3 +33,27 @@ query I
 SELECT * FROM s1.filter_pushdown_string WHERE i='52525'
 ----
 52525
+
+# timestamp pushdown
+query I
+SELECT COUNT(*) FROM s1.datetime_tbl WHERE d >= DATE '2000-01-01'
+----
+2
+
+# boolean pushdown
+query I
+SELECT COUNT(*) FROM s1.booleans WHERE b = true
+----
+1
+
+# string pushdown
+query I
+SELECT COUNT(*) FROM s1.text_tbl WHERE v= '🦆'
+----
+1
+
+# blob pushdown
+statement error
+SELECT COUNT(*) FROM s1.blob_tbl WHERE bl= BLOB '\x80'
+----
+Unsupported
