@@ -23,16 +23,28 @@ void OptimizeMySQLScan(unique_ptr<LogicalOperator> &op) {
 		if (!IsMySQLScan(get.function.name)) {
 			return;
 		}
-		if (limit.limit || limit.offset) {
-			// not a constant limit
+		switch (limit.limit_val.Type()) {
+		case LimitNodeType::CONSTANT_VALUE:
+		case LimitNodeType::UNSET:
+			break;
+		default:
+			// not a constant or unset limit
+			return;
+		}
+		switch (limit.offset_val.Type()) {
+		case LimitNodeType::CONSTANT_VALUE:
+		case LimitNodeType::UNSET:
+			break;
+		default:
+			// not a constant or unset offset
 			return;
 		}
 		auto &bind_data = get.bind_data->Cast<MySQLBindData>();
-		if (limit.limit_val > 0) {
-			bind_data.limit += " LIMIT " + to_string(limit.limit_val);
+		if (limit.limit_val.Type() != LimitNodeType::UNSET) {
+			bind_data.limit += " LIMIT " + to_string(limit.limit_val.GetConstantValue());
 		}
-		if (limit.offset_val > 0) {
-			bind_data.limit += " OFFSET " + to_string(limit.offset_val);
+		if (limit.offset_val.Type() != LimitNodeType::UNSET) {
+			bind_data.limit += " OFFSET " + to_string(limit.offset_val.GetConstantValue());
 		}
 		// remove the limit
 		op = std::move(op->children[0]);
