@@ -55,10 +55,31 @@ static bool ParseValue(const string &dsn, idx_t &pos, string &result) {
 	return true;
 }
 
+bool ReadOptionFromEnv(const char *env, string &result) {
+	auto res = std::getenv(env);
+	if (!res) {
+		return false;
+	}
+	result = res;
+	return true;
+}
+
+uint32_t ParsePort(const string &value) {
+	constexpr const static int PORT_MIN = 0;
+	constexpr const static int PORT_MAX = 65353;
+	int port_val = std::stoi(value);
+	if (port_val < PORT_MIN || port_val > PORT_MAX) {
+		throw InvalidInputException("Invalid port %d - port must be between %d and %d", port_val, PORT_MIN,
+									PORT_MAX);
+	}
+	return uint32_t(port_val);
+}
+
 MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &dsn) {
 	MySQLConnectionParameters result;
-	// parse options
 
+	unordered_set<string> set_options;
+	// parse options
 	idx_t pos = 0;
 	while(pos < dsn.size()) {
 		string key;
@@ -75,28 +96,49 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 		}
 		key = StringUtil::Lower(key);
 		if (key == "host") {
+			set_options.insert("host");
 			result.host = value;
 		} else if (key == "user") {
+			set_options.insert("user");
 			result.user = value;
 		} else if (key == "passwd" || key == "password") {
+			set_options.insert("password");
 			result.passwd = value;
 		} else if (key == "db" || key == "database") {
+			set_options.insert("database");
 			result.db = value;
 		} else if (key == "port") {
-			constexpr const static int PORT_MIN = 0;
-			constexpr const static int PORT_MAX = 65353;
-			int port_val = std::stoi(value);
-			if (port_val < PORT_MIN || port_val > PORT_MAX) {
-				throw InvalidInputException("Invalid port %d - port must be between %d and %d", port_val, PORT_MIN,
-				                            PORT_MAX);
-			}
-			result.port = uint32_t(port_val);
+			set_options.insert("port");
+			result.port = ParsePort(value);
 		} else if (key == "socket" || key == "unix_socket") {
+			set_options.insert("socket");
 			result.unix_socket = value;
 		} else {
 			throw InvalidInputException("Unrecognized configuration parameter \"%s\" - expected options are host, "
 			                            "user, passwd, db, port, socket",
 			                            key);
+		}
+	}
+	// read options that are not set from environment variables
+	if (set_options.find("host") == set_options.end()) {
+		ReadOptionFromEnv("MYSQL_HOST", result.host);
+	}
+	if (set_options.find("password") == set_options.end()) {
+		ReadOptionFromEnv("MYSQL_PWD", result.passwd);
+	}
+	if (set_options.find("user") == set_options.end()) {
+		ReadOptionFromEnv("MYSQL_USER", result.user);
+	}
+	if (set_options.find("database") == set_options.end()) {
+		ReadOptionFromEnv("MYSQL_DATABASE", result.db);
+	}
+	if (set_options.find("socket") == set_options.end()) {
+		ReadOptionFromEnv("MYSQL_UNIX_PORT", result.unix_socket);
+	}
+	if (set_options.find("port") == set_options.end()) {
+		string port_number;
+		if (ReadOptionFromEnv("MYSQL_UNIX_PORT", port_number)) {
+			result.port = ParsePort(port_number);
 		}
 	}
 	return result;
@@ -109,11 +151,11 @@ MYSQL *MySQLUtils::Connect(const string &dsn) {
 	}
 	MYSQL *result;
 	auto config = ParseConnectionParameters(dsn);
-	const char *host = config.host.size() == 0 ? nullptr : config.host.c_str();
-	const char *user = config.user.size() == 0 ? nullptr : config.user.c_str();
-	const char *passwd = config.passwd.size() == 0 ? nullptr : config.passwd.c_str();
-	const char *db = config.db.size() == 0 ? nullptr : config.db.c_str();
-	const char *unix_socket = config.unix_socket.size() == 0 ? nullptr : config.unix_socket.c_str();
+	const char *host = config.host.empty() ? nullptr : config.host.c_str();
+	const char *user = config.user.empty() ? nullptr : config.user.c_str();
+	const char *passwd = config.passwd.empty() ? nullptr : config.passwd.c_str();
+	const char *db = config.db.empty() ? nullptr : config.db.c_str();
+	const char *unix_socket = config.unix_socket.empty() ? nullptr : config.unix_socket.c_str();
 	result = mysql_real_connect(mysql, host, user, passwd, db, config.port, unix_socket, config.client_flag);
 	if (!result) {
 		if (config.host.empty() || config.host == "localhost") {
