@@ -37,6 +37,7 @@ struct MySQLConnectionParameters {
 	string db;
 	uint32_t port = 0;
 	string unix_socket;
+	string workload;
 	idx_t client_flag = CLIENT_COMPRESS | CLIENT_IGNORE_SIGPIPE | CLIENT_MULTI_STATEMENTS;
 };
 
