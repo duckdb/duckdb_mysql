@@ -113,9 +113,12 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 		} else if (key == "socket" || key == "unix_socket") {
 			set_options.insert("socket");
 			result.unix_socket = value;
+		} else if (key == "workload") {
+			set_options.insert("workload");
+			result.workload = value;
 		} else {
 			throw InvalidInputException("Unrecognized configuration parameter \"%s\" - expected options are host, "
-			                            "user, passwd, db, port, socket",
+			                            "user, passwd, db, port, socket, and workload",
 			                            key);
 		}
 	}
@@ -151,17 +154,29 @@ MYSQL *MySQLUtils::Connect(const string &dsn) {
 	}
 	MYSQL *result;
 	auto config = ParseConnectionParameters(dsn);
+	string workload_param = "";
+	if (!config.workload.empty()) {
+		workload_param = "workload=" + config.workload;
+	}
+	string db_with_workload = config.host;
+	if (!workload_param.empty()) {
+		if (db_with_workload.find('?') != string::npos) {
+			db_with_workload += "&" + workload_param.substr(1);
+		} else {
+			db_with_workload += "?" + workload_param;
+		}
+	}
 	const char *host = config.host.empty() ? nullptr : config.host.c_str();
 	const char *user = config.user.empty() ? nullptr : config.user.c_str();
 	const char *passwd = config.passwd.empty() ? nullptr : config.passwd.c_str();
-	const char *db = config.db.empty() ? nullptr : config.db.c_str();
+	const char *db = db_with_workload.empty() ? nullptr : db_with_workload.c_str();
 	const char *unix_socket = config.unix_socket.empty() ? nullptr : config.unix_socket.c_str();
 	result = mysql_real_connect(mysql, host, user, passwd, db, config.port, unix_socket, config.client_flag);
 	if (!result) {
 		if (config.host.empty() || config.host == "localhost") {
 			// retry
 			result =
-			    mysql_real_connect(mysql, "127.0.0.1", user, passwd, db, config.port, unix_socket, config.client_flag);
+				mysql_real_connect(mysql, "127.0.0.1", user, passwd, db, config.port, unix_socket, config.client_flag);
 			if (result) {
 				return result;
 			}
