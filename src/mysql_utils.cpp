@@ -158,10 +158,10 @@ MYSQL *MySQLUtils::Connect(const string &dsn) {
 	if (!config.workload.empty()) {
 		workload_param = "workload=" + config.workload;
 	}
-	string db_with_workload = config.host;
+	string db_with_workload = config.db;
 	if (!workload_param.empty()) {
 		if (db_with_workload.find('?') != string::npos) {
-			db_with_workload += "&" + workload_param.substr(1);
+			db_with_workload += "&" + workload_param;
 		} else {
 			db_with_workload += "?" + workload_param;
 		}
