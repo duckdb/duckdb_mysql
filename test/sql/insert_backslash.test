@@ -1,0 +1,24 @@
+# name: test/sql/insert_backslash.test
+# description: Issue #58 - value is "\" can not copy to mysql
+# group: [sql]
+
+require mysql_scanner
+
+require-env MYSQL_TEST_DATABASE_AVAILABLE
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS msql (TYPE MYSQL_SCANNER)
+
+statement ok
+USE msql
+
+statement ok
+CREATE OR REPLACE TABLE backslash_tbl(v VARCHAR);
+
+statement ok
+INSERT INTO backslash_tbl VALUES ('\')
+
+query I
+SELECT * FROM backslash_tbl
+----
+\
