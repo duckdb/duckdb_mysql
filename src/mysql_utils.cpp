@@ -404,7 +404,18 @@ LogicalType MySQLUtils::ToMySQLType(const LogicalType &input) {
 }
 
 string MySQLUtils::EscapeQuotes(const string &text, char quote) {
-	return StringUtil::Replace(text, string(1, quote), string("\\") + string(1, quote));
+	string result;
+	for(idx_t i = 0; i < text.size(); i++) {
+		if (text[i] == quote) {
+			result += "\\";
+			result += quote;
+		} else if (text[i] == '\\') {
+			result += "\\\\";
+		} else {
+			result += text[i];
+		}
+	}
+	return result;
 }
 
 string MySQLUtils::WriteQuoted(const string &text, char quote) {
