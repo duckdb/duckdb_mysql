@@ -405,14 +405,14 @@ LogicalType MySQLUtils::ToMySQLType(const LogicalType &input) {
 
 string MySQLUtils::EscapeQuotes(const string &text, char quote) {
 	string result;
-	for(idx_t i = 0; i < text.size(); i++) {
-		if (text[i] == quote) {
+	for(auto c : text) {
+		if (c == quote) {
 			result += "\\";
 			result += quote;
-		} else if (text[i] == '\\') {
+		} else if (c == '\\') {
 			result += "\\\\";
 		} else {
-			result += text[i];
+			result += c;
 		}
 	}
 	return result;
