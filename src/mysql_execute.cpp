@@ -12,7 +12,7 @@ namespace duckdb {
 
 struct MySQLExecuteBindData : public TableFunctionData {
 	explicit MySQLExecuteBindData(MySQLCatalog &mysql_catalog, string query_p)
-		: mysql_catalog(mysql_catalog), query(std::move(query_p)) {
+	    : mysql_catalog(mysql_catalog), query(std::move(query_p)) {
 	}
 
 	bool finished = false;
@@ -21,7 +21,7 @@ struct MySQLExecuteBindData : public TableFunctionData {
 };
 
 static duckdb::unique_ptr<FunctionData> MySQLExecuteBind(ClientContext &context, TableFunctionBindInput &input,
-													  vector<LogicalType> &return_types, vector<string> &names) {
+                                                         vector<LogicalType> &return_types, vector<string> &names) {
 	return_types.emplace_back(LogicalType::BOOLEAN);
 	names.emplace_back("Success");
 
@@ -54,8 +54,7 @@ static void MySQLExecuteFunc(ClientContext &context, TableFunctionInput &data_p,
 }
 
 MySQLExecuteFunction::MySQLExecuteFunction()
-	: TableFunction("mysql_execute", {LogicalType::VARCHAR, LogicalType::VARCHAR}, MySQLExecuteFunc,
-					MySQLExecuteBind) {
+    : TableFunction("mysql_execute", {LogicalType::VARCHAR, LogicalType::VARCHAR}, MySQLExecuteFunc, MySQLExecuteBind) {
 }
 
 } // namespace duckdb

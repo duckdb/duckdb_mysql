@@ -116,7 +116,8 @@ string GetMySQLCreateView(CreateViewInfo &info) {
 
 optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateView(CatalogTransaction transaction, CreateViewInfo &info) {
 	if (info.sql.empty()) {
-		throw BinderException("Cannot create view in MySQL that originated from an empty SQL statement");
+		throw BinderException("Cannot create view in MySQL that originated from an "
+		                      "empty SQL statement");
 	}
 	if (info.on_conflict == OnCreateConflict::REPLACE_ON_CONFLICT ||
 	    info.on_conflict == OnCreateConflict::IGNORE_ON_CONFLICT) {

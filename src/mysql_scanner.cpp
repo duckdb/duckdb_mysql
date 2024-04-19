@@ -93,7 +93,8 @@ void CastBoolFromMySQL(ClientContext &context, Vector &input, Vector &result, id
 		auto str_data = input_data[r].GetData();
 		auto str_size = input_data[r].GetSize();
 		if (str_size != 1) {
-			throw BinderException("Failed to cast MySQL boolean - expected 1 byte element but got element of size %s",
+			throw BinderException("Failed to cast MySQL boolean - expected 1 byte "
+			                      "element but got element of size %s",
 			                      str_size);
 		}
 		auto bool_char = *str_data;
@@ -132,7 +133,8 @@ static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChun
 			output.data[c].Reinterpret(gstate.varchar_chunk.data[c]);
 			break;
 		case LogicalTypeId::BOOLEAN:
-			// booleans can be sent either as numbers ('0' or '1') or as bits ('\0' or '\1')
+			// booleans can be sent either as numbers ('0' or '1') or as bits ('\0' or
+			// '\1')
 			CastBoolFromMySQL(context, gstate.varchar_chunk.data[c], output.data[c], r);
 			break;
 		default: {

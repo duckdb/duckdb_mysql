@@ -69,8 +69,7 @@ uint32_t ParsePort(const string &value) {
 	constexpr const static int PORT_MAX = 65353;
 	int port_val = std::stoi(value);
 	if (port_val < PORT_MIN || port_val > PORT_MAX) {
-		throw InvalidInputException("Invalid port %d - port must be between %d and %d", port_val, PORT_MIN,
-									PORT_MAX);
+		throw InvalidInputException("Invalid port %d - port must be between %d and %d", port_val, PORT_MIN, PORT_MAX);
 	}
 	return uint32_t(port_val);
 }
@@ -114,7 +113,8 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 			set_options.insert("socket");
 			result.unix_socket = value;
 		} else {
-			throw InvalidInputException("Unrecognized configuration parameter \"%s\" - expected options are host, "
+			throw InvalidInputException("Unrecognized configuration parameter \"%s\" "
+			                            "- expected options are host, "
 			                            "user, passwd, db, port, socket",
 			                            key);
 		}
@@ -233,11 +233,12 @@ LogicalType MySQLUtils::TypeToLogicalType(ClientContext &context, const MySQLTyp
 	} else if (type_info.type_name == "date") {
 		return LogicalType::DATE;
 	} else if (type_info.type_name == "time") {
-		// we need to convert time to VARCHAR because TIME in MySQL is more like an interval and can store ranges
-		// between -838:00:00 to 838:00:00
+		// we need to convert time to VARCHAR because TIME in MySQL is more like an
+		// interval and can store ranges between -838:00:00 to 838:00:00
 		return LogicalType::VARCHAR;
 	} else if (type_info.type_name == "timestamp") {
-		// in MySQL, "timestamp" columns are timezone aware while "datetime" columns are not
+		// in MySQL, "timestamp" columns are timezone aware while "datetime" columns
+		// are not
 		return LogicalType::TIMESTAMP_TZ;
 	} else if (type_info.type_name == "year") {
 		return LogicalType::INTEGER;
@@ -405,7 +406,7 @@ LogicalType MySQLUtils::ToMySQLType(const LogicalType &input) {
 
 string MySQLUtils::EscapeQuotes(const string &text, char quote) {
 	string result;
-	for(auto c : text) {
+	for (auto c : text) {
 		if (c == quote) {
 			result += "\\";
 			result += quote;

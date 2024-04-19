@@ -63,7 +63,8 @@ public:
 	}
 	idx_t AffectedRows() {
 		if (affected_rows == idx_t(-1)) {
-			throw InternalException("MySQLResult::AffectedRows called for result that didn't affect any rows");
+			throw InternalException("MySQLResult::AffectedRows called for result "
+			                        "that didn't affect any rows");
 		}
 		return affected_rows;
 	}
