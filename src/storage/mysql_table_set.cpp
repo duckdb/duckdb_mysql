@@ -110,13 +110,15 @@ optional_ptr<CatalogEntry> MySQLTableSet::RefreshTable(ClientContext &context, c
 	return table_ptr;
 }
 
-// FIXME - this is almost entirely copied from TableCatalogEntry::ColumnsToSQL - should be unified
+// FIXME - this is almost entirely copied from TableCatalogEntry::ColumnsToSQL -
+// should be unified
 string MySQLColumnsToSQL(const ColumnList &columns, const vector<unique_ptr<Constraint>> &constraints) {
 	std::stringstream ss;
 
 	ss << "(";
 
-	// find all columns that have NOT NULL specified, but are NOT primary key columns
+	// find all columns that have NOT NULL specified, but are NOT primary key
+	// columns
 	logical_index_set_t not_null_columns;
 	logical_index_set_t unique_columns;
 	logical_index_set_t pk_columns;
@@ -137,7 +139,8 @@ string MySQLColumnsToSQL(const ColumnList &columns, const vector<unique_ptr<Cons
 					unique_columns.insert(pk.index);
 				}
 			} else {
-				// multi-column constraint, this constraint needs to go at the end after all columns
+				// multi-column constraint, this constraint needs to go at the end after
+				// all columns
 				if (pk.is_primary_key) {
 					// multi key pk column: insert set of columns into multi_key_pks
 					for (auto &col : pk.columns) {
@@ -286,7 +289,8 @@ void MySQLTableSet::AlterTable(ClientContext &context, AlterTableInfo &alter) {
 		AlterTable(context, alter.Cast<RemoveColumnInfo>());
 		break;
 	default:
-		throw BinderException("Unsupported ALTER TABLE type - MySQL tables only support RENAME TABLE, RENAME COLUMN, "
+		throw BinderException("Unsupported ALTER TABLE type - MySQL tables only "
+		                      "support RENAME TABLE, RENAME COLUMN, "
 		                      "ADD COLUMN and DROP COLUMN");
 	}
 	ClearEntries();

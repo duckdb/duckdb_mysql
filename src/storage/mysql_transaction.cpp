@@ -55,7 +55,6 @@ unique_ptr<MySQLResult> MySQLTransaction::Query(const string &query) {
 	return connection.Query(query);
 }
 
-
 MySQLTransaction &MySQLTransaction::Get(ClientContext &context, Catalog &catalog) {
 	return Transaction::Get(context, catalog).Cast<MySQLTransaction>();
 }

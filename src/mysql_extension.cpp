@@ -19,6 +19,44 @@ static void SetMySQLDebugQueryPrint(ClientContext &context, SetScope scope, Valu
 	MySQLConnection::DebugSetPrintQueries(BooleanValue::Get(parameter));
 }
 
+unique_ptr<BaseSecret> CreateMySQLSecretFunction(ClientContext &, CreateSecretInput &input) {
+	// apply any overridden settings
+	vector<string> prefix_paths;
+	auto result = make_uniq<KeyValueSecret>(prefix_paths, "mysql", "config", input.name);
+	for (const auto &named_param : input.options) {
+		auto lower_name = StringUtil::Lower(named_param.first);
+
+		if (lower_name == "host") {
+			result->secret_map["host"] = named_param.second.ToString();
+		} else if (lower_name == "user") {
+			result->secret_map["user"] = named_param.second.ToString();
+		} else if (lower_name == "database") {
+			result->secret_map["database"] = named_param.second.ToString();
+		} else if (lower_name == "password") {
+			result->secret_map["password"] = named_param.second.ToString();
+		} else if (lower_name == "port") {
+			result->secret_map["port"] = named_param.second.ToString();
+		} else if (lower_name == "socket") {
+			result->secret_map["socket"] = named_param.second.ToString();
+		} else {
+			throw InternalException("Unknown named parameter passed to CreateMySQLSecretFunction: " + lower_name);
+		}
+	}
+
+	//! Set redact keys
+	result->redact_keys = {"password"};
+	return std::move(result);
+}
+
+void SetMySQLSecretParameters(CreateSecretFunction &function) {
+	function.named_parameters["host"] = LogicalType::VARCHAR;
+	function.named_parameters["port"] = LogicalType::VARCHAR;
+	function.named_parameters["password"] = LogicalType::VARCHAR;
+	function.named_parameters["user"] = LogicalType::VARCHAR;
+	function.named_parameters["database"] = LogicalType::VARCHAR;
+	function.named_parameters["socket"] = LogicalType::VARCHAR;
+}
+
 static void LoadInternal(DatabaseInstance &db) {
 	mysql_library_init(0, NULL, NULL);
 	MySQLClearCacheFunction clear_cache_func;
@@ -27,8 +65,19 @@ static void LoadInternal(DatabaseInstance &db) {
 	MySQLExecuteFunction execute_function;
 	ExtensionUtil::RegisterFunction(db, execute_function);
 
-  MySQLQueryFunction query_function;
+	MySQLQueryFunction query_function;
 	ExtensionUtil::RegisterFunction(db, query_function);
+
+	SecretType secret_type;
+	secret_type.name = "mysql";
+	secret_type.deserializer = KeyValueSecret::Deserialize<KeyValueSecret>;
+	secret_type.default_provider = "config";
+
+	ExtensionUtil::RegisterSecretType(db, secret_type);
+
+	CreateSecretFunction mysql_secret_function = {"mysql", "config", CreateMySQLSecretFunction};
+	SetMySQLSecretParameters(mysql_secret_function);
+	ExtensionUtil::RegisterFunction(db, mysql_secret_function);
 
 	auto &config = DBConfig::GetConfig(db);
 	config.storage_extensions["mysql_scanner"] = make_uniq<MySQLStorageExtension>();
