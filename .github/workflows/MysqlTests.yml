@@ -54,7 +54,7 @@ jobs:
 
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.7'
+          python-version: '3.11'
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11.1
@@ -70,9 +70,6 @@ jobs:
       - name: Build extension
         shell: bash
         run: |
-          # needed for MySQL cross compilation - see https://mariadb.com/kb/en/cross-compiling-mariadb/
-          echo 'SET(STACK_DIRECTION -1)' >> ${VCPKG_TOOLCHAIN_PATH}
-          echo 'SET(HAVE_IB_GCC_ATOMIC_BUILTINS 0)' >> ${VCPKG_TOOLCHAIN_PATH}
           make release
 
       - name: Test Extension

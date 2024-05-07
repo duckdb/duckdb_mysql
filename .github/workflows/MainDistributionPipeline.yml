@@ -18,21 +18,12 @@ jobs:
     with:
       extension_name: mysql_scanner
       duckdb_version: 'v0.10.2'
-      exclude_archs: 'osx_amd64;osx_arm64;wasm_mvp;wasm_eh;wasm_threads;windows_amd64_rtools'
+      exclude_archs: 'wasm_mvp;wasm_eh;wasm_threads;windows_amd64_rtools'
       build_duckdb_shell: false
-
-  # Note: this workaround is required for building MacOS where extra toolchain config is required
-  duckdb-stable-build-macos:
-    name: Build extension binaries
-    uses: ./.github/workflows/_extension_distribution_macos.yml
-    with:
-      duckdb_version: v0.10.2
-      extension_name: mysql_scanner
-
 
   duckdb-stable-deploy:
     name: Deploy extension binaries
-    needs: [duckdb-stable-build, duckdb-stable-build-macos]
+    needs: duckdb-stable-build
     uses: duckdb/extension-ci-tools/.github/workflows/_extension_deploy.yml@main
     secrets: inherit
     with:
