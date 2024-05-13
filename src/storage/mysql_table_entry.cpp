@@ -81,7 +81,7 @@ unique_ptr<BaseStatistics> MySQLTableEntry::GetStatistics(ClientContext &context
 	return nullptr;
 }
 
-void MySQLTableEntry::BindUpdateConstraints(LogicalGet &, LogicalProjection &, LogicalUpdate &, ClientContext &) {
+void MySQLTableEntry::BindUpdateConstraints(Binder &binder, LogicalGet &, LogicalProjection &, LogicalUpdate &, ClientContext &) {
 }
 
 TableFunction MySQLTableEntry::GetScanFunction(ClientContext &context, unique_ptr<FunctionData> &bind_data) {
