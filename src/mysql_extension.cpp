@@ -48,7 +48,7 @@ static void LoadInternal(DatabaseInstance &db) {
 	config.optimizer_extensions.push_back(std::move(mysql_optimizer));
 }
 
-void MySQLScannerExtension::Load(DuckDB &db) {
+void MysqlScannerExtension::Load(DuckDB &db) {
 	LoadInternal(*db.instance);
 }
 
