@@ -13,7 +13,7 @@
 namespace duckdb {
 class MySQLOptimizer {
 public:
-	static void Optimize(ClientContext &context, OptimizerExtensionInfo *info, unique_ptr<LogicalOperator> &plan);
+	static void Optimize(OptimizerExtensionInput &input, unique_ptr<LogicalOperator> &plan);
 };
 
 } // namespace duckdb
