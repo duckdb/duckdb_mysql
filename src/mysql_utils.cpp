@@ -1,4 +1,6 @@
 #include "mysql_utils.hpp"
+#include "duckdb/common/string_util.hpp"
+#include "mysql_com.h"
 #include "storage/mysql_schema_entry.hpp"
 #include "storage/mysql_transaction.hpp"
 
@@ -53,6 +55,10 @@ static bool ParseValue(const string &dsn, idx_t &pos, string &result) {
 		}
 	}
 	return true;
+}
+
+static bool ParseBoolValue(const string &value) {
+	return value != "0" && !StringUtil::CIEquals(value, "false");
 }
 
 bool ReadOptionFromEnv(const char *env, string &result) {
@@ -112,6 +118,13 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 		} else if (key == "socket" || key == "unix_socket") {
 			set_options.insert("socket");
 			result.unix_socket = value;
+		} else if (key == "compress") {
+			set_options.insert("compress");
+			if (ParseBoolValue(value)) {
+				result.client_flag |= CLIENT_COMPRESS;
+			} else {
+				result.client_flag &= ~CLIENT_COMPRESS;
+			}
 		} else {
 			throw InvalidInputException("Unrecognized configuration parameter \"%s\" "
 			                            "- expected options are host, "
@@ -139,6 +152,16 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 		string port_number;
 		if (ReadOptionFromEnv("MYSQL_TCP_PORT", port_number)) {
 			result.port = ParsePort(port_number);
+		}
+	}
+	if (set_options.find("compress") == set_options.end()) {
+		string compress;
+		if (ReadOptionFromEnv("MYSQL_COMPRESS", compress)) {
+			if (ParseBoolValue(compress)) {
+				result.client_flag |= CLIENT_COMPRESS;
+			} else {
+				result.client_flag &= ~CLIENT_COMPRESS;
+			}
 		}
 	}
 	return result;
