@@ -256,8 +256,10 @@ string MySQLInsert::GetName() const {
 	return table ? "MYSQL_INSERT" : "MYSQL_CREATE_TABLE_AS";
 }
 
-string MySQLInsert::ParamsToString() const {
-	return table ? table->name : info->Base().table;
+InsertionOrderPreservingMap<string> MySQLInsert::ParamsToString() const {
+	InsertionOrderPreservingMap<string> result;
+	result["Table Name"] = table ? table->name : info->Base().table;
+	return result;
 }
 
 //===--------------------------------------------------------------------===//
