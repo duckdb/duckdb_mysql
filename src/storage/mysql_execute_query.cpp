@@ -71,8 +71,10 @@ string MySQLExecuteQuery::GetName() const {
 	return op_name;
 }
 
-string MySQLExecuteQuery::ParamsToString() const {
-	return table.name;
+InsertionOrderPreservingMap<string> MySQLExecuteQuery::ParamsToString() const {
+	InsertionOrderPreservingMap<string> result;
+	result["Table Name"] = table.name;
+	return result;
 }
 
 //===--------------------------------------------------------------------===//
