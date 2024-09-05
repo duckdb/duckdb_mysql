@@ -99,7 +99,7 @@ NULL	NULL
 query II
 SELECT * FROM mysql_query('simple', 'SELECT * FROM bits')
 ----
-false	\x00\x00\x00\x00\x00\x01UU
+true	\x00\x00\x00\x00\x00\x01UU
 NULL	NULL
 
 query III
