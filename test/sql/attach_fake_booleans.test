@@ -18,6 +18,8 @@ SELECT * FROM s1.fake_booleans
 true	true
 false	false
 NULL	NULL
+false	true
+true	false
 
 query II
 SELECT typeof(tinyint_bool), typeof(bit_bool) FROM s1.fake_booleans LIMIT 1
@@ -39,6 +41,15 @@ query II
 SELECT typeof(tinyint_bool), typeof(bit_bool) FROM s1.fake_booleans LIMIT 1
 ----
 TINYINT	BLOB
+
+query II
+SELECT * FROM s1.fake_booleans
+----
+1	\x01
+0	\x00
+NULL	NULL
+-128	\x01
+127	\x00
 
 statement ok
 SET mysql_tinyint1_as_boolean=true
