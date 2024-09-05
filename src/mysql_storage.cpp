@@ -90,7 +90,14 @@ static unique_ptr<Catalog> MySQLAttach(StorageExtensionInfo *storage_info, Clien
 		new_connection_info += AddConnectionOption(kv_secret, "port");
 		new_connection_info += AddConnectionOption(kv_secret, "database");
 		new_connection_info += AddConnectionOption(kv_secret, "socket");
-
+		new_connection_info += AddConnectionOption(kv_secret, "ssl_mode");
+		new_connection_info += AddConnectionOption(kv_secret, "ssl_ca");
+		new_connection_info += AddConnectionOption(kv_secret, "ssl_capath");
+		new_connection_info += AddConnectionOption(kv_secret, "ssl_cert");
+		new_connection_info += AddConnectionOption(kv_secret, "ssl_cipher");
+		new_connection_info += AddConnectionOption(kv_secret, "ssl_crl");
+		new_connection_info += AddConnectionOption(kv_secret, "ssl_crlpath");
+		new_connection_info += AddConnectionOption(kv_secret, "ssl_key");
 		connection_string = new_connection_info + connection_string;
 	} else if (explicit_secret) {
 		// secret not found and one was explicitly provided - throw an error

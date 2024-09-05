@@ -125,6 +125,43 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 			} else {
 				result.client_flag &= ~CLIENT_COMPRESS;
 			}
+		} else if (key == "ssl_mode") {
+			set_options.insert("ssl_mode");
+			auto val = StringUtil::Lower(value);
+			if (val == "disabled") {
+				result.ssl_mode = SSL_MODE_DISABLED;
+			} else if (val == "required") {
+				result.ssl_mode = SSL_MODE_REQUIRED;
+			} else if (val == "verify_ca") {
+				result.ssl_mode = SSL_MODE_VERIFY_CA;
+			} else if (val == "verify_identity") {
+				result.ssl_mode = SSL_MODE_VERIFY_IDENTITY;
+			} else if (val == "preferred") {
+				result.ssl_mode = SSL_MODE_PREFERRED;
+			} else {
+				throw InvalidInputException("Invalid dsn - ssl mode must be either disabled, required, verify_ca, verify_identity or preferred - got %s", value);
+			}
+		} else if (key == "ssl_ca") {
+			set_options.insert("ssl_ca");
+			result.ssl_ca = value;
+		} else if (key == "ssl_capath") {
+			set_options.insert("ssl_capath");
+			result.ssl_ca_path = value;
+		} else if (key == "ssl_cert") {
+			set_options.insert("ssl_cert");
+			result.ssl_cert = value;
+		} else if (key == "ssl_cipher") {
+			set_options.insert("ssl_cipher");
+			result.ssl_cipher = value;
+		} else if (key == "ssl_crl") {
+			set_options.insert("ssl_crl");
+			result.ssl_crl = value;
+		} else if (key == "ssl_crlpath") {
+			set_options.insert("ssl_crlpath");
+			result.ssl_crl_path = value;
+		} else if (key == "ssl_key") {
+			set_options.insert("ssl_key");
+			result.ssl_key = value;
 		} else {
 			throw InvalidInputException("Unrecognized configuration parameter \"%s\" "
 			                            "- expected options are host, "
@@ -167,6 +204,16 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 	return result;
 }
 
+void SetMySQLOption(MYSQL *mysql, enum mysql_option option, const string &value) {
+	if (value.empty()) {
+		return;
+	}
+	int rc = mysql_options(mysql, option, value.c_str());
+	if (rc != 0) {
+		throw InternalException("Failed to set MySQL option");
+	}
+}
+
 MYSQL *MySQLUtils::Connect(const string &dsn) {
 	MYSQL *mysql = mysql_init(NULL);
 	if (!mysql) {
@@ -174,6 +221,19 @@ MYSQL *MySQLUtils::Connect(const string &dsn) {
 	}
 	MYSQL *result;
 	auto config = ParseConnectionParameters(dsn);
+	// set SSL options (if any)
+	if (config.ssl_mode != SSL_MODE_PREFERRED) {
+		mysql_options(mysql, MYSQL_OPT_SSL_MODE, &config.ssl_mode);
+	}
+	SetMySQLOption(mysql, MYSQL_OPT_SSL_CA, config.ssl_ca);
+	SetMySQLOption(mysql, MYSQL_OPT_SSL_CAPATH, config.ssl_ca_path);
+	SetMySQLOption(mysql, MYSQL_OPT_SSL_CERT, config.ssl_cert);
+	SetMySQLOption(mysql, MYSQL_OPT_SSL_CIPHER, config.ssl_cipher);
+	SetMySQLOption(mysql, MYSQL_OPT_SSL_CRL, config.ssl_crl);
+	SetMySQLOption(mysql, MYSQL_OPT_SSL_CRLPATH, config.ssl_crl_path);
+	SetMySQLOption(mysql, MYSQL_OPT_SSL_KEY, config.ssl_key);
+
+	// get connection options
 	const char *host = config.host.empty() ? nullptr : config.host.c_str();
 	const char *user = config.user.empty() ? nullptr : config.user.c_str();
 	const char *passwd = config.passwd.empty() ? nullptr : config.passwd.c_str();

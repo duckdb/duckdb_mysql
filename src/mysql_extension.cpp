@@ -38,6 +38,24 @@ unique_ptr<BaseSecret> CreateMySQLSecretFunction(ClientContext &, CreateSecretIn
 			result->secret_map["port"] = named_param.second.ToString();
 		} else if (lower_name == "socket") {
 			result->secret_map["socket"] = named_param.second.ToString();
+		} else if (lower_name == "ssl_mode") {
+			result->secret_map["ssl_mode"] = named_param.second.ToString();
+		} else if (lower_name == "ssl_ca") {
+			result->secret_map["ssl_ca"] = named_param.second.ToString();
+		} else if (lower_name == "ssl_capath") {
+			result->secret_map["ssl_capath"] = named_param.second.ToString();
+		} else if (lower_name == "ssl_capath") {
+			result->secret_map["ssl_capath"] = named_param.second.ToString();
+		} else if (lower_name == "ssl_cert") {
+			result->secret_map["ssl_cert"] = named_param.second.ToString();
+		} else if (lower_name == "ssl_cipher") {
+			result->secret_map["ssl_cipher"] = named_param.second.ToString();
+		} else if (lower_name == "ssl_crl") {
+			result->secret_map["ssl_crl"] = named_param.second.ToString();
+		} else if (lower_name == "ssl_crlpath") {
+			result->secret_map["ssl_crlpath"] = named_param.second.ToString();
+		} else if (lower_name == "ssl_key") {
+			result->secret_map["ssl_key"] = named_param.second.ToString();
 		} else {
 			throw InternalException("Unknown named parameter passed to CreateMySQLSecretFunction: " + lower_name);
 		}
@@ -55,6 +73,14 @@ void SetMySQLSecretParameters(CreateSecretFunction &function) {
 	function.named_parameters["user"] = LogicalType::VARCHAR;
 	function.named_parameters["database"] = LogicalType::VARCHAR;
 	function.named_parameters["socket"] = LogicalType::VARCHAR;
+	function.named_parameters["ssl_mode"] = LogicalType::VARCHAR;
+	function.named_parameters["ssl_ca"] = LogicalType::VARCHAR;
+	function.named_parameters["ssl_capath"] = LogicalType::VARCHAR;
+	function.named_parameters["ssl_cert"] = LogicalType::VARCHAR;
+	function.named_parameters["ssl_cipher"] = LogicalType::VARCHAR;
+	function.named_parameters["ssl_crl"] = LogicalType::VARCHAR;
+	function.named_parameters["ssl_crlpath"] = LogicalType::VARCHAR;
+	function.named_parameters["ssl_key"] = LogicalType::VARCHAR;
 }
 
 static void LoadInternal(DatabaseInstance &db) {
