@@ -167,3 +167,11 @@ SELECT * FROM mysql_query('simple', 'SELECT * FROM datetime_tbl')
 1000-01-01	1000-01-01 00:00:00	1970-01-01 06:00:01+00	-838:59:59	2155
 9999-12-31	9999-12-31 23:59:59	2038-01-19 04:14:07+00	838:59:59	2000
 NULL	NULL	NULL	NULL	NULL
+
+# issue #65 - Decimal data type conversion issue with mysql_query function
+query II
+SELECT * FROM mysql_query('simple', 'SELECT * FROM tbl_issue65')
+----
+1	1.11
+2	2.22
+3	3.33

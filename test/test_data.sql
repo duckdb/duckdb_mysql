@@ -149,3 +149,6 @@ VALUES (
 	ST_GeomFromText('MULTIPOLYGON(((0 5, 2 5, 2 7, 0 7, 0 5)))'),
 	ST_GeomFromText('GEOMETRYCOLLECTION EMPTY')
 );
+
+CREATE TABLE tbl_issue65 (col1 int, col2 decimal(5,2));
+insert into tbl_issue65 values (1,1.11), (2,2.22), (3,3.33);
