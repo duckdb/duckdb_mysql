@@ -37,6 +37,9 @@ string MySQLFilterPushdown::TransformConstant(const Value &val) {
 	if (val.type().id() == LogicalTypeId::BLOB) {
 		throw NotImplementedException("Unsupported type for filter pushdown: BLOB");
 	}
+	if (val.type().id() == LogicalTypeId::TIMESTAMP_TZ) {
+		return val.DefaultCastAs(LogicalType::TIMESTAMP).DefaultCastAs(LogicalType::VARCHAR).ToSQLString();
+	}
 	return val.DefaultCastAs(LogicalType::VARCHAR).ToSQLString();
 }
 
