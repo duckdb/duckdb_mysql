@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "duckdb/common/shared_ptr.hpp"
 #include "mysql_utils.hpp"
 #include "mysql_result.hpp"
 

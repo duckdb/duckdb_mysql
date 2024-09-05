@@ -46,8 +46,8 @@ optional_ptr<SchemaCatalogEntry> MySQLCatalog::GetSchema(CatalogTransaction tran
                                                          QueryErrorContext error_context) {
 	if (schema_name == DEFAULT_SCHEMA) {
 		if (default_schema.empty()) {
-			throw InvalidInputException(
-			    "Attempting to fetch the default schema - but no database was provided in the connection string");
+			throw InvalidInputException("Attempting to fetch the default schema - but no database was "
+			                            "provided in the connection string");
 		}
 		return GetSchema(transaction, default_schema, if_not_found, error_context);
 	}
@@ -68,8 +68,8 @@ string MySQLCatalog::GetDBPath() {
 
 DatabaseSize MySQLCatalog::GetDatabaseSize(ClientContext &context) {
 	if (default_schema.empty()) {
-		throw InvalidInputException(
-		    "Attempting to fetch the database size - but no database was provided in the connection string");
+		throw InvalidInputException("Attempting to fetch the database size - but no database was provided "
+		                            "in the connection string");
 	}
 	auto &postgres_transaction = MySQLTransaction::Get(context, *this);
 	auto query = StringUtil::Replace(R"(

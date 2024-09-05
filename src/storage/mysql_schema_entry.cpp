@@ -86,9 +86,9 @@ string GetMySQLCreateIndex(CreateIndexInfo &info, TableCatalogEntry &tbl) {
 	return sql;
 }
 
-optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateIndex(ClientContext &context, CreateIndexInfo &info,
+optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateIndex(CatalogTransaction transaction, CreateIndexInfo &info,
                                                          TableCatalogEntry &table) {
-	auto &mysql_transaction = MySQLTransaction::Get(context, table.catalog);
+	auto &mysql_transaction = MySQLTransaction::Get(transaction.GetContext(), table.catalog);
 	mysql_transaction.Query(GetMySQLCreateIndex(info, table));
 	return nullptr;
 }
@@ -116,7 +116,8 @@ string GetMySQLCreateView(CreateViewInfo &info) {
 
 optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateView(CatalogTransaction transaction, CreateViewInfo &info) {
 	if (info.sql.empty()) {
-		throw BinderException("Cannot create view in MySQL that originated from an empty SQL statement");
+		throw BinderException("Cannot create view in MySQL that originated from an "
+		                      "empty SQL statement");
 	}
 	if (info.on_conflict == OnCreateConflict::REPLACE_ON_CONFLICT ||
 	    info.on_conflict == OnCreateConflict::IGNORE_ON_CONFLICT) {
@@ -162,12 +163,12 @@ optional_ptr<CatalogEntry> MySQLSchemaEntry::CreateCollation(CatalogTransaction 
 	throw BinderException("MySQL databases do not support creating collations");
 }
 
-void MySQLSchemaEntry::Alter(ClientContext &context, AlterInfo &info) {
+void MySQLSchemaEntry::Alter(CatalogTransaction transaction, AlterInfo &info) {
 	if (info.type != AlterType::ALTER_TABLE) {
 		throw BinderException("Only altering tables is supported for now");
 	}
 	auto &alter = info.Cast<AlterTableInfo>();
-	tables.AlterTable(context, alter);
+	tables.AlterTable(transaction.GetContext(), alter);
 }
 
 bool CatalogTypeIsSupported(CatalogType type) {

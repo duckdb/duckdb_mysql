@@ -22,6 +22,7 @@ The connection string determines the parameters for how to connect to MySQL as a
 | database | Database name              | `MYSQL_DATABASE`       | NULL         |
 | port     | Port number                | `MYSQL_TCP_PORT`       | 0            |
 | socket   | Unix socket file name      | `MYSQL_UNIX_PORT`      | NULL         |
+| compress | Compress MySQL packet      | `MYSQL_COMPRESS`       | 1            |
 
 
 The tables in the file can be read as if they were normal DuckDB tables, but the underlying data is read directly from MySQL at query time.

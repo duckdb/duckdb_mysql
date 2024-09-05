@@ -71,16 +71,18 @@ string MySQLExecuteQuery::GetName() const {
 	return op_name;
 }
 
-string MySQLExecuteQuery::ParamsToString() const {
-	return table.name;
+InsertionOrderPreservingMap<string> MySQLExecuteQuery::ParamsToString() const {
+	InsertionOrderPreservingMap<string> result;
+	result["Table Name"] = table.name;
+	return result;
 }
 
 //===--------------------------------------------------------------------===//
 // Plan
 //===--------------------------------------------------------------------===//
 string ExtractFilters(PhysicalOperator &child, const string &statement) {
-	// FIXME - all of this is pretty gnarly, we should provide a hook earlier on in the planning process to convert this
-	// into a SQL statement
+	// FIXME - all of this is pretty gnarly, we should provide a hook earlier on
+	// in the planning process to convert this into a SQL statement
 	if (child.type == PhysicalOperatorType::FILTER) {
 		auto &filter = child.Cast<PhysicalFilter>();
 		auto result = ExtractFilters(*child.children[0], statement);
@@ -97,7 +99,8 @@ string ExtractFilters(PhysicalOperator &child, const string &statement) {
 		}
 		throw NotImplementedException("Pushed down table filters not supported currently");
 	} else {
-		throw NotImplementedException("Unsupported operator type %s in %s statement - only simple deletes (e.g. %s "
+		throw NotImplementedException("Unsupported operator type %s in %s statement - only simple deletes "
+		                              "(e.g. %s "
 		                              "FROM tbl WHERE x=y) are supported in the MySQL connector",
 		                              PhysicalOperatorToString(child.type), statement, statement);
 	}
@@ -127,16 +130,16 @@ unique_ptr<PhysicalOperator> MySQLCatalog::PlanDelete(ClientContext &context, Lo
 }
 
 string ConstructUpdateStatement(LogicalUpdate &op, PhysicalOperator &child) {
-	// FIXME - all of this is pretty gnarly, we should provide a hook earlier on in the planning process to convert this
-	// into a SQL statement
+	// FIXME - all of this is pretty gnarly, we should provide a hook earlier on
+	// in the planning process to convert this into a SQL statement
 	string result = "UPDATE";
 	result += MySQLUtils::WriteIdentifier(op.table.schema.name);
 	result += ".";
 	result += MySQLUtils::WriteIdentifier(op.table.name);
 	result += " SET ";
 	if (child.type != PhysicalOperatorType::PROJECTION) {
-		throw NotImplementedException(
-		    "MySQL Update not supported - Expected the child of an update to be a projection");
+		throw NotImplementedException("MySQL Update not supported - Expected the "
+		                              "child of an update to be a projection");
 	}
 	auto &proj = child.Cast<PhysicalProjection>();
 	for (idx_t c = 0; c < op.columns.size(); c++) {

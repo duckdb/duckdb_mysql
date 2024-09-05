@@ -92,15 +92,24 @@ void CastBoolFromMySQL(ClientContext &context, Vector &input, Vector &result, id
 		}
 		auto str_data = input_data[r].GetData();
 		auto str_size = input_data[r].GetSize();
-		if (str_size != 1) {
+		if (str_size == 0) {
 			throw BinderException(
 			    "Failed to cast MySQL boolean - expected 1 byte element but got element of size %d\n* SET "
 			    "mysql_tinyint1_as_boolean=false to disable loading TINYINT(1) columns as booleans\n* SET "
 			    "mysql_bit1_as_boolean=false to disable loading BIT(1) columns as booleans",
 			    str_size);
 		}
-		auto bool_char = *str_data;
-		result_data[r] = bool_char == '\1' || bool_char == '1';
+		// booleans are EITHER binary "1" or "0" (BIT(1))
+		// OR a number
+		// in both cases we can figure out what value it is from the first character:
+		// \0 -> zero byte, false
+		// - -> negative number, false
+		// 0 -> zero number, false
+		if (*str_data == '\0' || *str_data == '0' || *str_data == '-') {
+			result_data[r] = false;
+		} else {
+			result_data[r] = true;
+		}
 	}
 }
 
@@ -135,7 +144,8 @@ static void MySQLScan(ClientContext &context, TableFunctionInput &data, DataChun
 			output.data[c].Reinterpret(gstate.varchar_chunk.data[c]);
 			break;
 		case LogicalTypeId::BOOLEAN:
-			// booleans can be sent either as numbers ('0' or '1') or as bits ('\0' or '\1')
+			// booleans can be sent either as numbers ('0' or '1') or as bits ('\0' or
+			// '\1')
 			CastBoolFromMySQL(context, gstate.varchar_chunk.data[c], output.data[c], r);
 			break;
 		default: {

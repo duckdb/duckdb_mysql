@@ -1,4 +1,6 @@
 #include "mysql_utils.hpp"
+#include "duckdb/common/string_util.hpp"
+#include "mysql_com.h"
 #include "storage/mysql_schema_entry.hpp"
 #include "storage/mysql_transaction.hpp"
 
@@ -53,6 +55,10 @@ static bool ParseValue(const string &dsn, idx_t &pos, string &result) {
 		}
 	}
 	return true;
+}
+
+static bool ParseBoolValue(const string &value) {
+	return value != "0" && !StringUtil::CIEquals(value, "false");
 }
 
 bool ReadOptionFromEnv(const char *env, string &result) {
@@ -112,8 +118,16 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 		} else if (key == "socket" || key == "unix_socket") {
 			set_options.insert("socket");
 			result.unix_socket = value;
+		} else if (key == "compress") {
+			set_options.insert("compress");
+			if (ParseBoolValue(value)) {
+				result.client_flag |= CLIENT_COMPRESS;
+			} else {
+				result.client_flag &= ~CLIENT_COMPRESS;
+			}
 		} else {
-			throw InvalidInputException("Unrecognized configuration parameter \"%s\" - expected options are host, "
+			throw InvalidInputException("Unrecognized configuration parameter \"%s\" "
+			                            "- expected options are host, "
 			                            "user, passwd, db, port, socket",
 			                            key);
 		}
@@ -138,6 +152,16 @@ MySQLConnectionParameters MySQLUtils::ParseConnectionParameters(const string &ds
 		string port_number;
 		if (ReadOptionFromEnv("MYSQL_TCP_PORT", port_number)) {
 			result.port = ParsePort(port_number);
+		}
+	}
+	if (set_options.find("compress") == set_options.end()) {
+		string compress;
+		if (ReadOptionFromEnv("MYSQL_COMPRESS", compress)) {
+			if (ParseBoolValue(compress)) {
+				result.client_flag |= CLIENT_COMPRESS;
+			} else {
+				result.client_flag &= ~CLIENT_COMPRESS;
+			}
 		}
 	}
 	return result;
@@ -232,11 +256,12 @@ LogicalType MySQLUtils::TypeToLogicalType(ClientContext &context, const MySQLTyp
 	} else if (type_info.type_name == "date") {
 		return LogicalType::DATE;
 	} else if (type_info.type_name == "time") {
-		// we need to convert time to VARCHAR because TIME in MySQL is more like an interval and can store ranges
-		// between -838:00:00 to 838:00:00
+		// we need to convert time to VARCHAR because TIME in MySQL is more like an
+		// interval and can store ranges between -838:00:00 to 838:00:00
 		return LogicalType::VARCHAR;
 	} else if (type_info.type_name == "timestamp") {
-		// in MySQL, "timestamp" columns are timezone aware while "datetime" columns are not
+		// in MySQL, "timestamp" columns are timezone aware while "datetime" columns
+		// are not
 		return LogicalType::TIMESTAMP_TZ;
 	} else if (type_info.type_name == "year") {
 		return LogicalType::INTEGER;
@@ -403,7 +428,18 @@ LogicalType MySQLUtils::ToMySQLType(const LogicalType &input) {
 }
 
 string MySQLUtils::EscapeQuotes(const string &text, char quote) {
-	return StringUtil::Replace(text, string(1, quote), string("\\") + string(1, quote));
+	string result;
+	for (auto c : text) {
+		if (c == quote) {
+			result += "\\";
+			result += quote;
+		} else if (c == '\\') {
+			result += "\\\\";
+		} else {
+			result += c;
+		}
+	}
+	return result;
 }
 
 string MySQLUtils::WriteQuoted(const string &text, char quote) {

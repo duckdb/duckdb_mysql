@@ -56,7 +56,7 @@ void OptimizeMySQLScan(unique_ptr<LogicalOperator> &op) {
 	}
 }
 
-void MySQLOptimizer::Optimize(ClientContext &context, OptimizerExtensionInfo *info, unique_ptr<LogicalOperator> &plan) {
+void MySQLOptimizer::Optimize(OptimizerExtensionInput &input, unique_ptr<LogicalOperator> &plan) {
 	OptimizeMySQLScan(plan);
 }
 
