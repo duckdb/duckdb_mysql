@@ -27,7 +27,7 @@ static void LoadInternal(DatabaseInstance &db) {
 	MySQLExecuteFunction execute_function;
 	ExtensionUtil::RegisterFunction(db, execute_function);
 
-  MySQLQueryFunction query_function;
+	MySQLQueryFunction query_function;
 	ExtensionUtil::RegisterFunction(db, query_function);
 
 	auto &config = DBConfig::GetConfig(db);

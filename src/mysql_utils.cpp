@@ -69,8 +69,7 @@ uint32_t ParsePort(const string &value) {
 	constexpr const static int PORT_MAX = 65353;
 	int port_val = std::stoi(value);
 	if (port_val < PORT_MIN || port_val > PORT_MAX) {
-		throw InvalidInputException("Invalid port %d - port must be between %d and %d", port_val, PORT_MIN,
-									PORT_MAX);
+		throw InvalidInputException("Invalid port %d - port must be between %d and %d", port_val, PORT_MIN, PORT_MAX);
 	}
 	return uint32_t(port_val);
 }
