@@ -332,7 +332,7 @@ LogicalType MySQLUtils::FieldToLogicalType(ClientContext &context, MYSQL_FIELD *
 		break;
 	case MYSQL_TYPE_DECIMAL:
 	case MYSQL_TYPE_NEWDECIMAL:
-		type_data.precision = int64_t(field->max_length) - 2; // -2 for minus sign and dot
+		type_data.precision = int64_t(field->length) - 2; // -2 for minus sign and dot
 		type_data.scale = field->decimals;
 		type_data.type_name = "decimal";
 		break;
