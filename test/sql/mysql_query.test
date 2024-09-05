@@ -90,9 +90,11 @@ DECIMAL(2,1)	DECIMAL(5,1)	DECIMAL(10,2)	DECIMAL(20,3)	DOUBLE
 query II
 SELECT * FROM mysql_query('simple', 'SELECT * FROM fake_booleans')
 ----
-true	true
-false	false
+1	true
+0	false
 NULL	NULL
+-128	true
+127	false
 
 query II
 SELECT * FROM mysql_query('simple', 'SELECT * FROM bits')
