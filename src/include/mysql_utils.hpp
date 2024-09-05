@@ -38,6 +38,14 @@ struct MySQLConnectionParameters {
 	uint32_t port = 0;
 	string unix_socket;
 	idx_t client_flag = CLIENT_COMPRESS | CLIENT_IGNORE_SIGPIPE | CLIENT_MULTI_STATEMENTS;
+	unsigned int ssl_mode = SSL_MODE_PREFERRED;
+	string ssl_ca;
+	string ssl_ca_path;
+	string ssl_cert;
+	string ssl_cipher;
+	string ssl_crl;
+	string ssl_crl_path;
+	string ssl_key;
 };
 
 class MySQLUtils {
