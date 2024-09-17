@@ -82,7 +82,7 @@ string GetBaseInsertQuery(const MySQLTableEntry &table, const vector<string> &co
 			if (c > 0) {
 				query += ", ";
 			}
-			query += column_names[c];
+			query += MySQLUtils::WriteIdentifier(column_names[c]);
 		}
 		query += ")";
 	}

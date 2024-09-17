@@ -1,0 +1,21 @@
+# name: test/sql/attach_identifiers_insert.test
+# description: Test insert by name with odd identifiers
+# group: [sql]
+
+require mysql_scanner
+
+require-env MYSQL_TEST_DATABASE_AVAILABLE
+
+statement ok
+ATTACH 'host=localhost user=root port=0 database=mysqlscanner' AS s (TYPE MYSQL_SCANNER)
+
+statement ok
+CREATE OR REPLACE TABLE s."my table"("my column" INTEGER);
+
+statement ok
+INSERT INTO s."my table" BY NAME SELECT 42 "my column"
+
+query I
+SELECT * FROM s."my table"
+----
+42
