@@ -39,6 +39,7 @@ MYSQL_RES *MySQLConnection::MySQLExecute(const string &query) {
 		Printer::Print(query + "\n");
 	}
 	auto con = GetConn();
+	lock_guard<mutex> l(query_lock);
 	int res = mysql_real_query(con, query.c_str(), query.size());
 	if (res != 0) {
 		throw IOException("Failed to run query \"%s\": %s\n", query.c_str(), mysql_error(con));
