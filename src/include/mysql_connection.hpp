@@ -9,6 +9,7 @@
 #pragma once
 
 #include "duckdb/common/shared_ptr.hpp"
+#include "duckdb/common/mutex.hpp"
 #include "mysql_utils.hpp"
 #include "mysql_result.hpp"
 
@@ -77,6 +78,7 @@ public:
 private:
 	MYSQL_RES *MySQLExecute(const string &query);
 
+	mutex query_lock;
 	shared_ptr<OwnedMySQLConnection> connection;
 	string dsn;
 };
